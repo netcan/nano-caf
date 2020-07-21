@@ -36,8 +36,14 @@ namespace {
                delete msg->next;
                delete msg;
             }
+            WHEN("check a non-closed inbox, should return false") {
+               REQUIRE_FALSE(inbox.closed());
+            }
             WHEN("close the inbox") {
                inbox.close();
+               WHEN("check a closed inbox, should return true") {
+                  REQUIRE(inbox.closed() == true);
+               }
                THEN("take all should return null_ptr") {
                   auto msg = inbox.take_all();
                   REQUIRE(msg == nullptr);

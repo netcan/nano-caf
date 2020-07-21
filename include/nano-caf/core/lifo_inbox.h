@@ -20,12 +20,16 @@ enum class enq_result {
 struct message_element;
 
 struct lifo_inbox {
-   auto enqueue(message_element* msg) -> enq_result;
-   auto take_all() -> message_element*;
-   auto try_block() -> bool;
-   auto close() -> void;
+   auto enqueue(message_element* msg) noexcept -> enq_result;
+   auto take_all() noexcept -> message_element*;
+   auto try_block() noexcept -> bool;
+   auto close() noexcept -> void;
 
-   ~lifo_inbox();
+   auto closed() const noexcept -> bool {
+      return head() == close_tag();
+   }
+
+   ~lifo_inbox() noexcept;
 
 private:
    auto head() const volatile noexcept -> message_element* {
@@ -38,7 +42,7 @@ private:
       return reinterpret_cast<message_element*>(const_cast<char*>(__close_tag_address));
    }
 
-   auto destroy(message_element* result) -> void;
+   auto destroy(message_element* result) noexcept -> void;
 
 private:
    char __block_tag_address[0];

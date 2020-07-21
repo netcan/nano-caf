@@ -8,7 +8,7 @@
 NANO_CAF_NS_BEGIN
 
 //////////////////////////////////////////////////////////////////
-auto lifo_inbox::enqueue(message_element* msg) -> enq_result {
+auto lifo_inbox::enqueue(message_element* msg) noexcept -> enq_result {
    auto e = head();
    auto eof = close_tag();
 
@@ -26,7 +26,7 @@ auto lifo_inbox::enqueue(message_element* msg) -> enq_result {
 }
 
 //////////////////////////////////////////////////////////////////
-auto lifo_inbox::take_all() -> message_element* {
+auto lifo_inbox::take_all() noexcept -> message_element* {
    message_element* result = head();
    if(result == close_tag() || result == block_tag() || result == nullptr) {
       return nullptr;
@@ -37,13 +37,13 @@ auto lifo_inbox::take_all() -> message_element* {
 }
 
 //////////////////////////////////////////////////////////////////
-auto lifo_inbox::try_block() -> bool {
+auto lifo_inbox::try_block() noexcept -> bool {
    message_element* e = nullptr;
    return stack_.compare_exchange_strong(e, block_tag());
 }
 
 //////////////////////////////////////////////////////////////////
-auto lifo_inbox::close() -> void {
+auto lifo_inbox::close() noexcept -> void {
    auto eof = close_tag();
    auto e = head();
    if(e == eof) return;
@@ -58,12 +58,12 @@ auto lifo_inbox::close() -> void {
 }
 
 //////////////////////////////////////////////////////////////////
-lifo_inbox::~lifo_inbox() {
+lifo_inbox::~lifo_inbox() noexcept {
    destroy(take_all());
 }
 
 //////////////////////////////////////////////////////////////////
-auto lifo_inbox::destroy(message_element* result) -> void {
+auto lifo_inbox::destroy(message_element* result) noexcept -> void {
    while(result != nullptr) {
       auto p = result;
       result = result->next;
