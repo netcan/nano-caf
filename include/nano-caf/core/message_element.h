@@ -14,7 +14,6 @@ struct message_element {
    auto body() const -> T& {
       return *reinterpret_cast<T*>(const_cast<message_element*>(this));
    }
-
 public:
    message_element* next;
 };

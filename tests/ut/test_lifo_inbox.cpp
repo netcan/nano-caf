@@ -14,52 +14,61 @@ namespace {
       int value {};
    };
 
-   SCENARIO("empty lifo queue") {
-      lifo_inbox queue{};
-      WHEN("enqueue a message, should return ok") {
-         REQUIRE(enq_result::ok == queue.enqueue(new my_message{1}));
-         WHEN("enqueue another message, should return ok") {
-            REQUIRE(enq_result::ok == queue.enqueue(new my_message{2}));
+   SCENARIO("lifo inbox") {
+      lifo_inbox inbox{};
+      WHEN("eninbox a message, should return ok") {
+         REQUIRE(enq_result::ok == inbox.enqueue(new my_message{1}));
+         WHEN("eninbox another message, should return ok") {
+            REQUIRE(enq_result::ok == inbox.enqueue(new my_message{2}));
             WHEN("when take_all") {
-               auto msg = queue.take_all();
-               THEN("the message queue should not be empty") {
+               auto msg = inbox.take_all();
+               THEN("the message inbox should not be empty") {
                   REQUIRE(msg != nullptr);
                }
                THEN("should get only 2 message") {
                   REQUIRE(msg->next != nullptr);
                   REQUIRE(msg->next->next == nullptr);
                }
-               THEN("the messages should be the ones we enqueued") {
+               THEN("the messages should be the ones we eninboxd") {
                   REQUIRE(msg->body<my_message>().value == 2);
                   REQUIRE(msg->next->body<my_message>().value == 1);
                }
                delete msg->next;
                delete msg;
             }
-            WHEN("close the queue") {
-               queue.close();
+            WHEN("close the inbox") {
+               inbox.close();
                THEN("take all should return null_ptr") {
-                  auto msg = queue.take_all();
+                  auto msg = inbox.take_all();
                   REQUIRE(msg == nullptr);
                }
                THEN("put a new message, should return closed") {
-                  REQUIRE(queue.enqueue(new my_message{3}) == enq_result::closed);
+                  REQUIRE(inbox.enqueue(new my_message{3}) == enq_result::closed);
                }
+               THEN("try to block a closed queue, should return false") {
+                  REQUIRE_FALSE(inbox.try_block());
+               }
+            }
+            WHEN("try to block a non-empty inbox, should return false") {
+               REQUIRE_FALSE(inbox.try_block());
             }
          }
          WHEN("when take_all") {
-            auto msg = queue.take_all();
-            THEN("the message queue should not be empty") {
+            auto msg = inbox.take_all();
+            THEN("the message inbox should not be empty") {
                REQUIRE(msg != nullptr);
             }
             THEN("should get only 1 message") {
                REQUIRE(msg->next == nullptr);
             }
-            THEN("the message should be the one we enqueued") {
+            THEN("the message should be the one we eninboxd") {
                REQUIRE(msg->body<my_message>().value == 1);
             }
             delete msg;
          }
+      }
+      WHEN("try to block a non-empty inbox, should return true") {
+         REQUIRE(inbox.try_block() == true);
       }
       THEN("it's size should be the size of atomic pointer") {
          REQUIRE(sizeof(std::atomic<int*>) == sizeof(lifo_inbox));

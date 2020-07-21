@@ -38,7 +38,7 @@ auto lifo_inbox::take_all() -> message_element* {
 
 //////////////////////////////////////////////////////////////////
 auto lifo_inbox::try_block() -> bool {
-   auto e = head();
+   message_element* e = nullptr;
    return stack_.compare_exchange_strong(e, block_tag());
 }
 
