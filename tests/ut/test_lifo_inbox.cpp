@@ -3,7 +3,8 @@
 //
 
 #include <catch.hpp>
-#include <nano-caf/core/lifo_queue.h>
+#include <nano-caf/core/lifo_inbox.h>
+#include <nano-caf/core/message_element.h>
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -14,7 +15,7 @@ namespace {
    };
 
    SCENARIO("empty lifo queue") {
-      lifo_queue queue{};
+      lifo_inbox queue{};
       WHEN("enqueue a message, should return ok") {
          REQUIRE(enq_result::ok == queue.enqueue(new my_message{1}));
          WHEN("enqueue another message, should return ok") {
@@ -61,7 +62,7 @@ namespace {
          }
       }
       THEN("it's size should be the size of atomic pointer") {
-         REQUIRE(sizeof(std::atomic<int*>) == sizeof(lifo_queue));
+         REQUIRE(sizeof(std::atomic<int*>) == sizeof(lifo_inbox));
       }
    }
 }

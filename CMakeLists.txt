@@ -11,4 +11,4 @@ include_directories(
 add_executable(nano_caf-test
         include/nano-caf/nano-caf-ns.h
         include/nano-caf/core/actor_system.h
-        third-party/catch.hpp tests/ut/TestLIFO.cpp include/nano-caf/util/disable_copy.h include/nano-caf/core/lifo_queue.h include/nano-caf/core/message_element.h tests/ut/catch.cpp)
+        third-party/catch.hpp tests/ut/test_lifo_inbox.cpp include/nano-caf/util/disable_copy.h include/nano-caf/core/lifo_inbox.h include/nano-caf/core/message_element.h tests/ut/catch.cpp src/core/lifo_inbox.cpp)
