@@ -38,28 +38,50 @@ struct lifo_queue {
 
    auto take_all() -> message_element* {
       message_element* result = head();
+      if(result == close_tag() || result == block_tag() || result == nullptr) {
+         return nullptr;
+      }
+
       while (!stack_.compare_exchange_strong(result, nullptr));
       return result;
    }
 
-   ~lifo_queue() {
-      auto result = take_all();
-      while(result != nullptr) {
-         auto p = result;
-         result = result->next;
-         delete p;
+   auto close() -> void {
+      auto eof = close_tag();
+      auto e = head();
+      if(e == eof) return;
+
+      while (!stack_.compare_exchange_strong(e, eof));
+
+      if(e == nullptr || e == block_tag() || e == close_tag()) {
+         return;
       }
+
+      destroy(e);
    }
+
+   ~lifo_queue() {
+      destroy(take_all());
+   }
+
 
 private:
    auto head() const volatile noexcept -> message_element* {
       return stack_.load();
    }
    auto block_tag() const noexcept -> const message_element* const {
-      return reinterpret_cast<const message_element*>(__block_tag_address);
+      return reinterpret_cast<const message_element*>(const_cast<char*>(__block_tag_address));
    }
-   auto close_tag() const noexcept -> const message_element* const {
-      return reinterpret_cast<const message_element*>(__close_tag_address) ;
+   auto close_tag() const noexcept ->  message_element* {
+      return reinterpret_cast<message_element*>(const_cast<char*>(__close_tag_address));
+   }
+
+   auto destroy(message_element* result) -> void {
+      while(result != nullptr) {
+         auto p = result;
+         result = result->next;
+         delete p;
+      }
    }
 
 private:

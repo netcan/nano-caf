@@ -35,6 +35,16 @@ namespace {
                delete msg->next;
                delete msg;
             }
+            WHEN("close the queue") {
+               queue.close();
+               THEN("take all should return null_ptr") {
+                  auto msg = queue.take_all();
+                  REQUIRE(msg == nullptr);
+               }
+               THEN("put a new message, should return closed") {
+                  REQUIRE(queue.enqueue(new my_message{3}) == enq_result::closed);
+               }
+            }
          }
          WHEN("when take_all") {
             auto msg = queue.take_all();
