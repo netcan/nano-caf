@@ -10,6 +10,12 @@
 NANO_CAF_NS_BEGIN
 
 struct message_element {
+   template<typename T>
+   auto body() const -> T& {
+      return *reinterpret_cast<T*>(const_cast<message_element*>(this));
+   }
+
+public:
    message_element* next;
 };
 
