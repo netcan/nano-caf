@@ -29,6 +29,10 @@ struct lifo_inbox {
       return head() == close_tag();
    }
 
+   auto blocked() const noexcept -> bool {
+      return head() == block_tag();
+   }
+
    ~lifo_inbox() noexcept;
 
 private:

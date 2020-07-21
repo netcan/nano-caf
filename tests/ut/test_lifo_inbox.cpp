@@ -45,8 +45,7 @@ namespace {
                   REQUIRE(inbox.closed() == true);
                }
                THEN("take all should return null_ptr") {
-                  auto msg = inbox.take_all();
-                  REQUIRE(msg == nullptr);
+                  REQUIRE(inbox.take_all() == nullptr);
                }
                THEN("put a new message, should return closed") {
                   REQUIRE(inbox.enqueue(new my_message{3}) == enq_result::closed);
@@ -73,8 +72,14 @@ namespace {
             delete msg;
          }
       }
+      WHEN("ask if the inbox is blocked, should return false") {
+         REQUIRE_FALSE(inbox.blocked());
+      }
       WHEN("try to block a non-empty inbox, should return true") {
          REQUIRE(inbox.try_block() == true);
+         THEN("if ask if the inbox is blocked, should return true") {
+            REQUIRE(inbox.blocked() == true);
+         }
       }
       THEN("it's size should be the size of atomic pointer") {
          REQUIRE(sizeof(std::atomic<int*>) == sizeof(lifo_inbox));
