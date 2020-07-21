@@ -7,7 +7,6 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <atomic>
-#include <memory>
 
 NANO_CAF_NS_BEGIN
 
