@@ -17,10 +17,6 @@ struct actor_inbox : private lifo_inbox {
 
 private:
    auto reload() noexcept -> message_element*;
-
-private:
-   // only 1 thread access this, no lock required.
-   message_element* head{};
 };
 
 NANO_CAF_NS_END

@@ -16,7 +16,7 @@ struct list_element {
 
 // we don't use double end list, because it has to
 // dynamically alloc memory, which would cause more
-// problems.
+// problems, even slower.
 struct thread_safe_list {
    thread_safe_list() {
       lock.clear();

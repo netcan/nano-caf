@@ -10,8 +10,11 @@ namespace {
    using namespace NANO_CAF_NS;
 
    struct my_message : message_element {
-      my_message(int value) : value{value} {}
-      int value {};
+      my_message(uint32_t value)
+         : value{value}
+         , message_element{value} {}
+
+      uint32_t value {};
    };
 
    SCENARIO("lifo inbox") {

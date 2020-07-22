@@ -9,29 +9,12 @@ NANO_CAF_NS_BEGIN
 
 //////////////////////////////////////////////////////////////
 auto actor_inbox::next() -> message_element* {
-   if(head != nullptr) {
-      auto result = head;
-      head = head->next;
-      return result;
-   }
-
-   return reload();
+   return nullptr;
 }
 
 //////////////////////////////////////////////////////////////
 auto actor_inbox::reload() noexcept -> message_element* {
    auto lifo_list = lifo_inbox::take_all();
-   while (lifo_list != nullptr) {
-      // return the last
-      if(lifo_list->next == nullptr) break;
-
-      auto elem = lifo_list;
-      lifo_list = lifo_list->next;
-
-      elem->next = head;
-      head = elem;
-   }
-
    return lifo_list;
 }
 
