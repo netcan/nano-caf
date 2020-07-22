@@ -8,6 +8,7 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/message_element.h>
 #include <nano-caf/core/lifo_inbox.h>
+#include "drr_cached_queue.h"
 
 NANO_CAF_NS_BEGIN
 
@@ -17,6 +18,10 @@ struct actor_inbox : private lifo_inbox {
 
 private:
    auto reload() noexcept -> message_element*;
+
+private:
+   drr_list normal_list{};
+   drr_list urgent_list{};
 };
 
 NANO_CAF_NS_END

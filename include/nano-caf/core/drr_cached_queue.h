@@ -12,10 +12,8 @@
 
 NANO_CAF_NS_BEGIN
 
-struct drr_list {
-   void append_list(task_list& list) {
-      list_.append_list(list);
-   }
+struct drr_list : task_list {
+   using task_list::append_list;
 
 private:
    task_list list_{};

@@ -8,11 +8,12 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/message_element.h>
 #include <cstddef>
+#include <memory>
 
 NANO_CAF_NS_BEGIN
 
 struct task_list {
-   auto pop_front() noexcept -> message_element*;
+   auto next(size_t& deficit) noexcept -> std::unique_ptr<message_element>;
    auto push_back(message_element* ptr) noexcept -> void;
    auto append_list(task_list& list) noexcept -> void;
    ~task_list() noexcept;

@@ -7,19 +7,23 @@
 
 NANO_CAF_NS_BEGIN
 
-auto task_list::pop_front() noexcept -> message_element* {
-   if(head_ != nullptr) {
+///////////////////////////////////////////////////////////////////////////////////
+auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message_element> {
+   if(deficit > 0 && head_ != nullptr) {
       auto elem = head_;
       head_ = head_->next;
       if (head_ == nullptr) tail_ = nullptr;
       total_task_size_--;
+      deficit--;
       elem->next = nullptr;
-      return elem;
+      return std::unique_ptr<message_element>(elem);
    }
 
+   deficit = 0;
    return nullptr;
 }
 
+///////////////////////////////////////////////////////////
 auto task_list::push_back(message_element* ptr) noexcept -> void {
    if(tail_ != nullptr) {
       tail_->next = ptr;
@@ -30,6 +34,7 @@ auto task_list::push_back(message_element* ptr) noexcept -> void {
    total_task_size_++;
 }
 
+///////////////////////////////////////////////////////////
 auto task_list::append_list(task_list& list) noexcept -> void{
    if(list.empty()) return;
 
@@ -47,6 +52,7 @@ auto task_list::append_list(task_list& list) noexcept -> void{
    list.total_task_size_ = 0;
 }
 
+///////////////////////////////////////////////////////////
 task_list::~task_list() noexcept {
    while(head_ != nullptr) {
       auto ptr = head_;
