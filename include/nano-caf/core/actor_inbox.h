@@ -19,6 +19,7 @@ private:
    auto reload() noexcept -> message_element*;
 
 private:
+   // only 1 thread access this, no lock required.
    message_element* head{};
 };
 

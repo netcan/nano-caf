@@ -7,6 +7,7 @@
 
 NANO_CAF_NS_BEGIN
 
+//////////////////////////////////////////////////////////////
 auto actor_inbox::next() -> message_element* {
    if(head != nullptr) {
       auto result = head;
@@ -17,20 +18,18 @@ auto actor_inbox::next() -> message_element* {
    return reload();
 }
 
+//////////////////////////////////////////////////////////////
 auto actor_inbox::reload() noexcept -> message_element* {
    auto lifo_list = lifo_inbox::take_all();
-
-   message_element* tail{};
    while (lifo_list != nullptr) {
-      // return the first
+      // return the last
       if(lifo_list->next == nullptr) break;
 
       auto elem = lifo_list;
       lifo_list = lifo_list->next;
-      if(tail != nullptr) tail->next = elem;
-      tail = elem;
-      tail->next = nullptr;
-      if(head == nullptr) head = elem;
+
+      elem->next = head;
+      head = elem;
    }
 
    return lifo_list;
