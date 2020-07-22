@@ -18,6 +18,7 @@ struct task_list {
          head_ = head_->next;
          if (head_ == nullptr) tail_ = nullptr;
          total_task_size_--;
+         elem->next = nullptr;
          return elem;
       }
 
