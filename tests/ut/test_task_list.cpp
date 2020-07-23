@@ -127,8 +127,8 @@ namespace {
             }
          }
       }
-
    }
+
    TEST_CASE("append an empty task list") {
       task_list list{};
       list.push_back(new my_message{1});
@@ -197,6 +197,8 @@ namespace {
       }
    }
 
+
+
    TEST_CASE("an empty list prepends an non-empty task list") {
       task_list list{};
       REQUIRE(list.total_task_size() == 0);
@@ -231,6 +233,59 @@ namespace {
             AND_THEN("it does not has 3rd element") {
                REQUIRE(list.empty() == true);
                REQUIRE(list.next(deficit) == nullptr);
+            }
+         }
+      }
+   }
+
+   TEST_CASE("push front a non empty list") {
+      task_list list{};
+      list.push_back(new my_message{1});
+      list.push_back(new my_message{2});
+      list.push_front(new my_message{3});
+      list.push_front(new my_message{4});
+
+      THEN("its task size become 4") {
+         REQUIRE(list.total_task_size() == 4);
+      }
+      AND_THEN("pop front, should return the 1st elem of 2nd list") {
+         size_t deficit = 100;
+         auto ptr = list.next(deficit);
+         REQUIRE(ptr != nullptr);
+         REQUIRE(ptr->body<my_message>().value == 4);
+         REQUIRE(ptr->body<my_message>().next == nullptr);
+         AND_THEN("the deficit should be decreased") {
+            REQUIRE(deficit == 99);
+         }
+         AND_THEN("pop front a element again, should get the 2nd elem of 2nd list") {
+            auto ptr = list.next(deficit);
+            REQUIRE(ptr != nullptr);
+            REQUIRE(ptr->body<my_message>().value == 3);
+            REQUIRE(ptr->body<my_message>().next == nullptr);
+            AND_THEN("the deficit should be decreased") {
+               REQUIRE(deficit == 98);
+            }
+            AND_THEN("pop front a element again, should get the 1st elem of 2nd list") {
+               auto ptr = list.next(deficit);
+               REQUIRE(ptr != nullptr);
+               REQUIRE(ptr->body<my_message>().value == 1);
+               REQUIRE(ptr->body<my_message>().next == nullptr);
+               AND_THEN("the deficit should be decreased") {
+                  REQUIRE(deficit == 97);
+               }
+               AND_THEN("pop front a element again, should get the 2nd elem of 2nd list") {
+                  auto ptr = list.next(deficit);
+                  REQUIRE(ptr != nullptr);
+                  REQUIRE(ptr->body<my_message>().value == 2);
+                  REQUIRE(ptr->body<my_message>().next == nullptr);
+                  AND_THEN("the deficit should be decreased") {
+                     REQUIRE(deficit == 96);
+                  }
+                  AND_THEN("it does not has 5th element") {
+                     REQUIRE(list.empty() == true);
+                     REQUIRE(list.next(deficit) == nullptr);
+                  }
+               }
             }
          }
       }
