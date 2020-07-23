@@ -13,7 +13,7 @@
 
 NANO_CAF_NS_BEGIN
 
-using message_consumer = auto (*)(const message_element&) -> task_result;
+using message_consumer = auto (*)(const message_element&) noexcept -> task_result;
 
 struct drr_cached_queue : private task_list {
    using task_list::append_list;
