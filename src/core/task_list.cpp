@@ -56,9 +56,10 @@ auto task_list::prepend_list(task_list& list) noexcept -> void {
 
    if(tail_ == nullptr) {
       tail_ = list.tail_;
+   } else {
+      list.tail_->next = head_;
    }
 
-   list.tail_ = head_;
    head_ = list.head_;
 
    total_task_size_ += list.total_task_size_;
