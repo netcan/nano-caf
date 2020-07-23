@@ -12,10 +12,18 @@
 
 NANO_CAF_NS_BEGIN
 
+enum class task_result {
+   resume,
+   skip,
+   stop,
+   stop_all,
+};
+
 struct task_list {
    auto next(size_t& deficit) noexcept -> std::unique_ptr<message_element>;
    auto push_back(message_element* ptr) noexcept -> void;
    auto append_list(task_list& list) noexcept -> void;
+   auto prepend_list(task_list& list) noexcept -> void;
    ~task_list() noexcept;
 
    auto total_task_size() const noexcept -> size_t {
@@ -25,6 +33,9 @@ struct task_list {
    auto empty() const noexcept -> bool {
       return head_ == nullptr;
    }
+
+private:
+   auto reset() noexcept -> void;
 
 private:
    message_element* head_{};

@@ -14,7 +14,7 @@ NANO_CAF_NS_BEGIN
 
 struct actor_inbox : private lifo_inbox {
    using lifo_inbox::enqueue;
-   auto next() -> message_element*;
+   auto next() noexcept -> std::unique_ptr<message_element>;
 
 private:
    auto reload() noexcept -> message_element*;

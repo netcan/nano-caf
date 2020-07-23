@@ -47,9 +47,30 @@ auto task_list::append_list(task_list& list) noexcept -> void{
    tail_ = list.tail_;
    total_task_size_ += list.total_task_size_;
 
-   list.head_ = nullptr;
-   list.tail_ = nullptr;
-   list.total_task_size_ = 0;
+   list.reset();
+}
+
+///////////////////////////////////////////////////////////
+auto task_list::prepend_list(task_list& list) noexcept -> void {
+   if(list.empty()) return;
+
+   if(tail_ == nullptr) {
+      tail_ = list.tail_;
+   }
+
+   list.tail_ = head_;
+   head_ = list.head_;
+
+   total_task_size_ += list.total_task_size_;
+
+   list.reset();
+}
+
+///////////////////////////////////////////////////////////
+auto task_list::reset() noexcept -> void {
+   head_ = nullptr;
+   tail_ = nullptr;
+   total_task_size_ = 0;
 }
 
 ///////////////////////////////////////////////////////////

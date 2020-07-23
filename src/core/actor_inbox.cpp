@@ -8,7 +8,7 @@
 NANO_CAF_NS_BEGIN
 
 //////////////////////////////////////////////////////////////
-auto actor_inbox::next() -> message_element* {
+auto actor_inbox::next() noexcept -> std::unique_ptr<message_element> {
    return nullptr;
 }
 

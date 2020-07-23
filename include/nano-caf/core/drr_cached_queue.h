@@ -12,11 +12,22 @@
 
 NANO_CAF_NS_BEGIN
 
-struct drr_list : task_list {
+struct new_round_result {
+   size_t consumed_items;
+   bool stop_all;
+};
+
+struct drr_list : private task_list {
    using task_list::append_list;
+   using consumer = auto (*)(const message_element&) -> task_result;
+   auto new_round(size_t quota, consumer f) noexcept -> new_round_result;
 
 private:
-   task_list list_{};
+   auto next() noexcept -> std::unique_ptr<message_element> {
+      return task_list::next(deficit_);
+   }
+
+private:
    task_list cache_{};
    size_t deficit_{};
 };
