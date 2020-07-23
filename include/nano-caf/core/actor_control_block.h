@@ -7,6 +7,7 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/cache_line_size.h>
+#include <nano-caf/core/intrusive_ptr.h>
 #include <cstddef>
 #include <atomic>
 
@@ -25,16 +26,18 @@ struct actor_control_block {
    actor_control_block& operator=(const actor_control_block&) = delete;
 
 public:
-   inline friend void intrusive_ptr_add_weak_ref(actor_control_block* x) {
+   inline friend auto intrusive_ptr_add_weak_ref(actor_control_block* x) noexcept -> void {
       x->weak_refs.fetch_add(1, std::memory_order_relaxed);
    }
 
-   inline friend void intrusive_ptr_add_ref(actor_control_block* x) {
+   inline friend auto intrusive_ptr_add_ref(actor_control_block* x) noexcept -> void {
       x->strong_refs.fetch_add(1, std::memory_order_relaxed);
    }
 
-   friend void intrusive_ptr_release_weak(actor_control_block* x);
-   friend void intrusive_ptr_release(actor_control_block* x);
+   friend auto intrusive_ptr_release_weak(actor_control_block* x) noexcept -> void;
+   friend auto intrusive_ptr_release(actor_control_block* x) noexcept -> void;
+
+   friend auto intrusive_ptr_upgrade_weak(actor_control_block* x) noexcept -> intrusive_ptr<actor_control_block>;
 
    auto get() noexcept -> sched_actor* {
       return reinterpret_cast<sched_actor*>(reinterpret_cast<char*>(this) + CACHE_LINE_SIZE);
@@ -49,7 +52,7 @@ private:
 };
 
 
-
+using intrusive_actor_ptr = intrusive_ptr<actor_control_block>;
 
 
 NANO_CAF_NS_END
