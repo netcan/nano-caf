@@ -17,7 +17,7 @@ struct new_round_result {
    bool stop_all;
 };
 
-struct drr_list : private task_list {
+struct drr_cached_queue : private task_list {
    using task_list::append_list;
    using consumer = auto (*)(const message_element&) -> task_result;
    auto new_round(size_t quota, consumer f) noexcept -> new_round_result;
