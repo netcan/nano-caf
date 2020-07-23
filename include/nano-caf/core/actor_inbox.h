@@ -14,6 +14,9 @@ NANO_CAF_NS_BEGIN
 
 struct actor_inbox : private lifo_inbox {
    using lifo_inbox::enqueue;
+   using lifo_inbox::try_block;
+   using lifo_inbox::close;
+
    auto new_round(size_t quota, message_consumer f) noexcept -> new_round_result;
 
 private:
