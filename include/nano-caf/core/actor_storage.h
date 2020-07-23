@@ -14,11 +14,20 @@ NANO_CAF_NS_BEGIN
 
 template<typename T>
 struct actor_storage  {
+   template<typename ... Ts>
+   actor_storage(Ts&& ... args) : control{data_dtor} {
+      new (&value) T(std::forward<Ts...>(args...));
+   }
+
+private:
+   static void data_dtor(sched_actor* ptr) {
+      static_cast<T*>(ptr)->~T();
+   }
 
 private:
    static_assert(sizeof(actor_control_block) <= CACHE_LINE_SIZE);
-   actor_control_block controlBlock;
-   char padding[CACHE_LINE_SIZE - sizeof(controlBlock)];
+   actor_control_block control;
+   char padding[CACHE_LINE_SIZE - sizeof(control)];
    union { T value; };
 };
 
