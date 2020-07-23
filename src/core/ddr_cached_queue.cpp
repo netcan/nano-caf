@@ -7,7 +7,7 @@
 
 NANO_CAF_NS_BEGIN
 
-auto drr_cached_queue::new_round(size_t quota, consumer f) noexcept -> new_round_result {
+auto drr_cached_queue::new_round(size_t quota, message_consumer f) noexcept -> new_round_result {
    if(task_list::empty()) return {0, false};
 
    deficit_ += quota;

@@ -20,6 +20,9 @@ struct message_element {
       : message_id(id, category)
    {}
 
+   auto is_urgent() const noexcept -> bool {
+      return message_id.is_category(message_id::category::urgent);
+   }
 public:
    message_element* next {};
    message_id message_id;

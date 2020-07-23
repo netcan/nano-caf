@@ -22,6 +22,7 @@ enum class task_result {
 struct task_list {
    auto next(size_t& deficit) noexcept -> std::unique_ptr<message_element>;
    auto push_back(message_element* ptr) noexcept -> void;
+   auto push_front(message_element* ptr) noexcept -> void;
    auto append_list(task_list& list) noexcept -> void;
    auto prepend_list(task_list& list) noexcept -> void;
    ~task_list() noexcept;

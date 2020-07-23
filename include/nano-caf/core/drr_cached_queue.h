@@ -7,20 +7,17 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/message_element.h>
-#include <cstddef>
 #include <nano-caf/core/task_list.h>
+#include <nano-caf/core/new_round_result.h>
+#include <cstddef>
 
 NANO_CAF_NS_BEGIN
 
-struct new_round_result {
-   size_t consumed_items;
-   bool stop_all;
-};
+using message_consumer = auto (*)(const message_element&) -> task_result;
 
 struct drr_cached_queue : private task_list {
    using task_list::append_list;
-   using consumer = auto (*)(const message_element&) -> task_result;
-   auto new_round(size_t quota, consumer f) noexcept -> new_round_result;
+   auto new_round(size_t quota, message_consumer f) noexcept -> new_round_result;
 
 private:
    auto next() noexcept -> std::unique_ptr<message_element> {

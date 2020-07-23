@@ -25,15 +25,21 @@ auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message_elemen
 
 ///////////////////////////////////////////////////////////
 auto task_list::push_back(message_element* ptr) noexcept -> void {
-   if(tail_ != nullptr) {
-      tail_->next = ptr;
-   } else {
-      head_ = ptr;
-   }
+   if(tail_ != nullptr) tail_->next = ptr;
+   else head_ = ptr;
+
    tail_ = ptr;
    total_task_size_++;
 }
 
+///////////////////////////////////////////////////////////
+auto task_list::push_front(message_element* ptr) noexcept -> void {
+   if(head_ != nullptr) ptr->next = head_;
+   else tail_ = ptr;
+
+   head_ = ptr;
+   total_task_size_++;
+}
 ///////////////////////////////////////////////////////////
 auto task_list::append_list(task_list& list) noexcept -> void{
    if(list.empty()) return;

@@ -14,14 +14,14 @@ NANO_CAF_NS_BEGIN
 
 struct actor_inbox : private lifo_inbox {
    using lifo_inbox::enqueue;
-   auto next() noexcept -> std::unique_ptr<message_element>;
+   auto new_round(size_t quota, message_consumer f) noexcept -> new_round_result;
 
 private:
-   auto reload() noexcept -> message_element*;
+   auto reload() noexcept -> void;
 
 private:
-   drr_list normal_list{};
-   drr_list urgent_list{};
+   drr_cached_queue urgent_queue{};
+   drr_cached_queue normal_queue{};
 };
 
 NANO_CAF_NS_END
