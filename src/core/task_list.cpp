@@ -9,7 +9,9 @@ NANO_CAF_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////////
 auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message_element> {
-   if(deficit > 0 && head_ != nullptr) {
+   if(deficit == 0) return nullptr;
+
+   if(head_ != nullptr) {
       auto elem = head_;
       head_ = head_->next;
       if (head_ == nullptr) tail_ = nullptr;

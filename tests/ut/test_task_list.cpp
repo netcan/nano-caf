@@ -385,6 +385,13 @@ namespace {
          REQUIRE(list2.next(deficit) == nullptr);
       }
 
+      AND_THEN("if deficit is 0, should not be able to get any element") {
+         size_t deficit = 0;
+         auto ptr = list.next(deficit);
+         REQUIRE(ptr == nullptr);
+         REQUIRE(list.total_task_size() == 4);
+      }
+
       AND_THEN("pop front, should return the 1st elem of 2nd list") {
          size_t deficit = 100;
          auto ptr = list.next(deficit);
