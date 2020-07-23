@@ -74,17 +74,73 @@ namespace {
       }
    }
 
+   TEST_CASE("push front to an emtpy task list") {
+      task_list list{};
+
+      WHEN("push_front a new elem") {
+         list.push_front(new my_message{1});
+         THEN("it should contains 1 elem") {
+            REQUIRE(1 == list.total_task_size());
+         }
+         THEN("its first element should be the pushed one") {
+            size_t deficit = 100;
+            auto ptr = list.next(deficit);
+            REQUIRE(ptr != nullptr);
+            REQUIRE(ptr->body<my_message>().value == 1);
+            REQUIRE(ptr->body<my_message>().next == nullptr);
+            AND_THEN("the deficit should be decreased") {
+               REQUIRE(deficit == 99);
+            }
+            AND_THEN("it does not has 2nd element") {
+               REQUIRE(list.empty() == true);
+               REQUIRE(list.next(deficit) == nullptr);
+            }
+         }
+      }
+      WHEN("push_front 2 new elements") {
+         list.push_front(new my_message{1});
+         list.push_front(new my_message{2});
+         THEN("it should contains 2 elems") {
+            REQUIRE(2 == list.total_task_size());
+         }
+         THEN("its first element should be the last pushed one") {
+            size_t deficit = 100;
+            auto ptr = list.next(deficit);
+            REQUIRE(ptr != nullptr);
+            REQUIRE(ptr->body<my_message>().value == 2);
+            REQUIRE(ptr->body<my_message>().next == nullptr);
+            AND_THEN("the deficit should be decreased") {
+               REQUIRE(deficit == 99);
+            }
+            THEN("its 2nd element should be the 1st pushed one") {
+               auto ptr = list.next(deficit);
+               REQUIRE(ptr != nullptr);
+               REQUIRE(ptr->body<my_message>().value == 1);
+               REQUIRE(ptr->body<my_message>().next == nullptr);
+               AND_THEN("it does not has 3rd element") {
+                  REQUIRE(list.empty() == true);
+                  REQUIRE(list.next(deficit) == nullptr);
+                  AND_THEN("the deficit should be 0") {
+                     REQUIRE(deficit == 0);
+                  }
+               }
+            }
+         }
+      }
+
+   }
    TEST_CASE("append an empty task list") {
       task_list list{};
       list.push_back(new my_message{1});
       list.push_back(new my_message{2});
       task_list list2{};
       list.append_list(list2);
-      size_t deficit = 100;
+
       THEN("its task size remains 2") {
          REQUIRE(list.total_task_size() == 2);
       }
       AND_THEN("its first element is still 1") {
+         size_t deficit = 100;
          auto ptr = list.next(deficit);
          REQUIRE(ptr != nullptr);
          REQUIRE(ptr->body<my_message>().value == 1);

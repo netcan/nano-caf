@@ -18,6 +18,7 @@ using message_consumer = auto (*)(const message_element&) noexcept -> task_resul
 struct drr_cached_queue : private task_list {
    using task_list::append_list;
    auto new_round(size_t quota, message_consumer f) noexcept -> new_round_result;
+   auto inc_deficit(size_t quota) noexcept -> void;
 
 private:
    auto next() noexcept -> std::unique_ptr<message_element>;

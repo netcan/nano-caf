@@ -11,6 +11,12 @@ inline auto drr_cached_queue::next() noexcept -> std::unique_ptr<message_element
    return task_list::next(deficit_);
 }
 
+auto drr_cached_queue::inc_deficit(size_t quota) noexcept -> void {
+   if(!task_list::empty()) {
+      deficit_ += quota;
+   }
+}
+
 auto drr_cached_queue::new_round(size_t quota, message_consumer f) noexcept -> new_round_result {
    if(task_list::empty()) return {0, false};
 
