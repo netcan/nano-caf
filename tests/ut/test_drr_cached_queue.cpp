@@ -142,4 +142,138 @@ namespace {
          }
       }
    }
+
+   SCENARIO("drr_cached_queue consume with stop") {
+      drr_cached_queue queue{};
+      task_list list{};
+      list.push_back(new my_message{1});
+      list.push_back(new my_message{2});
+      list.push_back(new my_message{3});
+      queue.append_list(list);
+
+      THEN("if consume 3 element once") {
+         uint32_t times = 0;
+         auto result = queue.new_round(3, [&](const message_element& elem) noexcept  {
+            times++;
+            return task_result::stop; });
+         THEN("should consume 1 element") {
+            REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
+            REQUIRE(times == 1);
+         }
+         THEN("the queue should not be empty now") {
+            REQUIRE_FALSE(queue.empty());
+         }
+         THEN("even consume it with 0 quota") {
+            uint32_t times = 0;
+            auto result = queue.new_round(0, [&](const message_element& elem) noexcept  {
+               times++;
+               return task_result::resume; });
+            THEN("should consume the last element") {
+               REQUIRE(result == new_round_result{.consumed_items = 2, .stop_all = false});
+               REQUIRE(times == 2);
+            }
+            THEN("the queue should be empty now") {
+               REQUIRE(queue.empty());
+            }
+         }
+      }
+   }
+
+   SCENARIO("drr_cached_queue consume with stop all") {
+      drr_cached_queue queue{};
+      task_list list{};
+      list.push_back(new my_message{1});
+      list.push_back(new my_message{2});
+      list.push_back(new my_message{3});
+      queue.append_list(list);
+
+      THEN("if consume 3 element once") {
+         uint32_t times = 0;
+         auto result = queue.new_round(3, [&](const message_element& elem) noexcept  {
+            times++;
+            return task_result::stop_all; });
+         THEN("should consume 1 elements") {
+            REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = true});
+            REQUIRE(times == 1);
+         }
+         THEN("the queue should not be empty now") {
+            REQUIRE_FALSE(queue.empty());
+         }
+         THEN("even consume it with 0 quota") {
+            uint32_t times = 0;
+            auto result = queue.new_round(0, [&](const message_element& elem) noexcept  {
+               times++;
+               return task_result::resume; });
+            THEN("should consume the rest element") {
+               REQUIRE(result == new_round_result{.consumed_items = 2, .stop_all = false});
+               REQUIRE(times == 2);
+            }
+            THEN("the queue should be empty now") {
+               REQUIRE(queue.empty());
+            }
+         }
+      }
+   }
+
+   SCENARIO("drr_cached_queue increase deficit") {
+      drr_cached_queue queue{};
+      task_list list{};
+      list.push_back(new my_message{1});
+      list.push_back(new my_message{2});
+      list.push_back(new my_message{3});
+      queue.append_list(list);
+
+      WHEN("increase 2 deficit") {
+         queue.inc_deficit(2);
+
+         THEN("even consume it with 0 quota") {
+            uint32_t times = 0;
+            auto result = queue.new_round(0, [&](const message_element& elem) noexcept  {
+               times++;
+               return task_result::resume; });
+            THEN("should consume the rest element") {
+               REQUIRE(result == new_round_result{.consumed_items = 2, .stop_all = false});
+               REQUIRE(times == 2);
+            }
+         }
+      }
+
+      WHEN("increase 1 deficit") {
+         queue.inc_deficit(1);
+
+         THEN("even consume it with 0 quota") {
+            uint32_t times = 0;
+            auto result = queue.new_round(0, [&](const message_element& elem) noexcept  {
+               times++;
+               return task_result::resume; });
+            THEN("should consume the rest element") {
+               REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
+               REQUIRE(times == 1);
+            }
+         }
+      }
+   }
+
+   SCENARIO("drr_cached_queue increase deficit on a empty list") {
+      drr_cached_queue queue{};
+      queue.inc_deficit(2);
+      task_list list{};
+      list.push_back(new my_message{1});
+      list.push_back(new my_message{2});
+      list.push_back(new my_message{3});
+      queue.append_list(list);
+
+      THEN("even consume it with 0 quota") {
+         uint32_t times = 0;
+         auto result = queue.new_round(0, [&](const message_element &elem) noexcept {
+            times++;
+            return task_result::resume;
+         });
+         THEN("should consume nothing") {
+            REQUIRE(result == new_round_result{.consumed_items = 0, .stop_all = false});
+            REQUIRE(times == 0);
+         }
+      }
+   }
+
 }
