@@ -20,8 +20,14 @@ struct drr_cached_queue : private task_list {
    using task_list::append_list;
    auto new_round(size_t quota, message_consumer f) noexcept -> new_round_result;
    auto inc_deficit(size_t quota) noexcept -> void;
-   auto empty() const -> bool {
+   auto empty() const noexcept -> bool {
       return task_list::empty() && cache_.empty();
+   }
+
+   auto deficit() noexcept -> size_t {
+      auto result = deficit_;
+      deficit_ = 0;
+      return result;
    }
 
 private:
