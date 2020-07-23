@@ -15,7 +15,7 @@ NANO_CAF_NS_BEGIN
 template<typename T>
 struct actor_storage  {
    template<typename ... Ts>
-   actor_storage(Ts&& ... args) : control{data_dtor} {
+   actor_storage(Ts&& ... args) : control{data_dtor, block_dtor} {
       new (&value) T(std::forward<Ts...>(args...));
    }
 
@@ -24,6 +24,9 @@ private:
       static_cast<T*>(ptr)->~T();
    }
 
+   static void block_dtor(actor_control_block* ptr) {
+      delete reinterpret_cast<actor_storage*>(ptr);
+   }
 private:
    static_assert(sizeof(actor_control_block) <= CACHE_LINE_SIZE);
    actor_control_block control;

@@ -17,9 +17,10 @@ struct sched_actor;
 
 struct actor_control_block {
    using data_destructor = void (*)(sched_actor*);
+   using block_destructor = void (*)(actor_control_block*);
 
-   actor_control_block(data_destructor data_dtor)
-      : strong_refs{1}, weak_refs{1}, data_dtor{data_dtor}
+   actor_control_block(data_destructor data_dtor, block_destructor block_dtor)
+      : strong_refs{1}, weak_refs{1}, data_dtor{data_dtor}, block_dtor{block_dtor}
    {}
 
    actor_control_block(const actor_control_block&) = delete;
@@ -49,6 +50,7 @@ private:
    std::atomic<size_t> strong_refs;
    std::atomic<size_t> weak_refs;
    const data_destructor data_dtor;
+   const block_destructor block_dtor;
 };
 
 

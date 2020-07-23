@@ -9,7 +9,7 @@ NANO_CAF_NS_BEGIN
 auto intrusive_ptr_release_weak(actor_control_block* x) noexcept -> void {
    if (x->weak_refs == 1
        || x->weak_refs.fetch_sub(1, std::memory_order_acq_rel) == 1)
-      x->~actor_control_block();
+      x->block_dtor(x);
 }
 
 auto intrusive_ptr_release(actor_control_block* x) noexcept -> void {
