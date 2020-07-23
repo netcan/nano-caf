@@ -20,9 +20,7 @@ struct drr_cached_queue : private task_list {
    auto new_round(size_t quota, message_consumer f) noexcept -> new_round_result;
 
 private:
-   auto next() noexcept -> std::unique_ptr<message_element> {
-      return task_list::next(deficit_);
-   }
+   auto next() noexcept -> std::unique_ptr<message_element>;
 
 private:
    task_list cache_{};
