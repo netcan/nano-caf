@@ -8,14 +8,9 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/message_element.h>
 #include <nano-caf/core/lifo_inbox.h>
+#include <nano-caf/core/actor_control_block.h>
 
 NANO_CAF_NS_BEGIN
-
-constexpr size_t CACHE_LINE_SIZE = 64;
-
-struct actor_control_block {
-
-};
 
 template<typename T>
 struct actor_storage  {
