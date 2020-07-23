@@ -12,10 +12,14 @@ NANO_CAF_NS_BEGIN
 auto actor_inbox::new_round(size_t quota, message_consumer f) noexcept -> new_round_result {
    reload();
 
-//   auto result = urgent_queue.new_round(quota, f);
-//   if(result.consumed_items == quota || result.stop_all) return result;
+   auto result = urgent_queue.new_round(quota, f);
+   if(result.stop_all) {
+      normal_queue.inc_deficit(quota);
+      return result;
+   }
 
-   return normal_queue.new_round(quota, f);
+   auto result2 = normal_queue.new_round(quota, f);
+   return {result.consumed_items + result2.consumed_items, result2.stop_all };
 }
 
 //////////////////////////////////////////////////////////////
