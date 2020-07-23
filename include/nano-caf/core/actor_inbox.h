@@ -19,6 +19,10 @@ struct actor_inbox : private lifo_inbox {
 
    auto new_round(size_t quota, message_consumer f) noexcept -> new_round_result;
 
+   auto empty() const noexcept -> bool {
+      return urgent_queue.empty() && normal_queue.empty();
+   }
+
 private:
    auto reload() noexcept -> void;
 

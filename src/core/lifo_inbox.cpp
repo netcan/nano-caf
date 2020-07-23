@@ -15,7 +15,9 @@ auto lifo_inbox::enqueue(message_element* msg) noexcept -> enq_result {
    while(e != eof) {
       msg->next = e;
       // if success, it's not possible e == eof.
-      if(stack_.compare_exchange_strong(e, msg)) {
+      if(stack_.compare_exchange_weak(e, msg,
+         std::memory_order_release,
+         std::memory_order_relaxed)) {
          return (e == block_tag()) ? enq_result::blocked : enq_result::ok;
       }
    }
@@ -32,14 +34,18 @@ auto lifo_inbox::take_all() noexcept -> message_element* {
       return nullptr;
    }
 
-   while (!stack_.compare_exchange_strong(result, nullptr));
+   while (!stack_.compare_exchange_weak(result, nullptr,
+      std::memory_order_release,
+      std::memory_order_relaxed));
    return result;
 }
 
 //////////////////////////////////////////////////////////////////
 auto lifo_inbox::try_block() noexcept -> bool {
    message_element* e = nullptr;
-   return stack_.compare_exchange_strong(e, block_tag());
+   return stack_.compare_exchange_weak(e, block_tag(),
+      std::memory_order_release,
+      std::memory_order_relaxed);
 }
 
 //////////////////////////////////////////////////////////////////
@@ -48,7 +54,9 @@ auto lifo_inbox::close() noexcept -> void {
    auto e = head();
    if(e == eof) return;
 
-   while (!stack_.compare_exchange_strong(e, eof));
+   while (!stack_.compare_exchange_weak(e, eof,
+      std::memory_order_release,
+      std::memory_order_relaxed));
 
    if(e == nullptr || e == block_tag() || e == close_tag()) {
       return;

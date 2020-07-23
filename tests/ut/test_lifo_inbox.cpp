@@ -88,4 +88,23 @@ namespace {
          REQUIRE(sizeof(std::atomic<int*>) == sizeof(lifo_inbox));
       }
    }
+
+   SCENARIO("take all from a lifo inbox") {
+      lifo_inbox inbox{};
+      REQUIRE(enq_result::ok == inbox.enqueue(new my_message{1}));
+      REQUIRE(enq_result::ok == inbox.enqueue(new my_message{2}));
+      REQUIRE(enq_result::ok == inbox.enqueue(new my_message{3}));
+
+      auto msg = inbox.take_all();
+      REQUIRE(msg != nullptr);
+
+      msg = msg->next;
+      REQUIRE(msg != nullptr);
+
+      msg = msg->next;
+      REQUIRE(msg != nullptr);
+
+      msg = msg->next;
+      REQUIRE(msg == nullptr);
+   }
 }

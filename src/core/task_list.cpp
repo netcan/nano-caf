@@ -31,15 +31,18 @@ auto task_list::push_back(message_element* ptr) noexcept -> void {
    else head_ = ptr;
 
    tail_ = ptr;
+   ptr->next = nullptr;
+
    total_task_size_++;
 }
 
 ///////////////////////////////////////////////////////////
 auto task_list::push_front(message_element* ptr) noexcept -> void {
-   if(head_ != nullptr) ptr->next = head_;
-   else tail_ = ptr;
+   if(tail_ == nullptr) tail_ = ptr;
 
+   ptr->next = head_;
    head_ = ptr;
+
    total_task_size_++;
 }
 ///////////////////////////////////////////////////////////

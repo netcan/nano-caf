@@ -23,9 +23,11 @@ struct drr_cached_queue : private task_list {
    auto empty() const -> bool {
       return task_list::empty() && cache_.empty();
    }
+
 private:
    auto next() noexcept -> std::unique_ptr<message_element>;
    auto flush_cache() noexcept -> void;
+
 private:
    task_list cache_{};
    size_t deficit_{};
