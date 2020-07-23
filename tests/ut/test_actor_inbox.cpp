@@ -67,4 +67,39 @@ namespace {
          }
       }
    }
+
+   SCENARIO("consume a non-empty inbox mixed urgent with normal") {
+      actor_inbox inbox{};
+      inbox.enqueue(new my_message{1, false});
+      inbox.enqueue(new my_message{2, true});
+      inbox.enqueue(new my_message{3, true});
+      WHEN("consume 1 element") {
+         uint32_t value = 0;
+         auto result = inbox.new_round(1, [&](const message_element& elem) noexcept  {
+            value = elem.body<my_message>().value;
+            return task_result::resume; });
+         THEN("should consume the 1st urgent element") {
+            REQUIRE(result.consumed_items == 1);
+            REQUIRE(value == 2);
+         }
+         AND_WHEN("consume 1 element") {
+            auto result = inbox.new_round(1, [&](const message_element& elem) noexcept  {
+               value = elem.body<my_message>().value;
+               return task_result::resume; });
+            THEN("should consume the 2nd urgent element") {
+               REQUIRE(result.consumed_items == 1);
+               REQUIRE(value == 3);
+            }
+            AND_WHEN("consume 1 element") {
+               auto result = inbox.new_round(1, [&](const message_element& elem) noexcept  {
+                  value = elem.body<my_message>().value;
+                  return task_result::resume; });
+               THEN("should consume the  normal element") {
+                  REQUIRE(result.consumed_items == 1);
+                  REQUIRE(value == 1);
+               }
+            }
+         }
+      }
+   }
 }
