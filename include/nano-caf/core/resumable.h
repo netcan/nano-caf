@@ -7,10 +7,11 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <cstddef>
+#include <nano-caf/core/thread_safe_list.h>
 
 NANO_CAF_NS_BEGIN
 
-struct resumable {
+struct resumable : list_element {
    enum class result {
       resume_later,
       awaiting_message,
@@ -19,9 +20,27 @@ struct resumable {
    };
 
    virtual auto resume() noexcept -> result = 0;
+   virtual ~resumable() noexcept = default;
 
-   virtual ~resumable() = default;
+   inline friend auto intrusive_ptr_add_ref(resumable* ptr) noexcept -> void {
+      ptr->intrusive_ptr_add_ref_impl();
+   }
+
+   inline friend auto intrusive_ptr_release(resumable* ptr) noexcept -> void {
+      ptr->intrusive_ptr_release_impl();
+   }
+
+private:
+   auto to_value_ptr() -> void* override {
+      return reinterpret_cast<void*>(this);
+   }
+private:
+   virtual void intrusive_ptr_add_ref_impl() = 0;
+   virtual void intrusive_ptr_release_impl() = 0;
+
 };
+
+
 
 NANO_CAF_NS_END
 
