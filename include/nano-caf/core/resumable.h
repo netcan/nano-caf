@@ -34,13 +34,11 @@ private:
    auto to_value_ptr() -> void* override {
       return reinterpret_cast<void*>(this);
    }
+
 private:
-   virtual void intrusive_ptr_add_ref_impl() = 0;
-   virtual void intrusive_ptr_release_impl() = 0;
-
+   virtual auto intrusive_ptr_add_ref_impl() -> void = 0;
+   virtual auto intrusive_ptr_release_impl() -> void = 0;
 };
-
-
 
 NANO_CAF_NS_END
 
