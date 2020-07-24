@@ -90,6 +90,12 @@ namespace {
             THEN("the message queue is blocked") {
                REQUIRE(actor.blocked());
             }
+            WHEN("we push messages again") {
+               actor.enqueue(new my_message{6});
+               THEN("the message queue is not blocked") {
+                  REQUIRE_FALSE(actor.blocked());
+               }
+            }
          }
       }
    }

@@ -13,12 +13,12 @@ auto lifo_inbox::enqueue(message_element* msg) noexcept -> enq_result {
    auto eof = close_tag();
 
    while(e != eof) {
-      msg->next = e;
+      msg->next = e == block_tag() ? nullptr : e;
       // if success, it's not possible e == eof.
       if(stack_.compare_exchange_weak(e, msg,
          std::memory_order_release,
          std::memory_order_relaxed)) {
-         return (e == block_tag()) ? enq_result::blocked : enq_result::ok;
+         return enq_result::ok;
       }
    }
 

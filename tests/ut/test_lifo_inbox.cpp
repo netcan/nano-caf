@@ -107,4 +107,36 @@ namespace {
       msg = msg->next;
       REQUIRE(msg == nullptr);
    }
+
+   SCENARIO("block then push") {
+      lifo_inbox inbox{};
+      THEN("an empty inbox should not be in block state") {
+         REQUIRE_FALSE(inbox.blocked());
+      }
+      THEN("should be able to block a empty inbox") {
+         REQUIRE(inbox.try_block());
+         THEN("the inbox should be blocked") {
+            REQUIRE(inbox.blocked());
+         }
+         WHEN("should be able to push some new msg") {
+            REQUIRE(enq_result::ok == inbox.enqueue(new my_message{1}));
+            THEN("the inbox should not be in block state again") {
+               REQUIRE_FALSE(inbox.blocked());
+               REQUIRE(enq_result::ok == inbox.enqueue(new my_message{2}));
+               THEN("the inbox should not be in block state again") {
+                  REQUIRE_FALSE(inbox.blocked());
+               }
+            }
+            WHEN("take all messages") {
+               auto msg = inbox.take_all();
+               THEN("should be able to get the message") {
+                  REQUIRE(msg != nullptr);
+                  THEN("the inbox should be empty") {
+                     REQUIRE(inbox.empty());
+                  }
+               }
+            }
+         }
+      }
+   }
 }
