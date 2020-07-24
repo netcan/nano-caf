@@ -27,6 +27,10 @@ struct actor_control_block {
    actor_control_block(const actor_control_block&) = delete;
    actor_control_block& operator=(const actor_control_block&) = delete;
 
+   actor_system& system() const {
+      return system_;
+   }
+
 public:
    inline friend auto intrusive_ptr_add_weak_ref(actor_control_block* x) noexcept -> void {
       x->weak_refs_.fetch_add(1, std::memory_order_relaxed);

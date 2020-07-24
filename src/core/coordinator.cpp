@@ -37,6 +37,11 @@ auto coordinator::stop() noexcept -> void {
    for(auto& worker : workers_) {
       if(worker != nullptr) {
          worker->wait_done();
+      }
+   }
+
+   for(auto& worker : workers_) {
+      if(worker != nullptr) {
          delete worker;
          worker = nullptr;
       }
@@ -54,10 +59,12 @@ auto coordinator::try_steal(size_t id) noexcept -> resumable* {
       return nullptr;
    }
 
-   std::default_random_engine regen;
-   std::uniform_int_distribution<size_t> uniform;
-
    auto try_times = workers_.size() - 1;
+
+   std::random_device r;
+   std::default_random_engine regen{r()};
+   std::uniform_int_distribution<size_t> uniform(0, try_times);
+
    for(auto i = 0; i < try_times; ++i) {
       auto victim = uniform(regen);
       if(victim != id) {
