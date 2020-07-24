@@ -15,7 +15,11 @@ struct sched_actor
    : resumable
    , private actor_inbox {
    using actor_inbox::enqueue;
-   auto resume() noexcept  -> resumable::result override;
+   auto resume(size_t max_throughput) noexcept  -> resumable::result override;
+
+   auto handle_message(const message_element&) noexcept -> task_result {
+      return task_result::resume;
+   }
 };
 
 NANO_CAF_NS_END
