@@ -6,8 +6,8 @@
 #define NANO_CAF_RESUMABLE_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <cstddef>
 #include <nano-caf/core/thread_safe_list.h>
+#include <cstddef>
 
 NANO_CAF_NS_BEGIN
 

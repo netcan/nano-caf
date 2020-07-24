@@ -7,6 +7,8 @@
 #include <nano-caf/core/actor/message_element.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor/make_actor.h>
+#include <nano-caf/core/coordinator.h>
+#include <nano-caf/core/actor_system.h>
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -19,10 +21,8 @@ namespace {
    };
 
    SCENARIO("an idle worker") {
-      worker worker;
-      worker.launch();
-      worker.stop();
-      worker.wait_done();
+      coordinator scheduler{};
+      scheduler.launch(1);
    }
 
    bool actor_deleted = false;
@@ -45,11 +45,12 @@ namespace {
    SCENARIO("put a real job") {
       actor_deleted = false;
       {
-         intrusive_actor_ptr actor_ctrl = make_actor<my_actor>();
+         actor_system system;
+         intrusive_actor_ptr actor_ctrl = make_actor<my_actor>(system);
          auto actor = actor_ctrl->get<my_actor>();
-         worker worker;
-         worker.launch();
-         worker.external_enqueue(actor);
+         coordinator scheduler{};
+         scheduler.launch(1);
+         scheduler.schedule_job(*actor);
 
          actor->enqueue(new my_message{1});
          actor->enqueue(new my_message{2});
@@ -63,16 +64,12 @@ namespace {
             WHEN("push more messages") {
                actor->enqueue(new my_message{5});
                actor->enqueue(new my_message{6});
-               worker.external_enqueue(actor);
+               scheduler.schedule_job(*actor);
 
                std::this_thread::sleep_for(std::chrono::microseconds{100});
                REQUIRE(actor->values == std::vector<size_t>{1,2,3,4,5,6});
             }
          }
-
-         std::this_thread::sleep_for(std::chrono::microseconds{100});
-         worker.stop();
-         worker.wait_done();
       }
       REQUIRE(actor_deleted);
    }

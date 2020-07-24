@@ -14,13 +14,14 @@
 NANO_CAF_NS_BEGIN
 
 struct sched_actor;
+struct actor_system;
 
 struct actor_control_block {
    using data_destructor = void (*)(sched_actor*);
    using block_destructor = void (*)(actor_control_block*);
 
-   actor_control_block(data_destructor data_dtor, block_destructor block_dtor)
-      : strong_refs{1}, weak_refs{1}, data_dtor{data_dtor}, block_dtor{block_dtor}
+   actor_control_block(actor_system& system, data_destructor data_dtor, block_destructor block_dtor)
+      : strong_refs_{1}, weak_refs_{1}, data_dtor_{data_dtor}, block_dtor_{block_dtor}, system_(system)
    {}
 
    actor_control_block(const actor_control_block&) = delete;
@@ -28,11 +29,11 @@ struct actor_control_block {
 
 public:
    inline friend auto intrusive_ptr_add_weak_ref(actor_control_block* x) noexcept -> void {
-      x->weak_refs.fetch_add(1, std::memory_order_relaxed);
+      x->weak_refs_.fetch_add(1, std::memory_order_relaxed);
    }
 
    inline friend auto intrusive_ptr_add_ref(actor_control_block* x) noexcept -> void {
-      x->strong_refs.fetch_add(1, std::memory_order_relaxed);
+      x->strong_refs_.fetch_add(1, std::memory_order_relaxed);
    }
 
    friend auto intrusive_ptr_release_weak(actor_control_block* x) noexcept -> void;
@@ -48,10 +49,13 @@ public:
    ~actor_control_block() noexcept = default;
 
 private:
-   std::atomic<size_t> strong_refs;
-   std::atomic<size_t> weak_refs;
-   const data_destructor data_dtor;
-   const block_destructor block_dtor;
+   std::atomic<size_t> strong_refs_;
+   std::atomic<size_t> weak_refs_;
+   const data_destructor data_dtor_;
+   const block_destructor block_dtor_;
+
+protected:
+   actor_system& system_;
 };
 
 

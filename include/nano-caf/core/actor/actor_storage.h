@@ -15,7 +15,8 @@ NANO_CAF_NS_BEGIN
 template<typename T>
 struct actor_storage  {
    template<typename ... Ts>
-   actor_storage(Ts&& ... args) : control{data_dtor, block_dtor} {
+   actor_storage(actor_system& system, Ts&& ... args)
+   : control{system, data_dtor, block_dtor} {
       new (&value) T(std::forward<Ts>(args)...);
    }
 

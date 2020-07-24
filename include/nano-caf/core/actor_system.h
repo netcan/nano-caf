@@ -7,11 +7,13 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/util/disable_copy.h>
+#include <nano-caf/core/coordinator.h>
 
 NANO_CAF_NS_BEGIN
 
-struct actor_system: disable_copy {
-
+struct actor_system: private coordinator, disable_copy {
+   auto start(size_t num_of_workers);
+   auto stop();
 };
 
 NANO_CAF_NS_END

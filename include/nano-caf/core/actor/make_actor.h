@@ -13,8 +13,8 @@ NANO_CAF_NS_BEGIN
 
 template<typename T, typename ... Ts>
 intrusive_actor_ptr
-make_actor(Ts&&...args) {
-   auto storage = new actor_storage<T>(std::forward<Ts>(args)...);
+make_actor(actor_system& system, Ts&&...args) {
+   auto storage = new actor_storage<T>(system, std::forward<Ts>(args)...);
    return intrusive_actor_ptr(&(storage->control), false);
 }
 

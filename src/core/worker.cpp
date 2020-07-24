@@ -5,8 +5,14 @@
 #include <nano-caf/core/worker.h>
 #include <nano-caf/core/resumable.h>
 #include <nano-caf/core/actor/actor_control_block.h>
+#include <nano-caf/core/coordinator.h>
 
 NANO_CAF_NS_BEGIN
+
+////////////////////////////////////////////////////////////////////
+auto worker::take_one() noexcept -> resumable* {
+   return thread_safe_list::pop_front<resumable>();
+}
 
 ////////////////////////////////////////////////////////////////////
 auto worker::external_enqueue(resumable* job) noexcept -> void {
@@ -38,13 +44,30 @@ auto worker::stop() noexcept -> void {
    wakeup_worker();
 }
 
+////////////////////////////////////////////////////////////////////
 using timespan = std::chrono::duration<int64_t, std::nano>;
+
+constexpr timespan sleep_durations[3] = {
+   timespan{1000},
+   timespan{100000},
+   timespan{1'000'000'000},
+};
+
+constexpr size_t try_times[3] = {
+   100,
+   10,
+   1
+};
 
 ////////////////////////////////////////////////////////////////////
 auto worker::goto_bed() noexcept -> void {
+   if(strategy_ < 2 && tried_times_++ >= try_times[strategy_]) {
+      ++strategy_;
+   }
+
    std::unique_lock<std::mutex> guard(lock_);
    sleeping = true;
-   cv_.wait(guard,[&] { return !thread_safe_list::empty(); });
+   cv_.wait_for(guard, sleep_durations[strategy_], [&] { return !thread_safe_list::empty(); });
    sleeping = false;
 }
 
@@ -56,14 +79,23 @@ auto worker::wakeup_worker() noexcept -> void {
 }
 
 ////////////////////////////////////////////////////////////////////
+auto worker::get_a_job() noexcept -> resumable* {
+   auto job = thread_safe_list::pop_front<resumable>();
+   if(job != nullptr) return job;
+
+   return coordinator_.try_steal(id_);
+}
+
+////////////////////////////////////////////////////////////////////
 auto worker::run() noexcept -> void {
    while (1) {
-      auto job = thread_safe_list::pop_front<resumable>();
-      if(job == nullptr) {
+      auto job = get_a_job();
+      if(job != nullptr) {
+         if(!resume_job(job)) return;
+         strategy_ = 0;
+         tried_times_ = 0;
+      } else {
          goto_bed();
-      }
-      else if(!resume_job(job)) {
-         return;
       }
    }
 }

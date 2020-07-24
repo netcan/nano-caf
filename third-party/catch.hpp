@@ -11904,7 +11904,7 @@ namespace Catch {
 #if defined(CATCH_CONFIG_NEW_CAPTURE)
 
     // Windows's implementation of std::tmpfile is terrible (it tries
-    // to create a file inside system folder, thus requiring elevated
+    // to create a file inside system_ folder, thus requiring elevated
     // privileges for the binary), so we have to use tmpnam(_s) and
     // create the file ourselves there.
     class TempFile {
@@ -16695,8 +16695,8 @@ namespace Catch {
         for( auto const& child : groupNode.children )
             writeTestCase( *child );
 
-        xml.scopedElement( "system-out" ).writeText( trim( stdOutForSuite ), XmlFormatting::Newline );
-        xml.scopedElement( "system-err" ).writeText( trim( stdErrForSuite ), XmlFormatting::Newline );
+        xml.scopedElement( "system_-out" ).writeText( trim( stdOutForSuite ), XmlFormatting::Newline );
+        xml.scopedElement( "system_-err" ).writeText( trim( stdErrForSuite ), XmlFormatting::Newline );
     }
 
     void JunitReporter::writeTestCase( TestCaseNode const& testCaseNode ) {
@@ -16750,9 +16750,9 @@ namespace Catch {
             writeAssertions( sectionNode );
 
             if( !sectionNode.stdOut.empty() )
-                xml.scopedElement( "system-out" ).writeText( trim( sectionNode.stdOut ), XmlFormatting::Newline );
+                xml.scopedElement( "system_-out" ).writeText( trim( sectionNode.stdOut ), XmlFormatting::Newline );
             if( !sectionNode.stdErr.empty() )
-                xml.scopedElement( "system-err" ).writeText( trim( sectionNode.stdErr ), XmlFormatting::Newline );
+                xml.scopedElement( "system_-err" ).writeText( trim( sectionNode.stdErr ), XmlFormatting::Newline );
         }
         for( auto const& childNode : sectionNode.childSections )
             if( className.empty() )

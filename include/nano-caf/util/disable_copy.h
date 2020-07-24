@@ -10,6 +10,7 @@
 NANO_CAF_NS_BEGIN
 
 struct disable_copy {
+   disable_copy() = default;
    disable_copy(const disable_copy&) = delete;
    disable_copy(disable_copy&&) = delete;
    disable_copy& operator=(const disable_copy&) = delete;
