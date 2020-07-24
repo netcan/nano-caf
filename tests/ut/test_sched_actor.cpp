@@ -95,6 +95,13 @@ namespace {
                THEN("the message queue is not blocked") {
                   REQUIRE_FALSE(actor.blocked());
                }
+               WHEN("consume again, should return awaiting message") {
+                  actor.clear();
+                  REQUIRE(actor.resume() == resumable::result::awaiting_message);
+                  THEN("should consume the new enqueued message") {
+                     REQUIRE(actor.values == std::vector<size_t>{6});
+                  }
+               }
             }
          }
       }
