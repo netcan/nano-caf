@@ -67,7 +67,8 @@ auto worker::goto_bed() noexcept -> void {
 
    std::unique_lock<std::mutex> guard(lock_);
    sleeping = true;
-   cv_.wait_for(guard, sleep_durations[strategy_], [&] { return !thread_safe_list::empty(); });
+   cv_.wait_for(guard, sleep_durations[strategy_],
+      [&] { return !thread_safe_list::empty(); });
    sleeping = false;
 }
 
@@ -118,6 +119,8 @@ auto worker::resume_job(resumable* job) noexcept -> bool {
          break;
       case resumable::result::shutdown_execution_unit:
          return false;
+      case resumable::result::awaiting_message:
+      case resumable::result::done:
       default:
          intrusive_ptr_release(job);
          break;

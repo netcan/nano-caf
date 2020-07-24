@@ -15,11 +15,12 @@ auto sched_actor::resume() noexcept  -> resumable::result {
       if(actor_inbox::empty() && actor_inbox::try_block()) {
          return resumable::result::awaiting_message;
       }
-
       auto result = actor_inbox::new_round(max_throughput - consumed_msgs,
-         [this](const message_element& msg) { return handle_message(msg); });
+         [this](const message_element& msg) { return handle_message_internal(msg); });
 
-      if(result.stop_all) break;
+      if(result.stop_all) {
+         return result::done;
+      }
 
       consumed_msgs += result.consumed_items;
    }
@@ -30,5 +31,20 @@ auto sched_actor::resume() noexcept  -> resumable::result {
 
    return resumable::result::resume_later;
 }
+
+auto sched_actor::handle_message_internal(const message_element& msg) noexcept -> task_result {
+   handle_message(msg);
+   if(msg.message_id == EXIT_MSG) {
+      flags |= exiting_flag;
+   }
+
+   if(flags & exiting_flag) {
+      actor_inbox::close();
+      return task_result::stop_all;
+   }
+
+   return task_result::resume;
+}
+
 
 NANO_CAF_NS_END

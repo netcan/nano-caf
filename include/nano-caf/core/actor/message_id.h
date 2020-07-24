@@ -16,7 +16,7 @@ struct message_id {
       urgent = uint32_t(1) << 31,
    };
 
-   message_id(uint32_t id, category category)
+   constexpr message_id(uint32_t id, category category)
       : id{(id & mask) | ((uint32_t)category)}
    {}
 
@@ -38,6 +38,8 @@ private:
 private:
    uint32_t id;
 };
+
+constexpr message_id EXIT_MSG{0x3FFF'FFFF, message_id::category::urgent };
 
 NANO_CAF_NS_END
 

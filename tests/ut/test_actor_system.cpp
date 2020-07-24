@@ -25,9 +25,8 @@ namespace {
 
    struct my_actor : sched_actor {
       std::vector<size_t> values;
-      auto handle_message(const message_element& msg) noexcept -> task_result override {
+      auto handle_message(const message_element& msg) noexcept -> void override {
          values.push_back(msg.body<my_message>().value);
-         return task_result::resume;
       }
 
       void clear() {

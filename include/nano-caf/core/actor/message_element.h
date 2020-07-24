@@ -23,6 +23,9 @@ struct message_element {
    auto is_urgent() const noexcept -> bool {
       return message_id.is_category(message_id::category::urgent);
    }
+
+   virtual ~message_element() = default;
+
 public:
    message_element* next {};
    message_id message_id;
