@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/7/22.
 //
 
-#include <nano-caf/core/actor_inbox.h>
-#include <nano-caf/core/message_element.h>
+#include <nano-caf/core/actor/actor_inbox.h>
+#include <nano-caf/core/actor/message_element.h>
 
 NANO_CAF_NS_BEGIN
 

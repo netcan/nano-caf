@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/7/23.
 //
 
-#include <nano-caf/core/sched_actor.h>
+#include <nano-caf/core/actor/sched_actor.h>
 
 NANO_CAF_NS_BEGIN
 

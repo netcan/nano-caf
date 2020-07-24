@@ -3,8 +3,8 @@
 //
 
 #include <catch.hpp>
-#include <nano-caf/core/actor_inbox.h>
-#include <nano-caf/core/message_element.h>
+#include <nano-caf/core/actor/actor_inbox.h>
+#include <nano-caf/core/actor/message_element.h>
 
 namespace {
    using namespace NANO_CAF_NS;

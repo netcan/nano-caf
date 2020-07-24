@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/7/23.
 //
 
-#include <nano-caf/core/drr_cached_queue.h>
-#include <nano-caf/core/message_element.h>
+#include <nano-caf/core/actor/drr_cached_queue.h>
+#include <nano-caf/core/actor/message_element.h>
 
 NANO_CAF_NS_BEGIN
 

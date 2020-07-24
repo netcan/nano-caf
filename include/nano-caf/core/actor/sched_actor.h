@@ -7,7 +7,7 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/resumable.h>
-#include <nano-caf/core/actor_inbox.h>
+#include <nano-caf/core/actor/actor_inbox.h>
 
 NANO_CAF_NS_BEGIN
 

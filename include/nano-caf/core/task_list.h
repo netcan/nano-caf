@@ -6,7 +6,7 @@
 #define NANO_CAF_TASK_LIST_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/message_element.h>
+#include <nano-caf/core/actor/message_element.h>
 #include <cstddef>
 #include <memory>
 

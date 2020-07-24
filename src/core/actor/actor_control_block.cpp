@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/7/23.
 //
 
-#include <nano-caf/core/actor_control_block.h>
+#include <nano-caf/core/actor/actor_control_block.h>
 
 NANO_CAF_NS_BEGIN
 
