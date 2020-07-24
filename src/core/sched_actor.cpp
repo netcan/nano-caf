@@ -6,7 +6,9 @@
 
 NANO_CAF_NS_BEGIN
 
-auto sched_actor::resume(size_t max_throughput) noexcept  -> resumable::result {
+constexpr size_t max_throughput = 3;
+
+auto sched_actor::resume() noexcept  -> resumable::result {
    size_t consumed_msgs = 0;
 
    while (consumed_msgs < max_throughput) {
@@ -14,9 +16,8 @@ auto sched_actor::resume(size_t max_throughput) noexcept  -> resumable::result {
          return resumable::result::awaiting_message;
       }
 
-      auto result = actor_inbox::new_round(max_throughput - consumed_msgs, [this](const message_element& msg) {
-         return handle_message(msg);
-      });
+      auto result = actor_inbox::new_round(max_throughput - consumed_msgs,
+         [this](const message_element& msg) { return handle_message(msg); });
 
       if(result.stop_all) break;
 

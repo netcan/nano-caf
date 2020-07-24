@@ -15,9 +15,10 @@ struct sched_actor
    : resumable
    , private actor_inbox {
    using actor_inbox::enqueue;
-   auto resume(size_t max_throughput) noexcept  -> resumable::result override;
+   using actor_inbox::blocked;
+   auto resume() noexcept  -> resumable::result override;
 
-   auto handle_message(const message_element&) noexcept -> task_result {
+   virtual auto handle_message(const message_element&) noexcept -> task_result {
       return task_result::resume;
    }
 };

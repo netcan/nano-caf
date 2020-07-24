@@ -18,7 +18,7 @@ struct resumable {
       shutdown_execution_unit
    };
 
-   virtual auto resume(size_t max_throughput) noexcept -> result = 0;
+   virtual auto resume() noexcept -> result = 0;
 
    virtual ~resumable() = default;
 };
