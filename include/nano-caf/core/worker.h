@@ -16,17 +16,18 @@ NANO_CAF_NS_BEGIN
 struct resumable;
 
 struct worker : private thread_safe_list {
-   auto external_enqueue(resumable *job) -> void;
-   auto launch() -> void;
-   auto stop() -> void;
+   auto external_enqueue(resumable *job) noexcept -> void;
+   auto launch() noexcept -> void;
+   auto stop() noexcept -> void;
 
-   auto wait_done() -> void;
+   auto wait_done() noexcept -> void;
+
 private:
-   auto run() -> void;
-   auto resume_job(resumable*) -> bool;
-   auto cleanup() -> void;
-   auto goto_bed() -> void;
-   auto wakeup_worker() -> void;
+   auto run() noexcept -> void;
+   auto resume_job(resumable*) noexcept -> bool;
+   auto cleanup() noexcept -> void;
+   auto goto_bed() noexcept -> void;
+   auto wakeup_worker() noexcept -> void;
 
 private:
    std::thread thread_{};

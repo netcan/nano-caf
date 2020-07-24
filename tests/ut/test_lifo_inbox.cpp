@@ -119,7 +119,7 @@ namespace {
             REQUIRE(inbox.blocked());
          }
          WHEN("should be able to push some new msg") {
-            REQUIRE(enq_result::ok == inbox.enqueue(new my_message{1}));
+            REQUIRE(enq_result::blocked == inbox.enqueue(new my_message{1}));
             THEN("the inbox should not be in block state again") {
                REQUIRE_FALSE(inbox.blocked());
                REQUIRE(enq_result::ok == inbox.enqueue(new my_message{2}));

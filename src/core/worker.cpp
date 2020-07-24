@@ -9,19 +9,20 @@
 NANO_CAF_NS_BEGIN
 
 ////////////////////////////////////////////////////////////////////
-auto worker::external_enqueue(resumable* job) -> void {
+auto worker::external_enqueue(resumable* job) noexcept -> void {
    intrusive_ptr_add_ref(job);
    thread_safe_list::push_back(job);
    wakeup_worker();
 }
 
 ////////////////////////////////////////////////////////////////////
-auto worker::wait_done() -> void {
+auto worker::wait_done() noexcept -> void {
    thread_.join();
+   cleanup();
 }
 
 ////////////////////////////////////////////////////////////////////
-auto worker::stop() -> void {
+auto worker::stop() noexcept -> void {
    struct shutdown : resumable {
       auto resume() noexcept -> result override {
          return result::shutdown_execution_unit;
@@ -40,7 +41,7 @@ auto worker::stop() -> void {
 using timespan = std::chrono::duration<int64_t, std::nano>;
 
 ////////////////////////////////////////////////////////////////////
-auto worker::goto_bed() -> void {
+auto worker::goto_bed() noexcept -> void {
    std::unique_lock<std::mutex> guard(lock_);
    sleeping = true;
    cv_.wait(guard,[&] { return !thread_safe_list::empty(); });
@@ -48,27 +49,27 @@ auto worker::goto_bed() -> void {
 }
 
 ////////////////////////////////////////////////////////////////////
-auto worker::wakeup_worker() -> void {
+auto worker::wakeup_worker() noexcept -> void {
    std::unique_lock<std::mutex> guard(lock_);
    if (sleeping && !thread_safe_list::empty())
       cv_.notify_one();
 }
 
 ////////////////////////////////////////////////////////////////////
-auto worker::run() -> void {
+auto worker::run() noexcept -> void {
    while (1) {
       auto job = thread_safe_list::pop_front<resumable>();
       if(job == nullptr) {
          goto_bed();
       }
       else if(!resume_job(job)) {
-         return cleanup();
+         return;
       }
    }
 }
 
 ////////////////////////////////////////////////////////////////////
-auto worker::cleanup() -> void {
+auto worker::cleanup() noexcept -> void {
    while (1) {
       auto job = thread_safe_list::pop_front<resumable>();
       if(job == nullptr) {
@@ -78,7 +79,7 @@ auto worker::cleanup() -> void {
 }
 
 ////////////////////////////////////////////////////////////////////
-auto worker::resume_job(resumable* job) -> bool {
+auto worker::resume_job(resumable* job) noexcept -> bool {
    switch(job->resume()) {
       case resumable::result::resume_later:
          thread_safe_list::push_back(job);
@@ -94,8 +95,10 @@ auto worker::resume_job(resumable* job) -> bool {
 }
 
 ////////////////////////////////////////////////////////////////////
-auto worker::launch() -> void {
-   thread_ = std::thread{[this] { run(); }};
+auto worker::launch() noexcept -> void {
+   thread_ = std::thread{[this] {
+      run();
+   }};
 }
 
 NANO_CAF_NS_END

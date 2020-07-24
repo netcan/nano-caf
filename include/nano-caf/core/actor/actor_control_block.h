@@ -40,8 +40,9 @@ public:
 
    friend auto intrusive_ptr_upgrade_weak(actor_control_block* x) noexcept -> intrusive_ptr<actor_control_block>;
 
-   auto get() noexcept -> sched_actor* {
-      return reinterpret_cast<sched_actor*>(reinterpret_cast<char*>(this) + CACHE_LINE_SIZE);
+   template<typename T>
+   auto get() noexcept -> T* {
+      return reinterpret_cast<T*>(reinterpret_cast<char*>(this) + CACHE_LINE_SIZE);
    }
 
    ~actor_control_block() noexcept = default;

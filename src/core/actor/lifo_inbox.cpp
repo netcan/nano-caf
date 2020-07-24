@@ -18,7 +18,7 @@ auto lifo_inbox::enqueue(message_element* msg) noexcept -> enq_result {
       if(stack_.compare_exchange_weak(e, msg,
          std::memory_order_release,
          std::memory_order_relaxed)) {
-         return enq_result::ok;
+         return e == block_tag() ? enq_result::blocked : enq_result::ok;
       }
    }
 
