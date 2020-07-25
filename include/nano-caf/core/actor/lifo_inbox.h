@@ -6,15 +6,10 @@
 #define NANO_CAF_LIFO_INBOX_H
 
 #include <nano-caf/nano-caf-ns.h>
+#include <nano-caf/core/actor/enq_result.h>
 #include <atomic>
 
 NANO_CAF_NS_BEGIN
-
-enum class enq_result {
-   ok,
-   closed,
-   blocked
-};
 
 struct message_element;
 

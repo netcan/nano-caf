@@ -8,15 +8,15 @@
 
 NANO_CAF_NS_BEGIN
 
-auto actor_handle::send(message_element* msg) noexcept -> bool {
+auto actor_handle::send(message_element* msg) noexcept -> enq_result {
    auto actor = ptr_->get<sched_actor>();
    auto result = actor->enqueue(msg);
    switch(result) {
-      case enq_result::ok: return true;
-      case enq_result::closed: return false;
       case enq_result::blocked:
          ptr_->system().schedule_job(*actor);
-         return true;
+         return enq_result::ok;
+      default:
+         return result;
    }
 }
 

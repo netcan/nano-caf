@@ -9,6 +9,8 @@ NANO_CAF_NS_BEGIN
 
 //////////////////////////////////////////////////////////////////
 auto lifo_inbox::enqueue(message_element* msg) noexcept -> enq_result {
+   if(msg == nullptr) return enq_result::null_msg;
+
    auto e = head();
    auto eof = close_tag();
 
