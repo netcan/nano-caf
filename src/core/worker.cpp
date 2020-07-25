@@ -35,8 +35,8 @@ auto worker::stop() noexcept -> void {
          return result::shutdown_execution_unit;
       }
 
-      auto intrusive_ptr_add_ref_impl() -> void override {}
-      auto intrusive_ptr_release_impl() -> void override {
+      auto intrusive_ptr_add_ref_impl() noexcept -> void override {}
+      auto intrusive_ptr_release_impl() noexcept -> void override {
          delete this;
       }
    };

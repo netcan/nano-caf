@@ -11,6 +11,7 @@
 #include <nano-caf/core/cache_line_size.h>
 #include "actor_control_block.h"
 #include "exit_reason.h"
+#include "actor_handle.h"
 
 NANO_CAF_NS_BEGIN
 
@@ -35,20 +36,28 @@ private:
    virtual auto user_defined_handle_msg(const message_element&) noexcept -> void {}
 
 private:
-   auto intrusive_ptr_add_ref_impl() -> void override {
+   auto intrusive_ptr_add_ref_impl() noexcept -> void override {
       intrusive_ptr_add_ref(to_ctl());
    }
-   auto intrusive_ptr_release_impl() -> void override {
+   auto intrusive_ptr_release_impl() noexcept -> void override {
       intrusive_ptr_release(to_ctl());
    }
 
 protected:
-   auto to_ctl() -> actor_control_block* {
-      return reinterpret_cast<actor_control_block*>((reinterpret_cast<char*>(this) - CACHE_LINE_SIZE));
+   auto to_ctl() const noexcept -> actor_control_block* {
+      return const_cast<actor_control_block*>(
+         reinterpret_cast<const actor_control_block*>(
+            (reinterpret_cast<const char*>(this) - CACHE_LINE_SIZE)));
+   }
+
+   auto get_current_sender() const noexcept -> actor_handle {
+      if(current_message_ == nullptr) return intrusive_actor_ptr{};
+      return current_message_->sender;
    }
 private:
    uint32_t flags_{};
    exit_reason reason_;
+   message_element* current_message_{};
 };
 
 NANO_CAF_NS_END

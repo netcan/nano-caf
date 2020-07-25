@@ -41,16 +41,20 @@ private:
       template<typename ... Args>
       internal_actor(Args&&...args) : T(std::forward<Args>(args)...) {}
 
-      auto exit(exit_reason reason) -> void override {
+      auto exit(exit_reason reason) noexcept -> void override {
          sched_actor::exit_(reason);
       }
 
-      auto self() -> actor_control_block& override {
+      auto self() const noexcept -> actor_control_block& override {
          return *sched_actor::to_ctl();
       }
 
       auto user_defined_handle_msg(const message_element& msg) noexcept -> void override {
          return T::handle_message(msg);
+      }
+
+      auto current_sender() const noexcept -> actor_handle override {
+         return get_current_sender();
       }
    };
 

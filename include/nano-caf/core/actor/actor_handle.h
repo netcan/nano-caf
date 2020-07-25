@@ -31,6 +31,9 @@ struct actor_handle {
       return send_(make_message<T>(from, id, std::forward<Args>(args)...));
    }
 
+   auto exists() const {
+      return ptr_ != nullptr;
+   }
 private:
    auto send_(message_element*) noexcept -> enq_result;
 

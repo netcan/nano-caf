@@ -16,7 +16,12 @@ auto sched_actor::resume() noexcept  -> resumable::result {
          return resumable::result::awaiting_message;
       }
       auto result = actor_inbox::new_round(max_throughput - consumed_msgs,
-         [this](const message_element& msg) { return handle_message_internal(msg); });
+         [this](const message_element& msg) {
+            current_message_ = const_cast<message_element*>(&msg);
+            auto result  = handle_message_internal(msg);
+            current_message_ = nullptr;
+            return result;
+      });
 
       if(result.stop_all) {
          return result::done;

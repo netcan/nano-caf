@@ -13,7 +13,8 @@ enum class enq_result {
    ok,
    closed,
    blocked,
-   null_msg
+   null_msg,
+   null_sender
 };
 
 NANO_CAF_NS_END

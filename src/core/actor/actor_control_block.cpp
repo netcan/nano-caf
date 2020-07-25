@@ -15,7 +15,7 @@ auto intrusive_ptr_release_weak(actor_control_block* x) noexcept -> void {
 
 auto intrusive_ptr_release(actor_control_block* x) noexcept -> void {
    if (x->strong_refs_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
-      x->data_dtor_(x->get_());
+      x->data_dtor_(x->get());
       intrusive_ptr_release_weak(x);
    }
 }

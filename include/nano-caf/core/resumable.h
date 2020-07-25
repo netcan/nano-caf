@@ -36,8 +36,8 @@ private:
    }
 
 private:
-   virtual auto intrusive_ptr_add_ref_impl() -> void = 0;
-   virtual auto intrusive_ptr_release_impl() -> void = 0;
+   virtual auto intrusive_ptr_add_ref_impl() noexcept -> void = 0;
+   virtual auto intrusive_ptr_release_impl() noexcept -> void = 0;
 };
 
 NANO_CAF_NS_END

@@ -31,9 +31,9 @@ struct actor_control_block {
       return system_;
    }
 
+   // XXX: only strong ref should call this
    auto get() noexcept -> sched_actor* {
-      if(strong_refs_.load() <= 1) return nullptr;
-      return get_();
+      return reinterpret_cast<sched_actor*>(reinterpret_cast<char*>(this) + CACHE_LINE_SIZE);
    }
 
    ~actor_control_block() noexcept = default;
@@ -52,12 +52,6 @@ public:
 
    friend auto intrusive_ptr_upgrade_weak(actor_control_block* x) noexcept -> intrusive_ptr<actor_control_block>;
 
-
-private:
-   auto get_() noexcept -> sched_actor* {
-      //if(strong_refs_.load() == 0) return nullptr;
-      return reinterpret_cast<sched_actor*>(reinterpret_cast<char*>(this) + CACHE_LINE_SIZE);
-   }
 
 private:
    std::atomic<size_t> strong_refs_;

@@ -17,8 +17,15 @@ struct actor {
 
 protected:
    template<typename T, typename ... Args>
-   inline auto send(actor_handle& to, message_id const& id, Args&& ... args) {
+   inline auto send(actor_handle& to, message_id const& id, Args&& ... args) noexcept {
       return to.send<T>(self(), id, std::forward<Args>(args)...);
+   }
+
+   template<typename T, typename ... Args>
+   inline auto reply(message_id const& id, Args&& ... args) noexcept {
+      auto sender = current_sender();
+      if(!sender.exists()) return enq_result::null_sender;
+      return sender.send<T>(self(), id, std::forward<Args>(args)...);
    }
 
    template<typename T, typename ... Ts>
@@ -26,12 +33,13 @@ protected:
       return self().system().spawn<T>(std::forward<Ts>(args)...);
    }
 
-   virtual auto exit(exit_reason) -> void = 0;
+   virtual auto exit(exit_reason) noexcept -> void = 0;
 
    virtual auto handle_message(const message_element& msg) noexcept -> void = 0;
 
 private:
-   virtual auto self() -> actor_control_block& = 0;
+   virtual auto self() const noexcept -> actor_control_block& = 0;
+   virtual auto current_sender() const noexcept -> actor_handle = 0;
 };
 
 NANO_CAF_NS_END
