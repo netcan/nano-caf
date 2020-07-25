@@ -22,7 +22,6 @@ struct sched_actor
    using actor_inbox::blocked;
    auto resume() noexcept  -> resumable::result override;
 
-   virtual auto init_handler() noexcept -> void {}
 protected:
    auto exit_(exit_reason reason) -> void {
       flags_ |= exiting_flag;
