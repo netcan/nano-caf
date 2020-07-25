@@ -40,7 +40,7 @@ protected:
 
    template<typename T, typename ... Ts>
    inline auto spawn(Ts&& ... args) noexcept -> actor_handle {
-      return self().system().spawn<T>(std::forward<Ts>(args)...);
+      return self().context().spawn<T>(std::forward<Ts>(args)...);
    }
 
    virtual auto exit(exit_reason) noexcept -> void = 0;

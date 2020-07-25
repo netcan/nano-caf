@@ -16,7 +16,7 @@ auto actor_handle::send_(message_element* msg) noexcept -> enq_result {
    auto result = actor->enqueue(msg);
    switch(result) {
       case enq_result::blocked:
-         ptr_->system().schedule_job(*actor);
+         ptr_->context().schedule_job(*actor);
          return enq_result::ok;
       default:
          return result;

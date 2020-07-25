@@ -14,21 +14,21 @@
 NANO_CAF_NS_BEGIN
 
 struct sched_actor;
-struct actor_system;
+struct actor_context;
 
 struct actor_control_block {
    using data_destructor = void (*)(sched_actor*);
    using block_destructor = void (*)(actor_control_block*);
 
-   actor_control_block(actor_system& system, data_destructor data_dtor, block_destructor block_dtor)
-      : strong_refs_{1}, weak_refs_{1}, data_dtor_{data_dtor}, block_dtor_{block_dtor}, system_(system)
+   actor_control_block(actor_context& context, data_destructor data_dtor, block_destructor block_dtor)
+      : strong_refs_{1}, weak_refs_{1}, data_dtor_{data_dtor}, block_dtor_{block_dtor}, context_(context)
    {}
 
    actor_control_block(const actor_control_block&) = delete;
    actor_control_block& operator=(const actor_control_block&) = delete;
 
-   actor_system& system() const {
-      return system_;
+   actor_context& context() const {
+      return context_;
    }
 
    // XXX: only strong ref should call this
@@ -60,7 +60,7 @@ private:
    const block_destructor block_dtor_;
 
 protected:
-   actor_system& system_;
+   actor_context& context_;
 };
 
 NANO_CAF_NS_END
