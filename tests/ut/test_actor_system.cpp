@@ -22,8 +22,7 @@ namespace {
    SCENARIO("a do-nothing actor system") {
       actor_system system;
       system.start(5);
-      std::this_thread::sleep_for(std::chrono::microseconds{100});
-      system.stop();
+      system.shutdown();
    }
 
    struct my_actor : actor {
@@ -37,18 +36,16 @@ namespace {
       }
    };
 
-//   SCENARIO("actor system") {
-//      actor_system system;
-//      system.start(5);
-//
-//      auto actor = system.spawn<my_actor>();
-//
-//      actor.send<my_message>({1}, 1);
-//
-//      std::this_thread::sleep_for(std::chrono::microseconds{100});
-//
-//      system.stop();
-//   }
+   SCENARIO("actor system") {
+      actor_system system;
+      system.start(5);
+
+      auto actor = system.spawn<my_actor>();
+
+      actor.send<my_message>({1}, 1);
+
+      system.power_off();
+   }
 
    struct pong_actor : actor {
       int times = 0;
@@ -86,7 +83,7 @@ namespace {
       auto me = system.spawn<ping_actor>();
       REQUIRE(system.get_num_of_actors() == 2);
       me.release();
-      system.stop();
+      system.shutdown();
       REQUIRE(system.get_num_of_actors() == 0);
    }
 }

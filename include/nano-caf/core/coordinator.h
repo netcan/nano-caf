@@ -18,7 +18,7 @@ struct resumable;
 
 struct coordinator {
    auto launch(size_t num_of_workers) noexcept -> void;
-   auto stop() noexcept -> void;
+   auto shutdown() noexcept -> void;
    auto schedule_job(resumable&) noexcept -> void;
 
    ~coordinator() noexcept;

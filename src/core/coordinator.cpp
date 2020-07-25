@@ -28,7 +28,7 @@ auto coordinator::schedule_job(resumable& job) noexcept -> void {
 }
 
 ////////////////////////////////////////////////////////////////////
-auto coordinator::stop() noexcept -> void {
+auto coordinator::shutdown() noexcept -> void {
    for(auto& worker : workers_) {
       if(worker != nullptr) {
          worker->stop();
@@ -51,7 +51,7 @@ auto coordinator::stop() noexcept -> void {
 
 ////////////////////////////////////////////////////////////////////
 coordinator::~coordinator() noexcept {
-   stop();
+      shutdown();
 }
 
 ////////////////////////////////////////////////////////////////////
