@@ -54,7 +54,7 @@ namespace {
       int times = 0;
       auto handle_message(const message_element& msg) noexcept -> void override {
          auto result = reply(1);
-         std::cout << "actor pong = " << ++times << std::endl;
+         times++;
       }
    };
 

@@ -21,6 +21,7 @@ struct spin_lock {
    ~spin_lock() {
       lock.clear(std::memory_order_release);
    }
+
 private:
    std::atomic_flag& lock;
 };
