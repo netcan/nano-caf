@@ -13,13 +13,6 @@
 namespace {
    using namespace NANO_CAF_NS;
 
-   struct my_message : message_element {
-      my_message(uint32_t value)
-         : value{value}, message_element{value} {}
-
-      uint32_t value{};
-   };
-
    SCENARIO("an idle worker") {
       coordinator scheduler{};
       scheduler.launch(1);
@@ -27,9 +20,9 @@ namespace {
 
    bool actor_deleted = false;
    struct my_actor : sched_actor {
-      std::vector<size_t> values;
+      std::vector<message_id> values;
       auto handle_message(const message_element& msg) noexcept -> void override {
-         values.push_back(msg.body<my_message>().value);
+         values.push_back(msg.message_id);
       }
 
       void clear() {
@@ -51,22 +44,22 @@ namespace {
          scheduler.launch(1);
          scheduler.schedule_job(*actor);
 
-         actor->enqueue(new my_message{1});
-         actor->enqueue(new my_message{2});
-         actor->enqueue(new my_message{3});
-         actor->enqueue(new my_message{4});
+         actor->enqueue(make_message(1));
+         actor->enqueue(make_message(2));
+         actor->enqueue(make_message(3));
+         actor->enqueue(make_message(4));
 
          std::this_thread::sleep_for(std::chrono::microseconds{100});
 
          THEN("should be able to consume all message") {
-            REQUIRE(actor->values == std::vector<size_t>{1, 2, 3, 4});
+            REQUIRE(actor->values == std::vector<message_id>{1, 2, 3, 4});
             WHEN("push more messages") {
-               actor->enqueue(new my_message{5});
-               actor->enqueue(new my_message{6});
+               actor->enqueue(make_message(5));
+               actor->enqueue(make_message(6));
                scheduler.schedule_job(*actor);
 
                std::this_thread::sleep_for(std::chrono::microseconds{100});
-               REQUIRE(actor->values == std::vector<size_t>{1,2,3,4,5,6});
+               REQUIRE(actor->values == std::vector<message_id>{1,2,3,4,5,6});
             }
          }
       }

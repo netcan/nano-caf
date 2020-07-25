@@ -6,16 +6,13 @@
 #define NANO_CAF_MESSAGE_ELEMENT_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include "message_id.h"
+#include <nano-caf/core/actor/message_id.h>
+#include <utility>
 
 NANO_CAF_NS_BEGIN
 
 struct message_element {
-   template<typename T>
-   auto body() const -> T& {
-      return *reinterpret_cast<T*>(const_cast<message_element*>(this));
-   }
-
+   message_element(const message_id& id) : message_id{id} {}
    message_element(uint32_t id, message_id::category category = message_id::category::normal)
       : message_id(id, category)
    {}
@@ -24,12 +21,66 @@ struct message_element {
       return message_id.is_category(message_id::category::urgent);
    }
 
+   template<typename T>
+   auto body() const noexcept -> const T* {
+      return reinterpret_cast<const T*>(body_ptr());
+   }
+
    virtual ~message_element() = default;
+
+private:
+   virtual auto body_ptr() const noexcept -> const void* = 0;
 
 public:
    message_element* next {};
    message_id message_id;
 };
+
+
+template<typename T, typename = void>
+struct message : message_element {
+   template<typename ... Args>
+   message(const struct message_id& id, Args&&...args)
+      : message_element(id)
+      , value(std::forward<Args>(args)...){}
+
+   auto body_ptr() const noexcept -> const void* override {
+      return reinterpret_cast<const void*>(&value);
+   }
+
+   T value;
+};
+
+template<typename T>
+struct message<T, std::enable_if_t<std::is_class_v<T>>> : message_element, T {
+   template<typename ... Args>
+   message(const struct message_id& id, Args&&...args)
+      : message_element(id)
+      , T(std::forward<Args>(args)...){}
+
+   auto body_ptr() const noexcept -> const void* override {
+      return reinterpret_cast<const void*>(static_cast<const T*>(this));
+   }
+};
+
+template<>
+struct message<void> : message_element {
+   message(const struct message_id& id)
+      : message_element(id) {}
+
+   auto body_ptr() const noexcept -> const void* override {
+      return nullptr;
+   }
+};
+
+template<typename T, typename ... Args>
+inline auto make_message(const message_id& id, Args&&...args) -> message_element* {
+   return new message<T>(id, std::forward<Args>(args)...);
+}
+
+inline auto make_message(const message_id& id) -> message_element* {
+   return new message<void>(id);
+}
 
 NANO_CAF_NS_END
 

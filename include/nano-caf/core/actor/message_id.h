@@ -16,6 +16,10 @@ struct message_id {
       urgent = uint32_t(1) << 31,
    };
 
+   constexpr message_id(uint32_t id, bool is_urgent = false)
+      : message_id(id, is_urgent ? category::urgent : category::normal)
+   {}
+
    constexpr message_id(uint32_t id, category category)
       : id{(id & mask) | ((uint32_t)category)}
    {}
@@ -31,6 +35,9 @@ struct message_id {
       return !operator==(rhs);
    }
 
+   operator uint32_t() const {
+      return id;
+   }
 private:
    enum : uint32_t {
       mask = (uint32_t)category::normal - 1

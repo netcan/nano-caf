@@ -9,20 +9,13 @@
 namespace {
    using namespace NANO_CAF_NS;
 
-   struct my_message : message_element {
-      my_message(uint32_t value)
-         : value{value}, message_element{value} {}
-
-      uint32_t value{};
-   };
-
    SCENARIO("drr_cached_queue consume with resume") {
       drr_cached_queue queue{};
 
       GIVEN("a queue with 2 elements") {
          task_list list{};
-         list.push_back(new my_message{1});
-         list.push_back(new my_message{2});
+         list.push_back(make_message(1));
+         list.push_back(make_message(2));
          queue.append_list(list);
          THEN("the queue should not be empty now") {
             REQUIRE_FALSE(queue.empty());
@@ -42,27 +35,27 @@ namespace {
          }
 
          AND_WHEN("consume 1 ") {
-            uint32_t value = 0;
+            message_id value = 0;
             auto result = queue.new_round(1, [&](const message_element& elem) noexcept  {
-               value = elem.body<my_message>().value;
+               value = elem.message_id;
                return task_result::resume; });
             THEN("should consume the 1st element") {
                REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
-               REQUIRE(value == 1);
+               REQUIRE(value == message_id{1});
             }
             AND_THEN("consume 1 again") {
-               uint32_t value = 0;
+               message_id value = 0;
                auto result = queue.new_round(1, [&](const message_element& elem) noexcept  {
-                  value = elem.body<my_message>().value;
+                  value = elem.message_id;
                   return task_result::resume; });
                THEN("should consume the 2nd element") {
                   REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
-                  REQUIRE(value == 2);
+                  REQUIRE(value == message_id(2));
                }
                AND_THEN("consume 1 again") {
-                  uint32_t value = 0;
+                  message_id value = 0;
                   auto result = queue.new_round(1, [&](const message_element& elem) noexcept  {
-                     value = elem.body<my_message>().value;
+                     value = elem.message_id;
                      return task_result::resume; });
                   THEN("should consume nothing") {
                      REQUIRE(result == new_round_result{.consumed_items = 0, .stop_all = false});
@@ -76,8 +69,8 @@ namespace {
    SCENARIO("drr_cached_queue consume with skip") {
       drr_cached_queue queue{};
       task_list list{};
-      list.push_back(new my_message{1});
-      list.push_back(new my_message{2});
+      list.push_back(make_message(1));
+      list.push_back(make_message(2));
       queue.append_list(list);
 
       THEN("if consume 2 element once") {
@@ -111,8 +104,8 @@ namespace {
    SCENARIO("drr_cached_queue consume with skip once") {
       drr_cached_queue queue{};
       task_list list{};
-      list.push_back(new my_message{1});
-      list.push_back(new my_message{2});
+      list.push_back(make_message(1));
+      list.push_back(make_message(2));
       queue.append_list(list);
 
       THEN("if consume 2 element once") {
@@ -146,9 +139,9 @@ namespace {
    SCENARIO("drr_cached_queue consume with stop") {
       drr_cached_queue queue{};
       task_list list{};
-      list.push_back(new my_message{1});
-      list.push_back(new my_message{2});
-      list.push_back(new my_message{3});
+      list.push_back(make_message(1));
+      list.push_back(make_message(2));
+      list.push_back(make_message(3));
       queue.append_list(list);
 
       THEN("if consume 3 element once") {
@@ -182,9 +175,9 @@ namespace {
    SCENARIO("drr_cached_queue consume with stop all") {
       drr_cached_queue queue{};
       task_list list{};
-      list.push_back(new my_message{1});
-      list.push_back(new my_message{2});
-      list.push_back(new my_message{3});
+      list.push_back(make_message(1));
+      list.push_back(make_message(2));
+      list.push_back(make_message(3));
       queue.append_list(list);
 
       THEN("if consume 3 element once") {
@@ -218,9 +211,9 @@ namespace {
    SCENARIO("drr_cached_queue increase deficit") {
       drr_cached_queue queue{};
       task_list list{};
-      list.push_back(new my_message{1});
-      list.push_back(new my_message{2});
-      list.push_back(new my_message{3});
+      list.push_back(make_message(1));
+      list.push_back(make_message(2));
+      list.push_back(make_message(3));
       queue.append_list(list);
 
       WHEN("increase 2 deficit") {
@@ -258,9 +251,9 @@ namespace {
       drr_cached_queue queue{};
       queue.inc_deficit(2);
       task_list list{};
-      list.push_back(new my_message{1});
-      list.push_back(new my_message{2});
-      list.push_back(new my_message{3});
+      list.push_back( make_message(1));
+      list.push_back(make_message(2));
+      list.push_back(make_message(3));
       queue.append_list(list);
 
       THEN("even consume it with 0 quota") {

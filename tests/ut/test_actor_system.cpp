@@ -11,9 +11,9 @@
 namespace {
    using namespace NANO_CAF_NS;
 
-   struct my_message : message_element {
+   struct my_message  {
       my_message(uint32_t value)
-         : value{value}, message_element{value} {}
+         : value{value} {}
 
       uint32_t value{};
    };
@@ -28,7 +28,7 @@ namespace {
    struct my_actor : sched_actor {
       std::vector<size_t> values;
       auto handle_message(const message_element& msg) noexcept -> void override {
-         values.push_back(msg.body<my_message>().value);
+         values.push_back(msg.body<my_message>()->value);
       }
 
       void clear() {
@@ -42,7 +42,7 @@ namespace {
 
       auto actor = system.spawn<my_actor>();
 
-      actor.send(new my_message{1});
+      actor.send(make_message<my_message>(1, 1));
 
       std::this_thread::sleep_for(std::chrono::microseconds{100});
 
