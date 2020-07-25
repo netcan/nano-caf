@@ -47,12 +47,12 @@ namespace {
       system.power_off();
    }
 
+   int pong_times = 0;
    struct pong_actor : actor {
-      int times = 0;
+
       auto handle_message(const message_element& msg) noexcept -> void override {
          reply(1);
-         times++;
-         //std::cout << "replied = " << times << std::endl;
+         pong_times++;
       }
    };
 
@@ -77,6 +77,7 @@ namespace {
    };
 
    SCENARIO("ping pang") {
+      pong_times = 0;
       actor_system system;
       system.start(3);
       REQUIRE(system.get_num_of_actors() == 0);
@@ -85,5 +86,6 @@ namespace {
       me.release();
       system.shutdown();
       REQUIRE(system.get_num_of_actors() == 0);
+      REQUIRE(pong_times == 100);
    }
 }
