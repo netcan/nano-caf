@@ -7,22 +7,9 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/spin_lock.h>
+#include <nano-caf/util/list_element.h>
 
 NANO_CAF_NS_BEGIN
-
-struct list_element {
-   list_element* next;
-
-   virtual ~list_element() = default;
-
-   template<typename T>
-   auto to_value() -> T* {
-      return reinterpret_cast<T*>(to_value_ptr());
-   }
-
-private:
-   virtual auto to_value_ptr() -> void* = 0;
-};
 
 // we don't use double end list, because it has to
 // dynamically alloc memory, which would cause more
@@ -58,7 +45,8 @@ struct thread_safe_list {
    }
 
    auto empty() const noexcept -> bool {
-      return head_.load(std::memory_order_relaxed) == nullptr;
+      spin_lock _{lock_};
+      return head_ == nullptr;
    }
 
    ~thread_safe_list() {
@@ -71,8 +59,8 @@ private:
    auto pop_front_() noexcept -> list_element* {
       spin_lock _{lock_};
       if(head_ != nullptr) {
-         auto elem = head_.load(std::memory_order_relaxed);
-         head_.store(elem->next, std::memory_order_relaxed);
+         auto elem = head_;
+         head_ = elem->next;
          if (head_ == nullptr) tail_ = nullptr;
          return elem;
       }
@@ -81,9 +69,9 @@ private:
    }
 
 private:
-   std::atomic<list_element*> head_ {};
+   list_element* head_ {};
    list_element* tail_ {};
-   std::atomic_flag lock_;
+   mutable std::atomic_flag lock_;
 };
 
 NANO_CAF_NS_END
