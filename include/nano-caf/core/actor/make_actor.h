@@ -14,6 +14,7 @@ template<typename T, typename ... Ts>
 intrusive_actor_ptr
 make_actor(actor_system& system, Ts&&...args) {
    auto storage = new actor_storage<T>(system, std::forward<Ts>(args)...);
+   storage->control.get()->init_handler();
    return intrusive_actor_ptr(&(storage->control), false);
 }
 

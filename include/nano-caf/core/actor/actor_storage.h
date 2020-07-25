@@ -18,12 +18,14 @@ struct actor_storage  {
    template<typename ... Ts>
    actor_storage(actor_system& system, Ts&& ... args)
    : control{system, data_dtor, block_dtor} {
-      new (&value) internal_actor(std::forward<Ts>(args)...);
+      new (&value_) internal_actor(std::forward<Ts>(args)...);
    }
 
 private:
    static auto data_dtor(sched_actor* ptr) -> void {
-      static_cast<internal_actor*>(ptr)->~internal_actor();
+      auto p = static_cast<internal_actor*>(ptr);
+      p->exit_handler();
+      p->~internal_actor();
    }
 
    static auto block_dtor(actor_control_block* ptr) noexcept -> void {
@@ -49,6 +51,14 @@ private:
          return *sched_actor::to_ctl();
       }
 
+      auto init_handler() noexcept -> void override {
+         T::on_init();
+      }
+
+      auto exit_handler() noexcept -> void {
+         T::on_exit();
+      }
+
       auto user_defined_handle_msg(const message_element& msg) noexcept -> void override {
          return T::handle_message(msg);
       }
@@ -58,7 +68,7 @@ private:
       }
    };
 
-   union { internal_actor value; };
+   union { internal_actor value_; };
 };
 
 

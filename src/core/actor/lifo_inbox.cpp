@@ -8,6 +8,11 @@
 NANO_CAF_NS_BEGIN
 
 //////////////////////////////////////////////////////////////////
+lifo_inbox::lifo_inbox() {
+   stack_.store(block_tag());
+}
+
+//////////////////////////////////////////////////////////////////
 auto lifo_inbox::enqueue(message_element* msg) noexcept -> enq_result {
    if(msg == nullptr) return enq_result::null_msg;
 
@@ -45,9 +50,12 @@ auto lifo_inbox::take_all() noexcept -> message_element* {
 //////////////////////////////////////////////////////////////////
 auto lifo_inbox::try_block() noexcept -> bool {
    message_element* e = nullptr;
-   return stack_.compare_exchange_weak(e, block_tag(),
+   auto result = stack_.compare_exchange_weak(e, block_tag(),
       std::memory_order_release,
       std::memory_order_relaxed);
+   if(result) return true;
+
+   return e == block_tag();
 }
 
 //////////////////////////////////////////////////////////////////

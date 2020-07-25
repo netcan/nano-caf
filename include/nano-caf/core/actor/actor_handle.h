@@ -15,7 +15,7 @@ NANO_CAF_NS_BEGIN
 struct message_element;
 
 struct actor_handle {
-   actor_handle(intrusive_actor_ptr ptr) : ptr_{ptr} {}
+   actor_handle(intrusive_actor_ptr ptr = nullptr) : ptr_{ptr} {}
 
    template<typename T, typename ... Args>
    auto send(message_id const& id, Args&& ... args) noexcept {
@@ -29,6 +29,10 @@ struct actor_handle {
    template<typename T, typename ... Args>
    auto send(intrusive_actor_ptr const& from, message_id const& id, Args&& ... args) noexcept {
       return send_(make_message<T>(from, id, std::forward<Args>(args)...));
+   }
+
+   auto send(intrusive_actor_ptr const& from, message_id const& id) noexcept {
+      return send_(make_message(from, id));
    }
 
    auto exists() const {

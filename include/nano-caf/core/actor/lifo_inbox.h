@@ -14,6 +14,7 @@ NANO_CAF_NS_BEGIN
 struct message_element;
 
 struct lifo_inbox {
+   lifo_inbox();
    auto enqueue(message_element* msg) noexcept -> enq_result;
    auto take_all() noexcept -> message_element*;
    auto try_block() noexcept -> bool;

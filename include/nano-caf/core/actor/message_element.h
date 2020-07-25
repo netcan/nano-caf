@@ -118,12 +118,17 @@ inline auto make_message(const message_id& id, Args&&...args) -> message_element
    return new message<T>(id, std::forward<Args>(args)...);
 }
 
+template<typename T, typename ... Args>
+inline auto make_message(intrusive_actor_ptr sender, const message_id& id, Args&&...args) -> message_element* {
+   return new message<T>(sender, id, std::forward<Args>(args)...);
+}
+
 inline auto make_message(const message_id& id) -> message_element* {
    return new message<void>(id);
 }
 
 inline auto make_message(intrusive_actor_ptr sender, const message_id& id) -> message_element* {
-   return new message<void>(id);
+   return new message<void>(sender, id);
 }
 
 NANO_CAF_NS_END

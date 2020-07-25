@@ -49,4 +49,37 @@ namespace {
 
       system.stop();
    }
+
+   struct pong_actor : actor {
+      auto on_init() noexcept -> void override {
+         std::cout << "pong started " << std::endl;
+      }
+
+      auto handle_message(const message_element& msg) noexcept -> void override {
+         auto result = reply(1);
+         std::cout << "actor pong = " << (int)result << std::endl;
+      }
+   };
+
+   struct ping_actor : actor {
+      actor_handle pong;
+
+      auto on_init() noexcept -> void override {
+         pong = spawn<pong_actor>();
+         auto result = send_to(pong, 1);
+         std::cout << "send ping " << (int)result << std::endl;
+      }
+
+      auto handle_message(const message_element& msg) noexcept -> void override {
+         auto result = send_to(pong, 1);
+         std::cout << "send ping " << (int)result << std::endl;
+      }
+   };
+
+   SCENARIO("ping pang") {
+      actor_system system;
+      system.start(3);
+      system.spawn<ping_actor>();
+      std::this_thread::sleep_for(std::chrono::microseconds{100000000});
+   }
 }

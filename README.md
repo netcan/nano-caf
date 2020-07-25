@@ -1,3 +1,3 @@
 # nano-caf
 
-A rapid tiny C++ actor framework.
+A rapid tiny C++ actor framework for embedding system.

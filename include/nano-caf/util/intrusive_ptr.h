@@ -19,12 +19,13 @@ struct intrusive_ptr {
 
    intrusive_ptr(const intrusive_ptr& another) noexcept
       : ptr_(another.ptr_) {
-      intrusive_ptr_add_ref(ptr_);
+      if(ptr_)
+         intrusive_ptr_add_ref(ptr_);
    }
 
    intrusive_ptr(intrusive_ptr&& another) noexcept
       : ptr_(another.ptr_) {
-      another.ptr = nullptr;
+      another.ptr_ = nullptr;
    }
 
    ~intrusive_ptr() noexcept {
