@@ -51,28 +51,29 @@ namespace {
    }
 
    struct pong_actor : actor {
-      auto on_init() noexcept -> void override {
-         std::cout << "pong started " << std::endl;
-      }
-
+      int times = 0;
       auto handle_message(const message_element& msg) noexcept -> void override {
          auto result = reply(1);
-         std::cout << "actor pong = " << (int)result << std::endl;
+         std::cout << "actor pong = " << ++times << std::endl;
       }
    };
 
    struct ping_actor : actor {
       actor_handle pong;
+      size_t times = 0;
 
       auto on_init() noexcept -> void override {
          pong = spawn<pong_actor>();
-         auto result = send_to(pong, 1);
-         std::cout << "send ping " << (int)result << std::endl;
+         send_to(pong, 1);
+         times = 1;
       }
 
       auto handle_message(const message_element& msg) noexcept -> void override {
-         auto result = send_to(pong, 1);
-         std::cout << "send ping " << (int)result << std::endl;
+         if(times++ < 100) {
+            send_to(pong, 1);
+         } else {
+            exit(exit_reason::normal);
+         }
       }
    };
 
@@ -80,6 +81,7 @@ namespace {
       actor_system system;
       system.start(3);
       system.spawn<ping_actor>();
-      std::this_thread::sleep_for(std::chrono::microseconds{100000000});
+      std::this_thread::sleep_for(std::chrono::microseconds{100000});
+      system.stop();
    }
 }

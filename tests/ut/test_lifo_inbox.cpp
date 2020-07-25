@@ -12,7 +12,7 @@ namespace {
    SCENARIO("lifo inbox") {
       lifo_inbox inbox{};
       WHEN("eninbox a message, should return ok") {
-         REQUIRE(enq_result::ok == inbox.enqueue(make_message({1})));
+         REQUIRE(enq_result::blocked == inbox.enqueue(make_message({1})));
          WHEN("eninbox another message, should return ok") {
             REQUIRE(enq_result::ok == inbox.enqueue(make_message(2)));
             WHEN("when take_all") {
@@ -67,13 +67,13 @@ namespace {
             delete msg;
          }
       }
-      WHEN("ask if the inbox is blocked, should return false") {
-         REQUIRE_FALSE(inbox.blocked());
+      WHEN("ask if the inbox is blocked, should return true") {
+         REQUIRE(inbox.blocked());
       }
       WHEN("try to block a non-empty inbox, should return true") {
-         REQUIRE(inbox.try_block() == true);
+         REQUIRE(inbox.try_block());
          THEN("if ask if the inbox is blocked, should return true") {
-            REQUIRE(inbox.blocked() == true);
+            REQUIRE(inbox.blocked());
          }
       }
       THEN("it's size should be the size of atomic pointer") {
@@ -83,7 +83,7 @@ namespace {
 
    SCENARIO("take all from a lifo inbox") {
       lifo_inbox inbox{};
-      REQUIRE(enq_result::ok == inbox.enqueue(make_message(1)));
+      REQUIRE(enq_result::blocked == inbox.enqueue(make_message(1)));
       REQUIRE(enq_result::ok == inbox.enqueue(make_message(2)));
       REQUIRE(enq_result::ok == inbox.enqueue(make_message(3)));
 
@@ -102,8 +102,8 @@ namespace {
 
    SCENARIO("block then push") {
       lifo_inbox inbox{};
-      THEN("an empty inbox should not be in block state") {
-         REQUIRE_FALSE(inbox.blocked());
+      THEN("an empty inbox should be in block state") {
+         REQUIRE(inbox.blocked());
       }
       THEN("should be able to block a empty inbox") {
          REQUIRE(inbox.try_block());
