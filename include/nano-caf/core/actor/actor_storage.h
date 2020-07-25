@@ -9,6 +9,7 @@
 #include <nano-caf/core/actor/message_element.h>
 #include <nano-caf/core/actor/lifo_inbox.h>
 #include <nano-caf/core/actor/actor_control_block.h>
+#include <nano-caf/core/actor/sched_actor.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -17,12 +18,12 @@ struct actor_storage  {
    template<typename ... Ts>
    actor_storage(actor_system& system, Ts&& ... args)
    : control{system, data_dtor, block_dtor} {
-      new (&value) T(std::forward<Ts>(args)...);
+      new (&value) internal_actor(std::forward<Ts>(args)...);
    }
 
 private:
    static auto data_dtor(sched_actor* ptr) -> void {
-      static_cast<T*>(ptr)->~T();
+      static_cast<internal_actor*>(ptr)->~internal_actor();
    }
 
    static auto block_dtor(actor_control_block* ptr) noexcept -> void {
@@ -35,7 +36,25 @@ public:
 
 private:
    char padding[CACHE_LINE_SIZE - sizeof(control)];
-   union { T value; };
+
+   struct internal_actor : sched_actor, private T {
+      template<typename ... Args>
+      internal_actor(Args&&...args) : T(std::forward<Args>(args)...) {}
+
+      auto exit(exit_reason reason) -> void override {
+         sched_actor::exit_(reason);
+      }
+
+      auto self() -> actor_control_block& override {
+         return *sched_actor::to_ctl();
+      }
+
+      auto user_defined_handle_msg(const message_element& msg) noexcept -> void override {
+         return T::handle_message(msg);
+      }
+   };
+
+   union { internal_actor value; };
 };
 
 

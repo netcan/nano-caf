@@ -7,12 +7,15 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/actor/message_id.h>
+#include <nano-caf/util/intrusive_ptr.h>
+#include <nano-caf/core/actor/intrusive_actor_ptr.h>
 #include <utility>
 
 NANO_CAF_NS_BEGIN
 
 struct message_element {
    message_element(const message_id& id) : message_id{id} {}
+   message_element(const intrusive_actor_ptr& sender, const message_id& id) : sender{sender}, message_id{id} {}
    message_element(uint32_t id, message_id::category category = message_id::category::normal)
       : message_id(id, category)
    {}
@@ -33,12 +36,18 @@ private:
 
 public:
    message_element* next {};
+   intrusive_actor_ptr sender{};
    message_id message_id;
 };
 
 
 template<typename T, typename = void>
 struct message : message_element {
+   template<typename ... Args>
+   message(const intrusive_actor_ptr& sender, const struct message_id& id, Args&&...args)
+      : message_element(sender, id)
+      , value(std::forward<Args>(args)...){}
+
    template<typename ... Args>
    message(const struct message_id& id, Args&&...args)
       : message_element(id)
@@ -54,6 +63,11 @@ struct message : message_element {
 template<typename T>
 struct message<T, std::enable_if_t<std::is_class_v<T>>> : message_element, T {
    template<typename ... Args>
+   message(const intrusive_actor_ptr& sender, const struct message_id& id, Args&&...args)
+      : message_element(sender, id)
+      , T(std::forward<Args>(args)...){}
+
+   template<typename ... Args>
    message(const struct message_id& id, Args&&...args)
       : message_element(id)
       , T(std::forward<Args>(args)...){}
@@ -65,6 +79,11 @@ struct message<T, std::enable_if_t<std::is_class_v<T>>> : message_element, T {
 
 template<typename T>
 struct message<T*> : message_element {
+   template<typename ... Args>
+   message(const intrusive_actor_ptr& sender, const struct message_id& id, Args&&...args)
+      : message_element(sender, id)
+      , T(std::forward<Args>(args)...){}
+
    template<typename ... Args>
    message(const struct message_id& id, Args&&...args)
       : message_element(id)
@@ -83,6 +102,9 @@ private:
 
 template<>
 struct message<void> : message_element {
+   message(const intrusive_actor_ptr& sender, const struct message_id& id)
+      : message_element(sender, id) {}
+
    message(const struct message_id& id)
       : message_element(id) {}
 
@@ -97,6 +119,10 @@ inline auto make_message(const message_id& id, Args&&...args) -> message_element
 }
 
 inline auto make_message(const message_id& id) -> message_element* {
+   return new message<void>(id);
+}
+
+inline auto make_message(intrusive_actor_ptr sender, const message_id& id) -> message_element* {
    return new message<void>(id);
 }
 

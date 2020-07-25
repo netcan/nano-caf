@@ -7,6 +7,7 @@
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
 #include <iostream>
+#include <nano-caf/core/actor/actor.h>
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -25,7 +26,7 @@ namespace {
       system.stop();
    }
 
-   struct my_actor : sched_actor {
+   struct my_actor : actor {
       std::vector<size_t> values;
       auto handle_message(const message_element& msg) noexcept -> void override {
          values.push_back(msg.body<my_message>()->value);

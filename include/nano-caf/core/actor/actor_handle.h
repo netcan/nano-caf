@@ -18,8 +18,17 @@ struct actor_handle {
    actor_handle(intrusive_actor_ptr ptr) : ptr_{ptr} {}
 
    template<typename T, typename ... Args>
-   auto send(const message_id& id, Args&& ... args) {
+   auto send(message_id const& id, Args&& ... args) noexcept {
       return send_(make_message<T>(id, std::forward<Args>(args)...));
+   }
+
+   auto send(message_id const& id) noexcept {
+      return send_(make_message(id));
+   }
+
+   template<typename T, typename ... Args>
+   auto send(intrusive_actor_ptr const& from, message_id const& id, Args&& ... args) noexcept {
+      return send_(make_message<T>(from, id, std::forward<Args>(args)...));
    }
 
 private:

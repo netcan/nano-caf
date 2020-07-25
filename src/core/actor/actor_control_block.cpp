@@ -3,6 +3,7 @@
 //
 
 #include <nano-caf/core/actor/actor_control_block.h>
+#include <nano-caf/core/actor/intrusive_actor_ptr.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -14,7 +15,7 @@ auto intrusive_ptr_release_weak(actor_control_block* x) noexcept -> void {
 
 auto intrusive_ptr_release(actor_control_block* x) noexcept -> void {
    if (x->strong_refs_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
-      x->data_dtor_(x->get<sched_actor>());
+      x->data_dtor_(x->get_());
       intrusive_ptr_release_weak(x);
    }
 }

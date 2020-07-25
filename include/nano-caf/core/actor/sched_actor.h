@@ -10,6 +10,7 @@
 #include <nano-caf/core/actor/actor_inbox.h>
 #include <nano-caf/core/cache_line_size.h>
 #include "actor_control_block.h"
+#include "exit_reason.h"
 
 NANO_CAF_NS_BEGIN
 
@@ -20,13 +21,18 @@ struct sched_actor
    using actor_inbox::blocked;
    auto resume() noexcept  -> resumable::result override;
 
+protected:
+   auto exit_(exit_reason reason) -> void {
+      flags_ |= exiting_flag;
+      reason_ = reason;
+   }
 private:
    enum : uint32_t {
       exiting_flag = 0x0000'0001,
    };
 
    auto handle_message_internal(const message_element& msg) noexcept -> task_result;
-   virtual auto handle_message(const message_element&) noexcept -> void {}
+   virtual auto user_defined_handle_msg(const message_element&) noexcept -> void {}
 
 private:
    auto intrusive_ptr_add_ref_impl() -> void override {
@@ -36,13 +42,13 @@ private:
       intrusive_ptr_release(to_ctl());
    }
 
-private:
+protected:
    auto to_ctl() -> actor_control_block* {
       return reinterpret_cast<actor_control_block*>((reinterpret_cast<char*>(this) - CACHE_LINE_SIZE));
    }
-
 private:
-   uint32_t flags{};
+   uint32_t flags_{};
+   exit_reason reason_;
 };
 
 NANO_CAF_NS_END

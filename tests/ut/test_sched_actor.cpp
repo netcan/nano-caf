@@ -5,6 +5,7 @@
 #include <catch.hpp>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor/message_element.h>
+#include <nano-caf/core/actor/actor.h>
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -21,7 +22,7 @@ namespace {
 
    struct my_actor : sched_actor {
       std::vector<message_id> values;
-      auto handle_message(const message_element& msg) noexcept -> void override {
+      auto user_defined_handle_msg(const message_element& msg) noexcept -> void override {
          values.push_back(msg.message_id);
       }
 

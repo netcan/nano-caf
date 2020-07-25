@@ -33,12 +33,12 @@ auto sched_actor::resume() noexcept  -> resumable::result {
 }
 
 auto sched_actor::handle_message_internal(const message_element& msg) noexcept -> task_result {
-   handle_message(msg);
+   user_defined_handle_msg(msg);
    if(msg.message_id == EXIT_MSG) {
-      flags |= exiting_flag;
+      flags_ |= exiting_flag;
    }
 
-   if(flags & exiting_flag) {
+   if(flags_ & exiting_flag) {
       actor_inbox::close();
       return task_result::stop_all;
    }

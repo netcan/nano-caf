@@ -7,7 +7,6 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/actor/actor_storage.h>
-#include <nano-caf/core/actor/actor_control_block.h>
 
 NANO_CAF_NS_BEGIN
 
