@@ -5,7 +5,6 @@
 #ifndef NANO_CAF_MAKE_ACTOR_H
 #define NANO_CAF_MAKE_ACTOR_H
 
-#include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/actor/actor_storage.h>
 
 NANO_CAF_NS_BEGIN

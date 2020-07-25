@@ -18,6 +18,10 @@ NANO_CAF_NS_BEGIN
 struct sched_actor
    : resumable
    , private actor_inbox {
+
+   sched_actor(bool register_to_context = false);
+   ~sched_actor();
+
    using actor_inbox::enqueue;
    using actor_inbox::blocked;
    auto resume() noexcept  -> resumable::result override;
@@ -54,10 +58,12 @@ protected:
       if(current_message_ == nullptr) return intrusive_actor_ptr{};
       return current_message_->sender;
    }
+
 private:
+   message_element* current_message_{};
    uint32_t flags_{};
    exit_reason reason_;
-   message_element* current_message_{};
+   bool registered_;
 };
 
 NANO_CAF_NS_END

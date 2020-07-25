@@ -42,7 +42,9 @@ private:
 
    struct internal_actor : sched_actor, private T {
       template<typename ... Args>
-      internal_actor(Args&&...args) : T(std::forward<Args>(args)...) {}
+      internal_actor(Args&&...args)
+         : sched_actor(true)
+         , T{std::forward<Args>(args)...} {}
 
       auto exit(exit_reason reason) noexcept -> void override {
          sched_actor::exit_(reason);

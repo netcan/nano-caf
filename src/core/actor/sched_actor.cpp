@@ -3,10 +3,24 @@
 //
 
 #include <nano-caf/core/actor/sched_actor.h>
+#include <nano-caf/core/actor_context.h>
 
 NANO_CAF_NS_BEGIN
 
 constexpr size_t max_throughput = 3;
+
+sched_actor::sched_actor(bool register_to_context)
+   : registered_(register_to_context) {
+   if(register_to_context) {
+      to_ctl()->context().register_actor();
+   }
+}
+
+sched_actor::~sched_actor() {
+   if(registered_) {
+      to_ctl()->context().deregister_actor();
+   }
+}
 
 auto sched_actor::resume() noexcept  -> resumable::result {
    size_t consumed_msgs = 0;

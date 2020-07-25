@@ -11,11 +11,10 @@ auto actor_system::start(size_t num_of_workers) noexcept -> void {
 }
 
 auto actor_system::stop() noexcept -> void{
+   wait_actors_done();
    coordinator::stop();
 }
 
-auto actor_system::schedule_job(resumable& job) noexcept -> void {
-   coordinator::schedule_job(job);
-}
+
 
 NANO_CAF_NS_END

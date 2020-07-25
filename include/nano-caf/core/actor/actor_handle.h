@@ -38,6 +38,10 @@ struct actor_handle {
    auto exists() const {
       return ptr_ != nullptr;
    }
+
+   auto release() -> void {
+      ptr_ = nullptr;
+   }
 private:
    auto send_(message_element*) noexcept -> enq_result;
 

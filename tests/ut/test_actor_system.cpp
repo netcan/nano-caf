@@ -37,24 +37,25 @@ namespace {
       }
    };
 
-   SCENARIO("actor system") {
-      actor_system system;
-      system.start(5);
-
-      auto actor = system.spawn<my_actor>();
-
-      actor.send<my_message>({1}, 1);
-
-      std::this_thread::sleep_for(std::chrono::microseconds{100});
-
-      system.stop();
-   }
+//   SCENARIO("actor system") {
+//      actor_system system;
+//      system.start(5);
+//
+//      auto actor = system.spawn<my_actor>();
+//
+//      actor.send<my_message>({1}, 1);
+//
+//      std::this_thread::sleep_for(std::chrono::microseconds{100});
+//
+//      system.stop();
+//   }
 
    struct pong_actor : actor {
       int times = 0;
       auto handle_message(const message_element& msg) noexcept -> void override {
-         auto result = reply(1);
+         reply(1);
          times++;
+         //std::cout << "replied = " << times << std::endl;
       }
    };
 
@@ -70,6 +71,7 @@ namespace {
 
       auto handle_message(const message_element& msg) noexcept -> void override {
          if(times++ < 100) {
+            //std::this_thread::sleep_for(std::chrono::microseconds{100000});
             send_to(pong, 1);
          } else {
             exit(exit_reason::normal);
@@ -80,8 +82,11 @@ namespace {
    SCENARIO("ping pang") {
       actor_system system;
       system.start(3);
-      system.spawn<ping_actor>();
-      std::this_thread::sleep_for(std::chrono::microseconds{100000});
+      REQUIRE(system.get_num_of_actors() == 0);
+      auto me = system.spawn<ping_actor>();
+      REQUIRE(system.get_num_of_actors() == 2);
+      me.release();
       system.stop();
+      REQUIRE(system.get_num_of_actors() == 0);
    }
 }

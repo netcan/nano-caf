@@ -3,8 +3,8 @@
 //
 
 #include <nano-caf/core/coordinator.h>
+#include <nano-caf/core/worker.h>
 #include <random>
-#include <iostream>
 
 NANO_CAF_NS_BEGIN
 

@@ -7,11 +7,14 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/thread_safe_list.h>
-#include <nano-caf/core/worker.h>
+
 #include <cstddef>
 #include <vector>
 
 NANO_CAF_NS_BEGIN
+
+struct worker;
+struct resumable;
 
 struct coordinator {
    auto launch(size_t num_of_workers) noexcept -> void;
