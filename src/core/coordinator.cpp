@@ -4,6 +4,7 @@
 
 #include <nano-caf/core/coordinator.h>
 #include <random>
+#include <iostream>
 
 NANO_CAF_NS_BEGIN
 

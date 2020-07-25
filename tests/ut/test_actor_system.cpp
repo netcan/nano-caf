@@ -6,6 +6,7 @@
 #include <nano-caf/core/actor/message_element.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
+#include <iostream>
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -20,6 +21,7 @@ namespace {
    SCENARIO("a do-nothing actor system") {
       actor_system system;
       system.start(5);
+      std::this_thread::sleep_for(std::chrono::microseconds{100});
       system.stop();
    }
 

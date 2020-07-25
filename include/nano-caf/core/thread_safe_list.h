@@ -34,15 +34,9 @@ struct thread_safe_list {
 
    template<typename T>
    auto pop_front() noexcept -> T* {
-      spin_lock _{lock_};
-      if(head_ != nullptr) {
-         auto elem = head_.load(std::memory_order_relaxed);
-         head_.store(elem->next, std::memory_order_relaxed);
-         if (head_ == nullptr) tail_ = nullptr;
-         return elem->to_value<T>();
-      }
-
-      return nullptr;
+      auto elem = pop_front_();
+      if(elem == nullptr) return nullptr;
+      return elem->to_value<T>();
    }
 
    auto push_back(list_element* ptr) noexcept -> void {
@@ -65,6 +59,25 @@ struct thread_safe_list {
 
    auto empty() const noexcept -> bool {
       return head_.load(std::memory_order_relaxed) == nullptr;
+   }
+
+   ~thread_safe_list() {
+      for(auto elem = pop_front_(); elem != nullptr; elem = pop_front_()) {
+         delete elem;
+      }
+   }
+
+private:
+   auto pop_front_() noexcept -> list_element* {
+      spin_lock _{lock_};
+      if(head_ != nullptr) {
+         auto elem = head_.load(std::memory_order_relaxed);
+         head_.store(elem->next, std::memory_order_relaxed);
+         if (head_ == nullptr) tail_ = nullptr;
+         return elem;
+      }
+
+      return nullptr;
    }
 
 private:

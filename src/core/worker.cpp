@@ -6,6 +6,7 @@
 #include <nano-caf/core/resumable.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/coordinator.h>
+#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
@@ -40,7 +41,7 @@ auto worker::stop() noexcept -> void {
       }
    };
 
-   thread_safe_list::push_front(new shutdown{});
+   cmd_queue_.push_back(new shutdown{});
    wakeup_worker();
 }
 
@@ -64,24 +65,30 @@ auto worker::goto_bed() noexcept -> void {
    if(strategy_ < 2 && tried_times_++ >= try_times[strategy_]) {
       ++strategy_;
    }
-
-   std::unique_lock<std::mutex> guard(lock_);
-   sleeping = true;
-   cv_.wait_for(guard, sleep_durations[strategy_],
-      [&] { return !thread_safe_list::empty(); });
-   sleeping = false;
+   goto_bed_();
 }
 
+auto worker::goto_bed_() noexcept -> void {
+   std::unique_lock<std::mutex> guard(lock_);
+   //std::cout << "worker " << id_ << " goto bed" << std::endl;
+   sleeping = true;
+   cv_.wait_for(guard, sleep_durations[strategy_],
+                [&] { return !thread_safe_list::empty(); });
+   sleeping = false;
+}
 ////////////////////////////////////////////////////////////////////
 auto worker::wakeup_worker() noexcept -> void {
    std::unique_lock<std::mutex> guard(lock_);
-   if (sleeping && !thread_safe_list::empty())
+   if (sleeping && (!thread_safe_list::empty() || !cmd_queue_.empty()))
       cv_.notify_one();
 }
 
 ////////////////////////////////////////////////////////////////////
 auto worker::get_a_job() noexcept -> resumable* {
-   auto job = thread_safe_list::pop_front<resumable>();
+   auto job = cmd_queue_.pop_front<resumable>();
+   if(job != nullptr) return job;
+
+   job = thread_safe_list::pop_front<resumable>();
    if(job != nullptr) return job;
 
    return coordinator_.try_steal(id_);
