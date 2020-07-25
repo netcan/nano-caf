@@ -8,7 +8,9 @@
 
 NANO_CAF_NS_BEGIN
 
-auto actor_handle::send(message_element* msg) noexcept -> enq_result {
+auto actor_handle::send_(message_element* msg) noexcept -> enq_result {
+   if(msg == nullptr) return enq_result::null_msg;
+
    auto actor = ptr_->get<sched_actor>();
    auto result = actor->enqueue(msg);
    switch(result) {

@@ -63,6 +63,24 @@ struct message<T, std::enable_if_t<std::is_class_v<T>>> : message_element, T {
    }
 };
 
+template<typename T>
+struct message<T*> : message_element {
+   template<typename ... Args>
+   message(const struct message_id& id, Args&&...args)
+      : message_element(id)
+      , T(std::forward<Args>(args)...){}
+
+   auto body_ptr() const noexcept -> const void* override {
+      return reinterpret_cast<const void*>(static_cast<const T*>(this));
+   }
+
+   ~message() {
+      delete value;
+   }
+private:
+   T* value;
+};
+
 template<>
 struct message<void> : message_element {
    message(const struct message_id& id)

@@ -42,7 +42,7 @@ namespace {
 
       auto actor = system.spawn<my_actor>();
 
-      actor.send(make_message<my_message>(1, 1));
+      actor.send<my_message>({1}, 1);
 
       std::this_thread::sleep_for(std::chrono::microseconds{100});
 
