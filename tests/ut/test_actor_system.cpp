@@ -85,7 +85,7 @@ namespace {
 
       auto me = system.spawn<ping_actor>();
       REQUIRE(system.get_num_of_actors() == 2);
-      me.wait_for_exit();
+      REQUIRE(me.wait_for_exit() == NORMAL_EXIST);
       me.release();
 
       system.shutdown();
@@ -107,6 +107,7 @@ namespace {
       }
 
       auto on_init() noexcept -> void override {
+         //future = async([this]() { return add(5, 3); });
          future = async(&future_actor::add, this, 5, 3);
          if(!future) {
             exit(exit_reason::unhandled_exception);
