@@ -95,7 +95,8 @@ namespace {
 
    struct future_actor : actor {
       int value = 10;
-      std::optional<std::future<unsigned long>> future{};
+      std::optional<std::future<unsigned long>> future1{};
+      std::optional<std::future<unsigned long>> future2{};
 
       auto add(int a, int b) {
          unsigned long result = 0;
@@ -107,16 +108,22 @@ namespace {
       }
 
       auto on_init() noexcept -> void override {
-         //future = async([this]() { return add(5, 3); });
-         future = async(&future_actor::add, this, 5, 3);
-         if(!future) {
+         future1 = async(&future_actor::add, this, 5, 3);
+         if(!future1) {
+            exit(exit_reason::unhandled_exception);
+         }
+
+         future2 = async([this]() { return add(5, 3); });
+         if(!future2) {
             exit(exit_reason::unhandled_exception);
          }
       }
 
       auto handle_message(const message_element& msg) noexcept -> void override {
-         auto result = future->get();
-         if(result == 25000000) {
+         auto result1 = future1->get();
+         auto result2 = future2->get();
+
+         if(result1 + result2 == 50000000) {
             exit(exit_reason::normal);
          } else {
             exit(exit_reason::unknown);
