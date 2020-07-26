@@ -133,11 +133,13 @@ namespace {
 
    SCENARIO("async test") {
       actor_system system;
-      system.start(3);
+      system.start(5);
+
       auto me = system.spawn<future_actor>();
       me.send(1);
       REQUIRE(me.wait_for_exit() == NORMAL_EXIST);
       me.release();
+
       system.shutdown();
       REQUIRE(system.get_num_of_actors() == 0);
    }

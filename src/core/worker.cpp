@@ -6,7 +6,6 @@
 #include <nano-caf/core/resumable.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/coordinator.h>
-#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
@@ -120,14 +119,15 @@ auto worker::cleanup() noexcept -> void {
 
 ////////////////////////////////////////////////////////////////////
 auto worker::resume_job(resumable* job) noexcept -> bool {
+
    switch(job->resume()) {
       case resumable::result::resume_later:
          thread_safe_list::push_back(job);
          break;
       case resumable::result::shutdown_execution_unit:
          return false;
-      case resumable::result::awaiting_message:
       case resumable::result::done:
+      case resumable::result::awaiting_message:
       default:
          intrusive_ptr_release(job);
          break;
