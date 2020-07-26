@@ -16,12 +16,12 @@ NANO_CAF_NS_BEGIN
 struct message_element {
    message_element(const message_id& id) : message_id{id} {}
    message_element(const intrusive_actor_ptr& sender, const message_id& id) : sender{sender}, message_id{id} {}
-   message_element(uint32_t id, message_id::category category = message_id::category::normal)
+   message_element(uint32_t id, message_id::category category = message_id::normal)
       : message_id(id, category)
    {}
 
    auto is_urgent() const noexcept -> bool {
-      return message_id.is_category(message_id::category::urgent);
+      return message_id.is_category(message_id::urgent);
    }
 
    template<typename T>

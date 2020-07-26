@@ -133,7 +133,7 @@ namespace {
 
    SCENARIO("async test") {
       actor_system system;
-      system.start(5);
+      system.start(1);
 
       auto me = system.spawn<future_actor>();
       me.send(1);

@@ -11,21 +11,22 @@
 NANO_CAF_NS_BEGIN
 
 struct message_id {
-   enum class category : uint32_t {
-      normal = uint32_t(1) << 30,
-      urgent = uint32_t(1) << 31,
+   enum category : uint64_t {
+      future = uint64_t(1) << 61,
+      normal = uint64_t(1) << 62,
+      urgent = uint64_t(1) << 63,
    };
 
-   constexpr message_id(uint32_t id, bool is_urgent = false)
-      : message_id(id, is_urgent ? category::urgent : category::normal)
+   constexpr message_id(uint64_t id, bool is_urgent = false)
+      : message_id(id, is_urgent ? urgent : normal)
    {}
 
-   constexpr message_id(uint32_t id, category category)
-      : id{(id & mask) | ((uint32_t)category)}
+   constexpr message_id(uint64_t id, category category)
+      : id{(id & mask) | ((uint64_t)category)}
    {}
 
    auto is_category(category category) const -> bool {
-      return id & ((uint32_t)category);
+      return id & ((uint64_t)category);
    }
 
    auto operator==(const message_id& rhs) const {
@@ -35,18 +36,18 @@ struct message_id {
       return !operator==(rhs);
    }
 
-   operator uint32_t() const {
+   operator uint64_t() const {
       return id;
    }
 private:
-   enum : uint32_t {
-      mask = (uint32_t)category::normal - 1
+   enum : uint64_t {
+      mask = (uint64_t)category::normal - 1
    };
 private:
-   uint32_t id;
+   uint64_t id;
 };
 
-constexpr message_id EXIT_MSG{0x3FFF'FFFF, message_id::category::urgent };
+constexpr message_id EXIT_MSG{0x0000'FFFF'FFFF'FFFF, message_id::category::urgent };
 
 NANO_CAF_NS_END
 
