@@ -59,6 +59,7 @@ auto sched_actor::handle_message_internal(const message_element& msg) noexcept -
 
    if(flags_ & exiting_flag) {
       actor_inbox::close();
+      to_ctl()->on_exit(reason_);
       return task_result::stop_all;
    }
 

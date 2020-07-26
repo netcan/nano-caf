@@ -6,7 +6,6 @@
 #include <nano-caf/core/actor/message_element.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
-#include <iostream>
 #include <nano-caf/core/actor/actor.h>
 
 namespace {
@@ -47,6 +46,8 @@ namespace {
       system.power_off();
    }
 
+   constexpr size_t total_times = 100000;
+
    int pong_times = 0;
    struct pong_actor : actor {
 
@@ -67,10 +68,11 @@ namespace {
       }
 
       auto handle_message(const message_element& msg) noexcept -> void override {
-         if(times++ < 100) {
+         if(times++ < total_times ) {
             //std::this_thread::sleep_for(std::chrono::microseconds{100000});
             send_to(pong, 1);
-         } else {
+         }
+         else {
             exit(exit_reason::normal);
          }
       }
@@ -83,9 +85,10 @@ namespace {
       REQUIRE(system.get_num_of_actors() == 0);
       auto me = system.spawn<ping_actor>();
       REQUIRE(system.get_num_of_actors() == 2);
+      me.wait_for_exit();
       me.release();
       system.shutdown();
+      REQUIRE(pong_times == total_times);
       REQUIRE(system.get_num_of_actors() == 0);
-      REQUIRE(pong_times == 100);
    }
 }

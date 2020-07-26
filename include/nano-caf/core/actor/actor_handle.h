@@ -9,6 +9,7 @@
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/enq_result.h>
 #include <nano-caf/core/actor/message_element.h>
+#include "wait_result.h"
 
 NANO_CAF_NS_BEGIN
 
@@ -42,6 +43,14 @@ struct actor_handle {
    auto release() -> void {
       ptr_ = nullptr;
    }
+
+   auto wait_for_exit() -> wait_result {
+      if(ptr_ == nullptr) {
+         return { .result = wait_result::invalid_handle };
+      }
+      return { .result = wait_result::exited, ptr_->wait_for_exit() };
+   }
+
 private:
    auto send_(message_element*) noexcept -> enq_result;
 
