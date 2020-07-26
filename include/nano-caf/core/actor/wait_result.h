@@ -19,6 +19,13 @@ struct wait_result {
    };
    result result;
    exit_reason reason;
+
+   auto tie() const {
+      return std::tie(result, reason);
+   }
+   auto operator==(const wait_result& rhs) const -> bool {
+      return tie() == rhs.tie();
+   }
 };
 
 NANO_CAF_NS_END

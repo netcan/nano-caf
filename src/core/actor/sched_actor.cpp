@@ -54,12 +54,12 @@ auto sched_actor::resume() noexcept  -> resumable::result {
 auto sched_actor::handle_message_internal(const message_element& msg) noexcept -> task_result {
    user_defined_handle_msg(msg);
    if(msg.message_id == EXIT_MSG) {
-      flags_ |= exiting_flag;
+      // todo: cause
+      exit_(exit_reason::user_shutdown);
    }
 
    if(flags_ & exiting_flag) {
       actor_inbox::close();
-      to_ctl()->on_exit(reason_);
       return task_result::stop_all;
    }
 

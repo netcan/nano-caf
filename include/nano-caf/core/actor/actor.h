@@ -9,6 +9,8 @@
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/core/actor/exit_reason.h>
 #include <nano-caf/core/actor_system.h>
+#include <nano-caf/core/await/awaitable_object.h>
+#include <optional>
 
 NANO_CAF_NS_BEGIN
 
@@ -43,9 +45,20 @@ protected:
       return self().context().spawn<T>(std::forward<Ts>(args)...);
    }
 
+   template<typename F, typename ... Args>
+   inline auto async(F&& f, Args&&...args) ->
+   decltype(std::optional(make_async_object(std::forward<F>(f), std::forward<Args>(args)...)->get_future())){
+      auto obj = make_async_object(std::forward<F>(f), std::forward<Args>(args)...);
+      if(obj == nullptr) {
+         return std::nullopt;
+      }
+      self().context().schedule_job(*obj);
+      return std::optional{obj->get_future()};
+   }
+
    virtual auto exit(exit_reason) noexcept -> void = 0;
 
-   virtual auto handle_message(const message_element& msg) noexcept -> void = 0;
+   virtual auto handle_message(const message_element& msg) noexcept -> void {}
 
 private:
    auto self_handle() const noexcept -> intrusive_actor_ptr {

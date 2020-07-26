@@ -7,6 +7,7 @@
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/actor/actor.h>
+#include <iostream>
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -50,9 +51,8 @@ namespace {
 
    int pong_times = 0;
    struct pong_actor : actor {
-
       auto handle_message(const message_element& msg) noexcept -> void override {
-         reply(1);
+         reply(msg.message_id);
          pong_times++;
       }
    };
@@ -69,8 +69,7 @@ namespace {
 
       auto handle_message(const message_element& msg) noexcept -> void override {
          if(times++ < total_times ) {
-            //std::this_thread::sleep_for(std::chrono::microseconds{100000});
-            send_to(pong, 1);
+            send_to(pong, msg.message_id + 1);
          }
          else {
             exit(exit_reason::normal);
@@ -83,12 +82,51 @@ namespace {
       actor_system system;
       system.start(3);
       REQUIRE(system.get_num_of_actors() == 0);
+
       auto me = system.spawn<ping_actor>();
       REQUIRE(system.get_num_of_actors() == 2);
       me.wait_for_exit();
       me.release();
+
       system.shutdown();
       REQUIRE(pong_times == total_times);
+      REQUIRE(system.get_num_of_actors() == 0);
+   }
+
+   struct future_actor : actor {
+      int value = 10;
+      std::optional<std::future<int>> future{};
+
+      auto add(int a, int b) { return a + b + value; }
+
+      auto on_init() noexcept -> void override {
+         future = async(&future_actor::add, this, 5, 3);
+         if(!future) {
+            exit(exit_reason::unhandled_exception);
+         }
+      }
+
+      auto handle_message(const message_element& msg) noexcept -> void override {
+         future->wait();
+         auto result = future->get();
+
+         if(result == 18) {
+            exit(exit_reason::normal);
+         } else {
+            exit(exit_reason::unknown);
+         }
+      }
+
+   };
+
+   SCENARIO("async test") {
+      actor_system system;
+      system.start(3);
+      auto me = system.spawn<future_actor>();
+      me.send(1);
+      REQUIRE(me.wait_for_exit() == NORMAL_EXIST);
+      me.release();
+      system.shutdown();
       REQUIRE(system.get_num_of_actors() == 0);
    }
 }

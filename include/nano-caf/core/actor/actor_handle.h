@@ -58,6 +58,8 @@ private:
    intrusive_actor_ptr ptr_{};
 };
 
+inline constexpr wait_result NORMAL_EXIST{wait_result::exited, exit_reason::normal};
+
 NANO_CAF_NS_END
 
 #endif //NANO_CAF_ACTOR_HANDLE_H

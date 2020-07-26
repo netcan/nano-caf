@@ -28,8 +28,11 @@ struct sched_actor
 
 protected:
    auto exit_(exit_reason reason) -> void {
-      flags_ |= exiting_flag;
-      reason_ = reason;
+      if(!(flags_ & exiting_flag)) {
+         flags_ |= exiting_flag;
+         reason_ = reason;
+         to_ctl()->on_exit(reason_);
+      }
    }
 private:
    enum : uint32_t {
