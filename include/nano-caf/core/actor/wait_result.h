@@ -6,8 +6,8 @@
 #define NANO_CAF_WAIT_RESULT_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <cstdint>
 #include <nano-caf/core/actor/exit_reason.h>
+#include <cstdint>
 
 NANO_CAF_NS_BEGIN
 
