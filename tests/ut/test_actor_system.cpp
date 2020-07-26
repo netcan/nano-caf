@@ -95,9 +95,16 @@ namespace {
 
    struct future_actor : actor {
       int value = 10;
-      std::optional<std::future<int>> future{};
+      std::optional<std::future<unsigned long>> future{};
 
-      auto add(int a, int b) { return a + b + value; }
+      auto add(int a, int b) {
+         unsigned long result = 0;
+         for(int i = 0; i < 1000000; i++) {
+            result += (a * b + value);
+         }
+
+         return result;
+      }
 
       auto on_init() noexcept -> void override {
          future = async(&future_actor::add, this, 5, 3);
@@ -107,16 +114,13 @@ namespace {
       }
 
       auto handle_message(const message_element& msg) noexcept -> void override {
-         future->wait();
          auto result = future->get();
-
-         if(result == 18) {
+         if(result == 25000000) {
             exit(exit_reason::normal);
          } else {
             exit(exit_reason::unknown);
          }
       }
-
    };
 
    SCENARIO("async test") {
