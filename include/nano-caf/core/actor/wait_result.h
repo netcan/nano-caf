@@ -7,7 +7,7 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <cstdint>
-#include "exit_reason.h"
+#include <nano-caf/core/actor/exit_reason.h>
 
 NANO_CAF_NS_BEGIN
 

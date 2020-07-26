@@ -9,9 +9,9 @@
 #include <nano-caf/core/resumable.h>
 #include <nano-caf/core/actor/actor_inbox.h>
 #include <nano-caf/core/cache_line_size.h>
-#include "actor_control_block.h"
-#include "exit_reason.h"
-#include "actor_handle.h"
+#include <nano-caf/core/actor/actor_control_block.h>
+#include <nano-caf/core/actor/exit_reason.h>
+#include <nano-caf/core/actor/actor_handle.h>
 
 NANO_CAF_NS_BEGIN
 

@@ -8,11 +8,12 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/cache_line_size.h>
 #include <nano-caf/util/intrusive_ptr.h>
+#include <nano-caf/core/actor/exit_reason.h>
+#include <nano-caf/core/actor/wait_result.h>
 #include <cstddef>
 #include <atomic>
 #include <future>
-#include "exit_reason.h"
-#include "wait_result.h"
+
 
 NANO_CAF_NS_BEGIN
 
