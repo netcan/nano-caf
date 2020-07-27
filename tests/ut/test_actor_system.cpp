@@ -112,7 +112,16 @@ namespace {
             exit(exit_reason::unhandled_exception);
          }
 
-         auto future2 = async([this]() { return add(5, 3); });
+         auto future2 = async([this]() {
+            size_t result = 0;
+            int a = 20;
+            int b = 4;
+            for(int i = 0; i < 1000000; i++) {
+               result += (a * b + value);
+            }
+
+            return result;
+         });
          if(!future2) {
             exit(exit_reason::unhandled_exception);
          }
@@ -136,7 +145,7 @@ namespace {
          auto result3 = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
             std::cout << "async done" << std::endl;
             final_result = r1 + r2;
-            if(final_result == 50000000) {
+            if(final_result == 115000000) {
                exit(exit_reason::normal);
             } else {
                exit(exit_reason::unknown);
