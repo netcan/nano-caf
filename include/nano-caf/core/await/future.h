@@ -60,7 +60,7 @@ struct future_set {
    }
 
    template<size_t ... I, typename F>
-   auto invoke(F f, std::index_sequence<I...> is) const -> bool {
+   auto invoke(F&& f, std::index_sequence<I...> is) const -> bool {
       if(!done(is)) return false;
       f((*std::get<I>(futures_)).get()...);
       return true;
@@ -88,11 +88,12 @@ struct with_futures {
       static_assert(std::is_same_v<args_type, deduced_args_type>);
 
       if(!futures_.valid(seq_type{})) return false;
-      if(futures_.invoke(f, seq_type{})) return true;
+      if(futures_.invoke(std::forward<F>(f), seq_type{})) return true;
 
-      return registry_(new generic_future_callback([=,  futures = std::move(futures_)]() -> bool {
-         return futures.invoke(f, seq_type{});
-      }));
+      return registry_(new generic_future_callback(
+         [=, func = std::move(f), futures = std::move(futures_)]() -> bool {
+            return futures.invoke(func, seq_type{});
+         }));
    }
 
 private:

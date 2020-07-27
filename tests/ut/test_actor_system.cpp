@@ -118,6 +118,7 @@ namespace {
          }
 
          auto result = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
+            std::cout << "async done" << std::endl;
             final_result = r1 + r2;
             if(final_result == 50000000) {
                exit(exit_reason::normal);
@@ -130,6 +131,10 @@ namespace {
             exit(exit_reason::unhandled_exception);
          }
       }
+
+      auto handle_message(const message_element& msg) noexcept -> void override {
+         std::cout << "msg received" << std::endl;
+      }
    };
 
    SCENARIO("async test") {
@@ -137,6 +142,7 @@ namespace {
       system.start(1);
 
       auto me = system.spawn<future_actor>();
+      me.send(1);
       REQUIRE(me.wait_for_exit() == NORMAL_EXIST);
       me.release();
 
