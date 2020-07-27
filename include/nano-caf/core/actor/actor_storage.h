@@ -88,6 +88,12 @@ private:
          return true;
       }
 
+      ~internal_actor() {
+         for (auto& i : futures_) {
+            delete i;
+         }
+      }
+
       std::vector<future_callback*> futures_{};
    };
 
