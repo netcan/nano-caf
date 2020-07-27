@@ -20,7 +20,7 @@ struct actor {
 
 private:
    template<typename F>
-   using async_future_type = std::optional<std::future<typename callable_trait<std::decay_t<F>>::return_type>>;
+   using async_future_type = std::optional<std::shared_future<typename callable_trait<std::decay_t<F>>::return_type>>;
 
 protected:
    template<typename T, typename ... Args>
@@ -58,14 +58,14 @@ protected:
          return std::nullopt;
       }
       self().context().schedule_job(*obj);
-      return std::optional{obj->get_future()};
+      return std::optional{std::shared_future{obj->get_future()}};
    }
 
    template<typename ... Args>
-   inline auto with(Args&& ... args) {
+   inline auto with(Args ... args) {
       return with_futures([this](future_callback* callback) -> bool {
             return register_future_callback(callback);
-         }, std::forward<Args>(args)...);
+         }, args...);
    }
 
    virtual auto exit(exit_reason) noexcept -> void = 0;

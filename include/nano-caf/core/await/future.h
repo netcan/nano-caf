@@ -35,7 +35,7 @@ template<typename T>
 struct optional_future_trait;
 
 template<typename T>
-struct optional_future_trait<std::optional<std::future<T>>> {
+struct optional_future_trait<std::optional<std::shared_future<T>>> {
    using type = T;
 };
 
@@ -50,7 +50,7 @@ struct future_set {
    }
 
    template<typename Tp>
-   static constexpr auto is_future_done(const std::future<Tp>& future) noexcept -> bool {
+   static constexpr auto is_future_done(const std::shared_future<Tp>& future) noexcept -> bool {
       return future.wait_for(std::chrono::nanoseconds{0}) == std::future_status::ready;
    }
 
