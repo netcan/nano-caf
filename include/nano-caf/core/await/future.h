@@ -6,34 +6,101 @@
 #define NANO_CAF_FUTURE_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/resumable.h>
 #include <type_traits>
 #include <functional>
 #include <optional>
 #include <nano-caf/core/actor/message_element.h>
+#include <nano-caf/util/callable_trait.h>
 
 NANO_CAF_NS_BEGIN
 
-struct abstract_future {
-   explicit abstract_future(uint8_t index) :index{index} {}
-   virtual auto set_value(message_element&) -> void = 0;
-   virtual ~abstract_future() = default;
+struct future_callback {
+   virtual auto invoke() noexcept -> bool = 0;
+   virtual ~future_callback() = default;
+};
+
+template<typename F>
+struct generic_future_callback : future_callback {
+   generic_future_callback(F&& f) : f(std::move(f)) {}
+
+   auto invoke() noexcept -> bool override {
+      return f();
+   }
 
 private:
-   uint8_t index;
+   F f;
 };
 
 template<typename T>
-struct future : abstract_future {
-   using abstract_future::abstract_future;
+struct optional_future_trait;
 
-   std::optional<T> value{std::nullopt};
+template<typename T>
+struct optional_future_trait<std::optional<std::future<T>>> {
+   using type = T;
+};
+
+
+template<typename ... Args>
+struct future_set {
+   future_set(Args& ... args) : futures_{std::move(args)...} {}
+
+   template<size_t ... I>
+   auto valid(std::index_sequence<I...>) const -> bool {
+      return ((std::get<I>(futures_) != std::nullopt) && ...);
+   }
+
+   template<typename Tp>
+   static constexpr auto is_future_done(const std::future<Tp>& future) noexcept -> bool {
+      return future.wait_for(std::chrono::nanoseconds{0}) == std::future_status::ready;
+   }
+
+   template<size_t ... I>
+   auto done(std::index_sequence<I...>) const -> bool {
+      return (is_future_done(*std::get<I>(futures_)) && ...);
+   }
+
+   template<size_t ... I, typename F>
+   auto invoke(F f, std::index_sequence<I...> is) const -> bool {
+      if(!done(is)) return false;
+      f((*std::get<I>(futures_)).get()...);
+      return true;
+   }
 
 private:
-   auto set_value(message_element& msg) -> void override {
-      this->value = *(msg.body<T>());
-   }
+   mutable std::tuple<Args...> futures_;
 };
+
+template<typename T, typename ... Args>
+struct with_futures {
+   with_futures(T registry, Args&...args)
+      : registry_{std::move(registry)}
+      , futures_{args...}
+   {}
+
+   using seq_type = std::make_index_sequence<sizeof...(Args)>;
+
+   template<typename F>
+   auto operator()(F&& f) -> bool {
+      using trait = callable_trait<std::decay_t<F>>;
+      static_assert(std::is_same_v<typename trait::return_type, void>);
+      using args_type = typename trait::args_type;
+      using deduced_args_type = type_list<typename optional_future_trait<std::decay_t<Args>>::type...>;
+      static_assert(std::is_same_v<args_type, deduced_args_type>);
+
+      if(!futures_.valid(seq_type{})) return false;
+      if(futures_.invoke(f, seq_type{})) return true;
+
+      return registry_(new generic_future_callback([=,  futures = std::move(futures_)]() -> bool {
+         return futures.invoke(f, seq_type{});
+      }));
+   }
+
+private:
+   T registry_;
+   future_set<Args...> futures_;
+};
+
+
 
 NANO_CAF_NS_END
 

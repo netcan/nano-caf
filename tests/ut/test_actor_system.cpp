@@ -97,6 +97,7 @@ namespace {
       int value = 10;
       std::optional<std::future<unsigned long>> future1{};
       std::optional<std::future<unsigned long>> future2{};
+      unsigned long final_result = 0;
 
       auto add(int a, int b) {
          unsigned long result = 0;
@@ -117,16 +118,18 @@ namespace {
          if(!future2) {
             exit(exit_reason::unhandled_exception);
          }
-      }
 
-      auto handle_message(const message_element& msg) noexcept -> void override {
-         auto result1 = future1->get();
-         auto result2 = future2->get();
+         auto result = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
+            final_result = r1 + r2;
+            if(final_result == 50000000) {
+               exit(exit_reason::normal);
+            } else {
+               exit(exit_reason::unknown);
+            }
+         });
 
-         if(result1 + result2 == 50000000) {
-            exit(exit_reason::normal);
-         } else {
-            exit(exit_reason::unknown);
+         if(!result) {
+            exit(exit_reason::unhandled_exception);
          }
       }
    };
@@ -136,7 +139,6 @@ namespace {
       system.start(1);
 
       auto me = system.spawn<future_actor>();
-      me.send(1);
       REQUIRE(me.wait_for_exit() == NORMAL_EXIST);
       me.release();
 

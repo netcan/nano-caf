@@ -10,6 +10,8 @@
 #include <nano-caf/core/actor/lifo_inbox.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/sched_actor.h>
+#include <nano-caf/core/await/future.h>
+#include <vector>
 
 NANO_CAF_NS_BEGIN
 
@@ -57,13 +59,36 @@ private:
       auto init_handler() noexcept -> void { T::on_init(); }
       auto exit_handler() noexcept -> void { T::on_exit(); }
 
+      auto check_futures() {
+         for (auto it = futures_.begin(); it != futures_.end(); ) {
+            if ((*it)->invoke()) {
+               delete *it;
+               it = futures_.erase(it);
+            } else {
+               ++it;
+            }
+         }
+      }
+
       auto user_defined_handle_msg(const message_element& msg) noexcept -> void override {
-         return T::handle_message(msg);
+         if(msg.is_future_response()) {
+            check_futures();
+         } else {
+            T::handle_message(msg);
+         }
       }
 
       auto current_sender() const noexcept -> actor_handle override {
          return get_current_sender();
       }
+
+      auto register_future_callback(future_callback* future) noexcept -> bool override {
+         if(future == nullptr) return false;
+         futures_.push_back(future);
+         return true;
+      }
+
+      std::vector<future_callback*> futures_{};
    };
 
    union { internal_actor value_; };

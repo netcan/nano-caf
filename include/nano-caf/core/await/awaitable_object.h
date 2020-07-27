@@ -15,11 +15,15 @@ NANO_CAF_NS_BEGIN
 
 template <typename F, typename R>
 struct async_object : resumable {
-   async_object(F&& f) : f{std::move(f)} {}
+   async_object(intrusive_actor_ptr sender, F&& f)
+      : f{std::move(f)}
+      , sender_{sender}
+      {}
 
-   virtual auto resume() noexcept -> result override{
+   virtual auto resume() noexcept -> result override {
       auto result = f();
       promise.set_value(result);
+      sender_.send(message_id{message_id::future});
       return result::done;
    }
 
@@ -30,14 +34,44 @@ struct async_object : resumable {
 private:
    std::promise<R> promise;
    F f;
+   actor_handle sender_;
 };
 
-template<typename T, typename ... Args, typename = std::enable_if_t<std::is_invocable_v<T, Args...>>>
-auto make_async_object(T&& callable, Args&& ... args) {
-   auto bind_obj = std::bind(std::forward<T>(callable), std::forward<Args>(args)...);
-   return new async_object<decltype(bind_obj), decltype(bind_obj())>{std::move(bind_obj)};
+
+template <class F, class... Args>
+class async_func {
+   std::tuple<F, Args...> f_;
+
+public:
+   using result_type = typename std::invoke_result<F, Args...>::type;
+
+   explicit async_func(F&& f, Args&&... args)
+      : f_(std::move(f), std::move(args)...) {}
+
+   async_func(async_func&& f) : f_(std::move(f.f_)) {}
+
+   auto operator()() -> result_type {
+      return execute(std::make_index_sequence<sizeof...(Args) + 1>{});
+   }
+private:
+   template <size_t ... I>
+   auto execute(std::index_sequence<I...>) -> result_type {
+      return std::invoke(std::move(std::get<I>(f_))...);
+   }
+};
+
+template <class T>
+inline auto decay_copy(T&& t) -> std::decay_t<T> {
+   return std::forward<T>(t);
 }
 
+template<typename F, typename ... Args, typename = std::enable_if_t<std::is_invocable_v<F, Args...>>>
+auto make_async_object(const intrusive_actor_ptr& sender, F&& callable, Args&& ... args) {
+   using func_obj = async_func<std::decay_t<F>, std::decay_t<Args>...> ;
+   using result_type =  typename func_obj::result_type;
+   auto obj = func_obj{decay_copy(std::forward<F>(callable)), decay_copy(std::forward<Args>(args))...};
+   return new async_object<func_obj, result_type>{sender, std::move(obj)};
+}
 
 NANO_CAF_NS_END
 

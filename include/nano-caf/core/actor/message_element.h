@@ -24,6 +24,10 @@ struct message_element {
       return message_id.is_category(message_id::urgent);
    }
 
+   auto is_future_response() const noexcept -> bool {
+      return message_id.is_category(message_id::future);
+   }
+
    template<typename T>
    auto body() const noexcept -> const T* {
       return reinterpret_cast<const T*>(body_ptr());
