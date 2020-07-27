@@ -117,7 +117,23 @@ namespace {
             exit(exit_reason::unhandled_exception);
          }
 
-         auto result1 = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
+         auto result1 = with(future1)([this](unsigned long r1) {
+            std::cout << "async future1 done = " << r1 << std::endl;
+         });
+
+         if(!result1) {
+            exit(exit_reason::unhandled_exception);
+         }
+
+         auto result2 = with(future2)([this](unsigned long r2) {
+            std::cout << "async future2 done = " << r2 << std::endl;
+         });
+
+         if(!result2) {
+            exit(exit_reason::unhandled_exception);
+         }
+
+         auto result3 = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
             std::cout << "async done" << std::endl;
             final_result = r1 + r2;
             if(final_result == 50000000) {
@@ -127,26 +143,9 @@ namespace {
             }
          });
 
-         if(!result1) {
-            exit(exit_reason::unhandled_exception);
-         }
-
-         auto result2 = with(future1)([this](unsigned long r1) {
-            std::cout << "async future1 done = " << r1 << std::endl;
-         });
-
-         if(!result2) {
-            exit(exit_reason::unhandled_exception);
-         }
-
-         auto result3 = with(future2)([this](unsigned long r2) {
-            std::cout << "async future2 done = " << r2 << std::endl;
-         });
-
          if(!result3) {
             exit(exit_reason::unhandled_exception);
          }
-
       }
 
       auto handle_message(const message_element& msg) noexcept -> void override {
