@@ -8,6 +8,7 @@
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/actor/actor.h>
 #include <iostream>
+#include "test_msgs.h"
 
 namespace {
    using namespace NANO_CAF_NS;
