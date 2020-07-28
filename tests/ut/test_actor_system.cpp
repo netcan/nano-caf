@@ -8,6 +8,7 @@
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/actor/actor.h>
 #include <iostream>
+#include <nano-caf/core/actor/behavior_based_actor.h>
 #include "test_msgs.h"
 
 namespace {
@@ -21,8 +22,9 @@ namespace {
 
    struct my_actor : actor {
       std::vector<size_t> values;
-      auto handle_message(const message_element& msg) noexcept -> void override {
+      auto handle_message(message_element& msg) noexcept -> task_result override {
          values.push_back(msg.body<test_message>()->value);
+         return task_result::resume;
       }
 
       void clear() {
@@ -45,9 +47,10 @@ namespace {
 
    int pong_times = 0;
    struct pong_actor : actor {
-      auto handle_message(const message_element& msg) noexcept -> void override {
+      auto handle_message(message_element& msg) noexcept -> task_result override {
          reply<test_message>(msg.body<test_message>()->value);
          pong_times++;
+         return task_result::resume;
       }
    };
 
@@ -61,13 +64,15 @@ namespace {
          times = 1;
       }
 
-      auto handle_message(const message_element& msg) noexcept -> void override {
+      auto handle_message(message_element& msg) noexcept -> task_result override {
          if(times++ < total_times ) {
             send_to<test_message>(pong, msg.body<test_message>()->value + 1);
          }
          else {
             exit(exit_reason::normal);
          }
+
+         return task_result::resume;
       }
    };
 
@@ -151,8 +156,9 @@ namespace {
          }
       }
 
-      auto handle_message(const message_element& msg) noexcept -> void override {
+      auto handle_message(message_element& msg) noexcept -> task_result override {
          std::cout << "msg received" << std::endl;
+         return task_result::resume;
       }
    };
 
@@ -166,6 +172,57 @@ namespace {
       me.release();
 
       system.shutdown();
+      REQUIRE(system.get_num_of_actors() == 0);
+   }
+
+   struct pong_actor_1 : behavior_based_actor {
+      auto get_behavior() -> behavior override {
+         return {
+            [&](test_message_atom, int value) {
+               reply<test_message>(value);
+               pong_times++;
+            }
+         };
+      }
+   };
+
+   struct ping_actor_1 : behavior_based_actor {
+      actor_handle pong;
+      size_t times = 0;
+
+      auto on_init() noexcept -> void override {
+         pong = spawn<pong_actor_1>();
+         send_to<test_message>(pong, 1);
+         times = 1;
+      }
+
+      auto get_behavior() -> behavior override {
+         return {
+            [&](test_message_atom, int value) {
+               if(times++ < total_times ) {
+                  send_to<test_message>(pong, value + 1);
+               }
+               else {
+                  exit(exit_reason::normal);
+               }
+            }
+         };
+      }
+   };
+
+   SCENARIO("ping pang 2") {
+      pong_times = 0;
+      actor_system system;
+      system.start(3);
+      REQUIRE(system.get_num_of_actors() == 0);
+
+      auto me = system.spawn<ping_actor_1>();
+      REQUIRE(system.get_num_of_actors() == 2);
+      REQUIRE(me.wait_for_exit() == NORMAL_EXIT);
+      me.release();
+
+      system.shutdown();
+      REQUIRE(pong_times == total_times);
       REQUIRE(system.get_num_of_actors() == 0);
    }
 }

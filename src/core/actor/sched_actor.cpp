@@ -36,7 +36,7 @@ auto sched_actor::resume() noexcept  -> resumable::result {
       auto result = actor_inbox::new_round(max_throughput - consumed_msgs,
          [this](const message_element& msg) {
             current_message_ = const_cast<message_element*>(&msg);
-            auto result  = handle_message_internal(msg);
+            auto result  = handle_message_internal(const_cast<message_element&>(msg));
             current_message_ = nullptr;
             return result;
       });
@@ -56,7 +56,7 @@ auto sched_actor::resume() noexcept  -> resumable::result {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto sched_actor::handle_message_internal(const message_element& msg) noexcept -> task_result {
+auto sched_actor::handle_message_internal(message_element& msg) noexcept -> task_result {
    user_defined_handle_msg(msg);
    if(msg.get_id() == from_msg_type_to_id<exit_msg>::msg_id) {
       exit_(msg.body<exit_msg>()->reason);

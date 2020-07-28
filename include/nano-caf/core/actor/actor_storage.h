@@ -70,11 +70,12 @@ private:
          }
       }
 
-      auto user_defined_handle_msg(const message_element& msg) noexcept -> void override {
+      auto user_defined_handle_msg(message_element& msg) noexcept -> task_result override {
          if(msg.is_future_response()) {
             check_futures();
+            return task_result::resume;
          } else {
-            T::handle_message(msg);
+            return T::handle_message(msg);
          }
       }
 

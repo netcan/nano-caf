@@ -238,7 +238,7 @@ namespace detail {
       virtual ~msg_handler() = default;
    };
 
-   template<size_t N, typename T, typename = std::enable_if_t<(std::tuple_size<T>::value > N + 1)>>
+   template<size_t N, typename T, typename = std::enable_if_t<(std::tuple_size<T>::value > N)>>
    auto call_behavior(T& behaviors, message_element& msg) -> task_result {
       auto consumed = std::get<N>(behaviors)(msg);
       return consumed ? task_result::resume : call_behavior<N+1>(behaviors, msg);

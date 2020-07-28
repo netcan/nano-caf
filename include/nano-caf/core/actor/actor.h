@@ -73,7 +73,9 @@ private:
 protected:
    virtual auto on_init() -> void {}
    virtual auto on_exit() -> void {}
-   virtual auto handle_message(const message_element& msg) noexcept -> void {}
+   virtual auto handle_message(message_element& msg) noexcept -> task_result {
+      return task_result::stop_all;
+   }
 };
 
 NANO_CAF_NS_END

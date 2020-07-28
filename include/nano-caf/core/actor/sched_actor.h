@@ -39,8 +39,10 @@ private:
       exiting_flag = 0x0000'0001,
    };
 
-   auto handle_message_internal(const message_element& msg) noexcept -> task_result;
-   virtual auto user_defined_handle_msg(const message_element&) noexcept -> void {}
+   auto handle_message_internal(message_element& msg) noexcept -> task_result;
+   virtual auto user_defined_handle_msg(message_element&) noexcept -> task_result {
+      return task_result::stop_all;
+   }
 
 private:
    auto intrusive_ptr_add_ref_impl() noexcept -> void override {
