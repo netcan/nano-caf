@@ -60,13 +60,13 @@ namespace {
 
       auto on_init() noexcept -> void override {
          pong = spawn<pong_actor>();
-         send_to<test_message>(pong, 1);
+         send<test_message>(pong, 1);
          times = 1;
       }
 
       auto handle_message(message_element& msg) noexcept -> task_result override {
          if(times++ < total_times ) {
-            send_to<test_message>(pong, msg.body<test_message>()->value + 1);
+            send<test_message>(pong, msg.body<test_message>()->value + 1);
          }
          else {
             exit(exit_reason::normal);
@@ -192,13 +192,13 @@ namespace {
 
       auto on_init() noexcept -> void override {
          pong = spawn<pong_actor_1>();
-         send_to<test_message>(pong, 1);
+         send<test_message>(pong, 1);
       }
 
       auto get_behavior() -> behavior override {
          return {
             [&](test_message_atom, int value) {
-               send_to<test_message>(pong, value + 1);
+               send<test_message>(pong, value + 1);
             },
             [&](exit_msg_atom, exit_reason reason) {
                std::cout << "exit = " << (int)reason << std::endl;

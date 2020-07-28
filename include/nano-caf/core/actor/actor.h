@@ -24,7 +24,7 @@ private:
 
 protected:
    template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
-   inline auto send_to(actor_handle& to, Args&& ... args) noexcept {
+   inline auto send(actor_handle& to, Args&& ... args) noexcept {
       return to.send<T, CATEGORY>(self_handle(), std::forward<Args>(args)...);
    }
 
