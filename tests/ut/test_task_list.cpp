@@ -5,16 +5,10 @@
 #include <catch.hpp>
 #include <nano-caf/core/actor/task_list.h>
 #include <nano-caf/core/msg/message_element.h>
+#include "test_msgs.h"
 
 namespace {
    using namespace NANO_CAF_NS;
-
-   struct my_message {
-      my_message(uint32_t value)
-         : value{value} {}
-
-      uint32_t value{};
-   };
 
    TEST_CASE("an empty task list") {
       task_list list{};
@@ -32,7 +26,7 @@ namespace {
          }
       }
       WHEN("push back a new element") {
-         list.push_back(make_message<my_message>(1, 1));
+         list.push_back(make_message<test_message>(1));
          THEN("its total task size should be 1") {
             REQUIRE(list.total_task_size() == 1);
          }
@@ -40,7 +34,7 @@ namespace {
             REQUIRE(list.empty() == false);
          }
          AND_WHEN("push back another element") {
-            list.push_back(make_message<my_message>(2, 2));
+            list.push_back(make_message<test_message>(2));
             THEN("its total task size should be 2") {
                REQUIRE(list.total_task_size() == 2);
             }
@@ -53,17 +47,17 @@ namespace {
 
    TEST_CASE("an non-empty task list") {
       task_list list{};
-      list.push_back(make_message<my_message>(1, 1));
-      list.push_back(make_message<my_message>(2, 2));
+      list.push_back(make_message<test_message>(1));
+      list.push_back(make_message<test_message>(2));
       size_t deficit = 100;
       WHEN("pop front a element, should get the first one") {
          auto ptr = list.next(deficit);
          REQUIRE(ptr != nullptr);
-         REQUIRE(ptr->body<my_message>()->value == 1);
+         REQUIRE(ptr->body<test_message>()->value == 1);
          AND_WHEN("pop front a element again, should get the 2nd one") {
             auto ptr = list.next(deficit);
             REQUIRE(ptr != nullptr);
-            REQUIRE(ptr->body<my_message>()->value == 2);
+            REQUIRE(ptr->body<test_message>()->value == 2);
             AND_WHEN("pop front a element again, should get nullptr") {
                REQUIRE(list.next(deficit) == nullptr);
             }AND_THEN("it should not be an empty list") {
@@ -77,7 +71,7 @@ namespace {
       task_list list{};
 
       WHEN("push_front a new elem") {
-         list.push_front(make_message<my_message>(1, 1));
+         list.push_front(make_message<test_message>(1));
          THEN("it should contains 1 elem") {
             REQUIRE(1 == list.total_task_size());
          }
@@ -85,7 +79,7 @@ namespace {
             size_t deficit = 100;
             auto ptr = list.next(deficit);
             REQUIRE(ptr != nullptr);
-            REQUIRE(ptr->body<my_message>()->value == 1);
+            REQUIRE(ptr->body<test_message>()->value == 1);
             AND_THEN("the deficit should be decreased") {
                REQUIRE(deficit == 99);
             }
@@ -96,8 +90,8 @@ namespace {
          }
       }
       WHEN("push_front 2 new elements") {
-         list.push_front(make_message<my_message>(1, 1));
-         list.push_front(make_message<my_message>(2, 2));
+         list.push_front(make_message<test_message>(1));
+         list.push_front(make_message<test_message>(2));
          THEN("it should contains 2 elems") {
             REQUIRE(2 == list.total_task_size());
          }
@@ -105,14 +99,14 @@ namespace {
             size_t deficit = 100;
             auto ptr = list.next(deficit);
             REQUIRE(ptr != nullptr);
-            REQUIRE(ptr->body<my_message>()->value == 2);
+            REQUIRE(ptr->body<test_message>()->value == 2);
             AND_THEN("the deficit should be decreased") {
                REQUIRE(deficit == 99);
             }
             THEN("its 2nd element should be the 1st pushed one") {
                auto ptr = list.next(deficit);
                REQUIRE(ptr != nullptr);
-               REQUIRE(ptr->body<my_message>()->value == 1);
+               REQUIRE(ptr->body<test_message>()->value == 1);
                AND_THEN("it does not has 3rd element") {
                   REQUIRE(list.empty() == true);
                   REQUIRE(list.next(deficit) == nullptr);
@@ -127,8 +121,8 @@ namespace {
 
    TEST_CASE("append an empty task list") {
       task_list list{};
-      list.push_back(make_message<my_message>(1, 1));
-      list.push_back(make_message<my_message>(2, 2));
+      list.push_back(make_message<test_message>(1));
+      list.push_back(make_message<test_message>(2));
       task_list list2{};
       list.append_list(list2);
 
@@ -139,11 +133,11 @@ namespace {
          size_t deficit = 100;
          auto ptr = list.next(deficit);
          REQUIRE(ptr != nullptr);
-         REQUIRE(ptr->body<my_message>()->value == 1);
+         REQUIRE(ptr->body<test_message>()->value == 1);
          AND_THEN("its 2nd element is still 2") {
             auto ptr = list.next(deficit);
             REQUIRE(ptr != nullptr);
-            REQUIRE(ptr->body<my_message>()->value == 2);
+            REQUIRE(ptr->body<test_message>()->value == 2);
             AND_THEN("it does not has 3rd element") {
                REQUIRE(list.empty() == true);
                REQUIRE(list.next(deficit) == nullptr);
@@ -157,8 +151,8 @@ namespace {
       REQUIRE(list.total_task_size() == 0);
 
       task_list list2{};
-      list2.push_back(make_message<my_message>(1, 1));
-      list2.push_back(make_message<my_message>(2, 2));
+      list2.push_back(make_message<test_message>(1));
+      list2.push_back(make_message<test_message>(2));
       list.append_list(list2);
       size_t deficit = 100;
       THEN("its task size become 2") {
@@ -176,11 +170,11 @@ namespace {
       AND_THEN("pop front, should return the 1st elem of 2nd list") {
          auto ptr = list.next(deficit);
          REQUIRE(ptr != nullptr);
-         REQUIRE(ptr->body<my_message>()->value == 1);
+         REQUIRE(ptr->body<test_message>()->value == 1);
          AND_THEN("pop front a element again, should get the 2nd elem of 2nd list") {
             auto ptr = list.next(deficit);
             REQUIRE(ptr != nullptr);
-            REQUIRE(ptr->body<my_message>()->value == 2);
+            REQUIRE(ptr->body<test_message>()->value == 2);
             AND_THEN("it does not has 3rd element") {
                REQUIRE(list.empty() == true);
                REQUIRE(list.next(deficit) == nullptr);
@@ -196,8 +190,8 @@ namespace {
       REQUIRE(list.total_task_size() == 0);
 
       task_list list2{};
-      list2.push_back(make_message<my_message>(1, 1));
-      list2.push_back(make_message<my_message>(2, 2));
+      list2.push_back(make_message<test_message>(1));
+      list2.push_back(make_message<test_message>(2));
       list.append_list(list2);
       size_t deficit = 100;
       THEN("its task size become 2") {
@@ -215,11 +209,11 @@ namespace {
       AND_THEN("pop front, should return the 1st elem of 2nd list") {
          auto ptr = list.next(deficit);
          REQUIRE(ptr != nullptr);
-         REQUIRE(ptr->body<my_message>()->value == 1);
+         REQUIRE(ptr->body<test_message>()->value == 1);
          AND_THEN("pop front a element again, should get the 2nd elem of 2nd list") {
             auto ptr = list.next(deficit);
             REQUIRE(ptr != nullptr);
-            REQUIRE(ptr->body<my_message>()->value == 2);
+            REQUIRE(ptr->body<test_message>()->value == 2);
             AND_THEN("it does not has 3rd element") {
                REQUIRE(list.empty() == true);
                REQUIRE(list.next(deficit) == nullptr);
@@ -230,10 +224,10 @@ namespace {
 
    TEST_CASE("push front a non empty list") {
       task_list list{};
-      list.push_back(make_message<my_message>(1, 1));
-      list.push_back(make_message<my_message>(2, 2));
-      list.push_front(make_message<my_message>(3, 3));
-      list.push_front(make_message<my_message>(4, 4));
+      list.push_back(make_message<test_message>(1));
+      list.push_back(make_message<test_message>(2));
+      list.push_front(make_message<test_message>(3));
+      list.push_front(make_message<test_message>(4));
 
       THEN("its task size become 4") {
          REQUIRE(list.total_task_size() == 4);
@@ -242,28 +236,28 @@ namespace {
          size_t deficit = 100;
          auto ptr = list.next(deficit);
          REQUIRE(ptr != nullptr);
-         REQUIRE(ptr->body<my_message>()->value == 4);
+         REQUIRE(ptr->body<test_message>()->value == 4);
          AND_THEN("the deficit should be decreased") {
             REQUIRE(deficit == 99);
          }
          AND_THEN("pop front a element again, should get the 2nd elem of 2nd list") {
             auto ptr = list.next(deficit);
             REQUIRE(ptr != nullptr);
-            REQUIRE(ptr->body<my_message>()->value == 3);
+            REQUIRE(ptr->body<test_message>()->value == 3);
             AND_THEN("the deficit should be decreased") {
                REQUIRE(deficit == 98);
             }
             AND_THEN("pop front a element again, should get the 1st elem of 2nd list") {
                auto ptr = list.next(deficit);
                REQUIRE(ptr != nullptr);
-               REQUIRE(ptr->body<my_message>()->value == 1);
+               REQUIRE(ptr->body<test_message>()->value == 1);
                AND_THEN("the deficit should be decreased") {
                   REQUIRE(deficit == 97);
                }
                AND_THEN("pop front a element again, should get the 2nd elem of 2nd list") {
                   auto ptr = list.next(deficit);
                   REQUIRE(ptr != nullptr);
-                  REQUIRE(ptr->body<my_message>()->value == 2);
+                  REQUIRE(ptr->body<test_message>()->value == 2);
                   AND_THEN("the deficit should be decreased") {
                      REQUIRE(deficit == 96);
                   }
@@ -279,12 +273,12 @@ namespace {
 
    TEST_CASE("a non-empty list appends an non-empty task list") {
       task_list list{};
-      list.push_back(make_message<my_message>(1, 1));
-      list.push_back(make_message<my_message>(2, 2));
+      list.push_back(make_message<test_message>(1));
+      list.push_back(make_message<test_message>(2));
 
       task_list list2{};
-      list2.push_back(make_message<my_message>(3, 3));
-      list2.push_back(make_message<my_message>(4, 4));
+      list2.push_back(make_message<test_message>(3));
+      list2.push_back(make_message<test_message>(4));
 
       list.append_list(list2);
 
@@ -307,28 +301,28 @@ namespace {
          size_t deficit = 100;
          auto ptr = list.next(deficit);
          REQUIRE(ptr != nullptr);
-         REQUIRE(ptr->body<my_message>()->value == 1);
+         REQUIRE(ptr->body<test_message>()->value == 1);
          AND_THEN("the deficit should be decreased") {
             REQUIRE(deficit == 99);
          }
          AND_THEN("pop front a element again, should get the 2nd elem of 2nd list") {
             auto ptr = list.next(deficit);
             REQUIRE(ptr != nullptr);
-            REQUIRE(ptr->body<my_message>()->value == 2);
+            REQUIRE(ptr->body<test_message>()->value == 2);
             AND_THEN("the deficit should be decreased") {
                REQUIRE(deficit == 98);
             }
             AND_THEN("pop front a element again, should get the 1st elem of 2nd list") {
                auto ptr = list.next(deficit);
                REQUIRE(ptr != nullptr);
-               REQUIRE(ptr->body<my_message>()->value == 3);
+               REQUIRE(ptr->body<test_message>()->value == 3);
                AND_THEN("the deficit should be decreased") {
                   REQUIRE(deficit == 97);
                }
                AND_THEN("pop front a element again, should get the 2nd elem of 2nd list") {
                   auto ptr = list.next(deficit);
                   REQUIRE(ptr != nullptr);
-                  REQUIRE(ptr->body<my_message>()->value == 4);
+                  REQUIRE(ptr->body<test_message>()->value == 4);
                   AND_THEN("the deficit should be decreased") {
                      REQUIRE(deficit == 96);
                   }
@@ -344,12 +338,12 @@ namespace {
 
    TEST_CASE("a non-empty list prepends an non-empty task list") {
       task_list list{};
-      list.push_back(make_message<my_message>(3, 3));
-      list.push_back(make_message<my_message>(4, 4));
+      list.push_back(make_message<test_message>(3));
+      list.push_back(make_message<test_message>(4));
 
       task_list list2{};
-      list2.push_back(make_message<my_message>(1, 1));
-      list2.push_back(make_message<my_message>(2, 2));
+      list2.push_back(make_message<test_message>(1));
+      list2.push_back(make_message<test_message>(2));
 
       list.prepend_list(list2);
 
@@ -378,28 +372,28 @@ namespace {
          size_t deficit = 100;
          auto ptr = list.next(deficit);
          REQUIRE(ptr != nullptr);
-         REQUIRE(ptr->body<my_message>()->value == 1);
+         REQUIRE(ptr->body<test_message>()->value == 1);
          AND_THEN("the deficit should be decreased") {
             REQUIRE(deficit == 99);
          }
          AND_THEN("pop front a element again, should get the 2nd elem of 2nd list") {
             auto ptr = list.next(deficit);
             REQUIRE(ptr != nullptr);
-            REQUIRE(ptr->body<my_message>()->value == 2);
+            REQUIRE(ptr->body<test_message>()->value == 2);
             AND_THEN("the deficit should be decreased") {
                REQUIRE(deficit == 98);
             }
             AND_THEN("pop front a element again, should get the 1st elem of 2nd list") {
                auto ptr = list.next(deficit);
                REQUIRE(ptr != nullptr);
-               REQUIRE(ptr->body<my_message>()->value == 3);
+               REQUIRE(ptr->body<test_message>()->value == 3);
                AND_THEN("the deficit should be decreased") {
                   REQUIRE(deficit == 97);
                }
                AND_THEN("pop front a element again, should get the 2nd elem of 2nd list") {
                   auto ptr = list.next(deficit);
                   REQUIRE(ptr != nullptr);
-                  REQUIRE(ptr->body<my_message>()->value == 4);
+                  REQUIRE(ptr->body<test_message>()->value == 4);
                   AND_THEN("the deficit should be decreased") {
                      REQUIRE(deficit == 96);
                   }

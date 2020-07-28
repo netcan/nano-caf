@@ -15,7 +15,7 @@ NANO_CAF_NS_BEGIN
 
 struct message_element {
    message_element(const message_id& id) : message_id{id} {}
-   message_element(const intrusive_actor_ptr& sender, const message_id& id) : sender{sender}, message_id{id} {}
+   message_element(intrusive_actor_ptr sender, const message_id& id) : sender{sender}, message_id{id} {}
    message_element(uint32_t id, message_id::category category = message_id::normal)
       : message_id(id, category)
    {}
@@ -44,18 +44,27 @@ public:
    message_id message_id;
 };
 
+   template<typename T, message_id::category CATEGORY>
+   class message_base {
+      constexpr static auto id = message_id{from_msg_type_to_id<T>::msg_id, CATEGORY};
 
-template<typename T, typename = void>
-struct message : message_element {
+   public:
+      struct type : message_element {
+         type() : message_element(id) {}
+         type(intrusive_actor_ptr sender) : message_element(sender, id) {}
+      };
+   };
+
+template<typename T, message_id::category CATEGORY, typename = void>
+struct message : message_base<T, CATEGORY>::type {
    template<typename ... Args>
-   message(const intrusive_actor_ptr& sender, const struct message_id& id, Args&&...args)
-      : message_element(sender, id)
-      , value(std::forward<Args>(args)...){}
+   message(intrusive_actor_ptr sender, Args&&...args)
+      : message_base<T, CATEGORY>::type{sender}
+      , value{std::forward<Args>(args)...}{}
 
    template<typename ... Args>
-   message(const struct message_id& id, Args&&...args)
-      : message_element(id)
-      , value(std::forward<Args>(args)...){}
+   message(Args&&...args)
+      : value{std::forward<Args>(args)...}{}
 
    auto body_ptr() const noexcept -> const void* override {
       return reinterpret_cast<const void*>(&value);
@@ -64,76 +73,34 @@ struct message : message_element {
    T value;
 };
 
-template<typename T>
-struct message<T, std::enable_if_t<std::is_class_v<T>>> : message_element, T {
-   template<typename ... Args>
-   message(const intrusive_actor_ptr& sender, const struct message_id& id, Args&&...args)
-      : message_element(sender, id)
-      , T(std::forward<Args>(args)...){}
+template<typename T, message_id::category CATEGORY>
+struct message<T, CATEGORY, std::enable_if_t<std::is_class_v<T>>>
+   : message_base<T, CATEGORY>::type, T {
 
    template<typename ... Args>
-   message(const struct message_id& id, Args&&...args)
-      : message_element(id)
-      , T(std::forward<Args>(args)...){}
+   message(intrusive_actor_ptr sender, Args&&...args)
+      : message_base<T, CATEGORY>::type{sender}
+      , T{std::forward<Args>(args)...}{}
+
+   template<typename ... Args>
+   message(Args&&...args)
+      : T{std::forward<Args>(args)...} {}
 
    auto body_ptr() const noexcept -> const void* override {
       return reinterpret_cast<const void*>(static_cast<const T*>(this));
    }
 };
 
-template<typename T>
-struct message<T*> : message_element {
-   template<typename ... Args>
-   message(const intrusive_actor_ptr& sender, const struct message_id& id, Args&&...args)
-      : message_element(sender, id)
-      , T(std::forward<Args>(args)...){}
-
-   template<typename ... Args>
-   message(const struct message_id& id, Args&&...args)
-      : message_element(id)
-      , T(std::forward<Args>(args)...){}
-
-   auto body_ptr() const noexcept -> const void* override {
-      return reinterpret_cast<const void*>(static_cast<const T*>(this));
-   }
-
-   ~message() {
-      delete value;
-   }
-private:
-   T* value;
-};
-
-template<>
-struct message<void> : message_element {
-   message(const intrusive_actor_ptr& sender, const struct message_id& id)
-      : message_element(sender, id) {}
-
-   message(const struct message_id& id)
-      : message_element(id) {}
-
-   auto body_ptr() const noexcept -> const void* override {
-      return nullptr;
-   }
-};
-
-template<typename T, typename ... Args>
-inline auto make_message(const message_id& id, Args&&...args) -> message_element* {
-   return new message<T>(id, std::forward<Args>(args)...);
+template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
+inline auto make_message(Args&&...args) -> message_element* {
+   return new message<T, CATEGORY>(std::forward<Args>(args)...);
 }
 
-template<typename T, typename ... Args>
-inline auto make_message(intrusive_actor_ptr sender, const message_id& id, Args&&...args) -> message_element* {
-   return new message<T>(sender, id, std::forward<Args>(args)...);
+template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
+inline auto make_message(intrusive_actor_ptr sender, Args&&...args) -> message_element* {
+   return new message<T, CATEGORY>(sender, std::forward<Args>(args)...);
 }
 
-inline auto make_message(const message_id& id) -> message_element* {
-   return new message<void>(id);
-}
-
-inline auto make_message(intrusive_actor_ptr sender, const message_id& id) -> message_element* {
-   return new message<void>(sender, id);
-}
 
 NANO_CAF_NS_END
 

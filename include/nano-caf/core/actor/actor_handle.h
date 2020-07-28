@@ -18,22 +18,14 @@ struct message_element;
 struct actor_handle {
    actor_handle(intrusive_actor_ptr ptr = nullptr) : ptr_{ptr} {}
 
-   template<typename T, typename ... Args>
-   auto send(message_id const& id, Args&& ... args) noexcept {
-      return send_(make_message<T>(id, std::forward<Args>(args)...));
+   template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
+   auto send(Args&& ... args) noexcept {
+      return send_(make_message<T, CATEGORY>(std::forward<Args>(args)...));
    }
 
-   auto send(message_id const& id) noexcept {
-      return send_(make_message(id));
-   }
-
-   template<typename T, typename ... Args>
-   auto send(intrusive_actor_ptr const& from, message_id const& id, Args&& ... args) noexcept {
-      return send_(make_message<T>(from, id, std::forward<Args>(args)...));
-   }
-
-   auto send(intrusive_actor_ptr const& from, message_id const& id) noexcept {
-      return send_(make_message(from, id));
+   template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
+   auto send(intrusive_actor_ptr from, Args&& ... args) noexcept {
+      return send_(make_message<T, CATEGORY>(from, std::forward<Args>(args)...));
    }
 
    auto exists() const {

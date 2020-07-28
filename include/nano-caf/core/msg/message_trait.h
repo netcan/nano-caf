@@ -6,11 +6,12 @@
 #define NANO_CAF_MESSAGE_TRAIT_H
 
 #include <nano-caf/nano-caf-ns.h>
+#include <nano-caf/util/type_list.h>
 #include <cstdint>
 
 NANO_CAF_NS_BEGIN
 
-using msg_id_t = uint32_t;
+using msg_id_t = uint64_t;
 
 template<typename> struct from_msg_type_to_id;
 template<typename> struct from_atom_to_msg_type;

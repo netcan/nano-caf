@@ -6,6 +6,7 @@
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/msg/message_element.h>
 #include <nano-caf/core/actor/actor.h>
+#include "test_msgs.h"
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -21,9 +22,9 @@ namespace {
    }
 
    struct my_actor : sched_actor {
-      std::vector<message_id> values;
+      std::vector<int> values;
       auto user_defined_handle_msg(const message_element& msg) noexcept -> void override {
-         values.push_back(msg.message_id);
+         values.push_back(msg.body<test_message>()->value);
       }
 
       void clear() {
@@ -33,15 +34,15 @@ namespace {
 
    SCENARIO("sched-actor with 2 messages") {
       my_actor actor{};
-      actor.enqueue(make_message(1));
-      actor.enqueue(make_message(2));
+      actor.enqueue(make_message<test_message>(1));
+      actor.enqueue(make_message<test_message>(2));
       WHEN("resume an actor with empty queue, should return awaiting_message") {
          REQUIRE(actor.resume() == resumable::result::awaiting_message);
          THEN("it consumed all messages") {
             REQUIRE(actor.values.size() == 2);
          }
          THEN("messages should be consumed according to their order") {
-            REQUIRE(actor.values == std::vector<message_id>{1,2});
+            REQUIRE(actor.values == std::vector<int>{1,2});
          }
          THEN("the message queue is blocked") {
             REQUIRE(actor.blocked());
@@ -51,11 +52,11 @@ namespace {
 
    SCENARIO("sched-actor with 5 messages") {
       my_actor actor{};
-      actor.enqueue(make_message(1));
-      actor.enqueue(make_message(2));
-      actor.enqueue(make_message(3));
-      actor.enqueue(make_message(4));
-      actor.enqueue(make_message(5));
+      actor.enqueue(make_message<test_message>(1));
+      actor.enqueue(make_message<test_message>(2));
+      actor.enqueue(make_message<test_message>(3));
+      actor.enqueue(make_message<test_message>(4));
+      actor.enqueue(make_message<test_message>(5));
 
       WHEN("resume an actor with empty queue, should return resume_later") {
          REQUIRE(actor.resume() == resumable::result::resume_later);
@@ -63,7 +64,7 @@ namespace {
             REQUIRE(actor.values.size() == 3);
          }
          THEN("messages should be consumed according to their order") {
-            REQUIRE(actor.values == std::vector<message_id>{1,2,3});
+            REQUIRE(actor.values == std::vector<int>{1,2,3});
          }
          THEN("the message queue is not blocked") {
             REQUIRE_FALSE(actor.blocked());
@@ -75,13 +76,13 @@ namespace {
                REQUIRE(actor.values.size() == 2);
             }
             THEN("messages should be consumed according to their order") {
-               REQUIRE(actor.values == std::vector<message_id>{4,5});
+               REQUIRE(actor.values == std::vector<int>{4,5});
             }
             THEN("the message queue is blocked") {
                REQUIRE(actor.blocked());
             }
             WHEN("we push messages again") {
-               actor.enqueue(make_message(6));
+               actor.enqueue(make_message<test_message>(6));
                THEN("the message queue is not blocked") {
                   REQUIRE_FALSE(actor.blocked());
                }
@@ -89,7 +90,7 @@ namespace {
                   actor.clear();
                   REQUIRE(actor.resume() == resumable::result::awaiting_message);
                   THEN("should consume the new enqueued message") {
-                     REQUIRE(actor.values == std::vector<message_id>{6});
+                     REQUIRE(actor.values == std::vector<int>{6});
                   }
                }
             }

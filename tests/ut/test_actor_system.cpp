@@ -13,13 +13,6 @@
 namespace {
    using namespace NANO_CAF_NS;
 
-   struct my_message  {
-      my_message(uint32_t value)
-         : value{value} {}
-
-      uint32_t value{};
-   };
-
    SCENARIO("a do-nothing actor system") {
       actor_system system;
       system.start(5);
@@ -29,7 +22,7 @@ namespace {
    struct my_actor : actor {
       std::vector<size_t> values;
       auto handle_message(const message_element& msg) noexcept -> void override {
-         values.push_back(msg.body<my_message>()->value);
+         values.push_back(msg.body<test_message>()->value);
       }
 
       void clear() {
@@ -43,7 +36,7 @@ namespace {
 
       auto actor = system.spawn<my_actor>();
 
-      actor.send<my_message>({1}, 1);
+      actor.send<my_message>(1, 2.3);
 
       system.power_off();
    }
@@ -53,7 +46,7 @@ namespace {
    int pong_times = 0;
    struct pong_actor : actor {
       auto handle_message(const message_element& msg) noexcept -> void override {
-         reply(msg.message_id);
+         reply<test_message>(msg.body<test_message>()->value);
          pong_times++;
       }
    };
@@ -64,13 +57,13 @@ namespace {
 
       auto on_init() noexcept -> void override {
          pong = spawn<pong_actor>();
-         send_to(pong, 1);
+         send_to<test_message>(pong, 1);
          times = 1;
       }
 
       auto handle_message(const message_element& msg) noexcept -> void override {
          if(times++ < total_times ) {
-            send_to(pong, msg.message_id + 1);
+            send_to<test_message>(pong, msg.body<test_message>()->value + 1);
          }
          else {
             exit(exit_reason::normal);
@@ -168,7 +161,7 @@ namespace {
       system.start(1);
 
       auto me = system.spawn<future_actor>();
-      me.send(1);
+      me.send<test_message>(1);
       REQUIRE(me.wait_for_exit() == NORMAL_EXIT);
       me.release();
 

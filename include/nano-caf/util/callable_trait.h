@@ -6,12 +6,10 @@
 #define NANO_CAF_CALLABLE_TRAIT_H
 
 #include <nano-caf/nano-caf-ns.h>
+#include <nano-caf/util/type_list.h>
 #include <type_traits>
 
 NANO_CAF_NS_BEGIN
-
-template<typename ... Ts>
-struct type_list {};
 
 template<typename T>
 struct function_trait;

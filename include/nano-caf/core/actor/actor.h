@@ -23,26 +23,16 @@ private:
    using async_future_type = std::optional<std::shared_future<typename callable_trait<std::decay_t<F>>::return_type>>;
 
 protected:
-   template<typename T, typename ... Args>
-   inline auto send_to(actor_handle& to, message_id const& id, Args&& ... args) noexcept {
-      return to.send<T>(self_handle(), id, std::forward<Args>(args)...);
+   template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
+   inline auto send_to(actor_handle& to, Args&& ... args) noexcept {
+      return to.send<T, CATEGORY>(self_handle(), std::forward<Args>(args)...);
    }
 
-   inline auto send_to(actor_handle& to, message_id const& id) noexcept {
-      return to.send(self_handle(), id);
-   }
-
-   template<typename T, typename ... Args>
-   inline auto reply(message_id const& id, Args&& ... args) noexcept {
+   template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
+   inline auto reply(Args&& ... args) noexcept {
       auto sender = current_sender();
       if(!sender.exists()) return enq_result::null_sender;
-      return sender.send<T>(self_handle(), id, std::forward<Args>(args)...);
-   }
-
-   inline auto reply(message_id const& id) noexcept -> enq_result {
-      auto sender = current_sender();
-      if(!sender.exists()) return enq_result::null_sender;
-      return sender.send(self_handle(), id);
+      return sender.send<T, CATEGORY>(self_handle(), std::forward<Args>(args)...);
    }
 
    template<typename T, typename ... Ts>
