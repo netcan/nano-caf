@@ -30,6 +30,7 @@ struct message_element {
 
    template<typename T>
    auto body() const noexcept -> const T* {
+      if(from_msg_type_to_id<T>::msg_id != get_id()) return nullptr;
       return reinterpret_cast<const T*>(body_ptr());
    }
 
