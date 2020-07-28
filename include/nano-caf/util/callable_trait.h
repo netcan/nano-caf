@@ -15,61 +15,48 @@ template<typename T>
 struct function_trait;
 
 template<typename R, typename ... Args>
-struct function_trait<R (Args...)> {
+struct __function_trait {
    using return_type = R;
    using args_type = type_list<Args...>;
    using decayed_args_type = type_list<std::decay_t<Args>...>;
    constexpr static size_t num_of_args = sizeof...(Args);
+
+   template <std::size_t i>
+   using arg = typename std::tuple_element<i, std::tuple<Args...>>::type;
+};
+
+template<typename R, typename ... Args>
+struct function_trait<R (Args...)> : __function_trait<R, Args...> {
    constexpr static bool is_variadic = false;
    constexpr static bool is_const = false;
 };
 
 template<typename R, typename ... Args>
-struct function_trait<R (Args..., ...)> {
-   using return_type = R;
-   using args_type = type_list<Args...>;
-   using decayed_args_type = type_list<std::decay_t<Args>...>;
-   constexpr static size_t num_of_args = sizeof...(Args);
+struct function_trait<R (Args..., ...)> : __function_trait<R, Args...>{
    constexpr static bool is_variadic = true;
    constexpr static bool is_const = false;
 };
 
 template<typename C, typename R, typename ... Args>
-struct function_trait<R (C::*)(Args...) const> {
-   using return_type = R;
-   using args_type = type_list<Args...>;
-   using decayed_args_type = type_list<std::decay_t<Args>...>;
-   constexpr static size_t num_of_args = sizeof...(Args);
+struct function_trait<R (C::*)(Args...) const> : __function_trait<R, Args...> {
    constexpr static bool is_variadic = false;
    constexpr static bool is_const = true;
 };
 
 template<typename C, typename R, typename ... Args>
-struct function_trait<R (C::*)(Args...)> {
-   using return_type = R;
-   using args_type = type_list<Args...>;
-   using decayed_args_type = type_list<std::decay_t<Args>...>;
-   constexpr static size_t num_of_args = sizeof...(Args);
+struct function_trait<R (C::*)(Args...)> : __function_trait<R, Args...> {
    constexpr static bool is_variadic = false;
    constexpr static bool is_const = false;
 };
 
 template<typename C, typename R, typename ... Args>
-struct function_trait<R (C::*)(Args..., ...)> {
-   using return_type = R;
-   using args_type = type_list<Args...>;
-   using decayed_args_type = type_list<std::decay_t<Args>...>;
-   constexpr static size_t num_of_args = sizeof...(Args);
+struct function_trait<R (C::*)(Args..., ...)> : __function_trait<R, Args...> {
    constexpr static bool is_variadic = true;
    constexpr static bool is_const = false;
 };
 
 template<typename C, typename R, typename ... Args>
-struct function_trait<R (C::*)(Args..., ...) const> {
-   using return_type = R;
-   using args_type = type_list<Args...>;
-   using decayed_args_type = type_list<std::decay_t<Args>...>;
-   constexpr static size_t num_of_args = sizeof...(Args);
+struct function_trait<R (C::*)(Args..., ...) const> : __function_trait<R, Args...> {
    constexpr static bool is_variadic = true;
    constexpr static bool is_const = true;
 };
