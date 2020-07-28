@@ -7,6 +7,7 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/msg/message_trait.h>
+#include <nano-caf/core/msg/predefined-msgs.h>
 #include <cstdint>
 
 NANO_CAF_NS_BEGIN
