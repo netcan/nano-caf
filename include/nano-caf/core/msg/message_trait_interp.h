@@ -4,8 +4,9 @@
 
 #define __CAF_def_message(name, id) \
 struct name; \
-struct name##_atom {}; \
-template<> struct from_msg_type_to_id<name>          { constexpr static msg_id_t msg_id = id; }; \
+struct name##_atom : __atom_signature {}; \
+template<> struct from_msg_type_to_id<name##_atom>   { constexpr static msg_id_t msg_id = id; }; \
+template<> struct from_msg_type_to_id<name> :  from_msg_type_to_id<name##_atom> {}; \
 template<> struct from_atom_to_msg_type<name##_atom> { using type = name; }; \
 struct name {
 

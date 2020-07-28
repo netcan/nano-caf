@@ -17,6 +17,8 @@ template<typename> struct from_msg_type_to_id;
 template<typename> struct from_atom_to_msg_type;
 template<typename> struct from_msg_type_to_field;
 
+struct __atom_signature {};
+
 NANO_CAF_NS_END
 
 #endif //NANO_CAF_MESSAGE_TRAIT_H

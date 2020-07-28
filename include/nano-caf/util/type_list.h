@@ -10,7 +10,19 @@
 NANO_CAF_NS_BEGIN
 
 template<typename ... Ts>
-struct type_list {};
+struct type_list {
+   template<template<typename T> typename F>
+   using transform = type_list<>;
+};
+
+template<typename H, typename ... Ts>
+struct type_list<H, Ts...> {
+   using head = H;
+   using tail = type_list<Ts...>;
+
+   template<template<typename T> typename F>
+   using transform = type_list<F<H>, F<Ts>...>;
+};
 
 NANO_CAF_NS_END
 
