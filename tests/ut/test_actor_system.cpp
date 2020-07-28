@@ -36,7 +36,7 @@ namespace {
 
       auto actor = system.spawn<my_actor>();
 
-      actor.send<my_message>(1, 2.3);
+      actor.send<test_message>(1);
 
       system.power_off();
    }

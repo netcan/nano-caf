@@ -36,28 +36,23 @@ namespace {
          }
 
          AND_WHEN("consume 1 ") {
-            message_id value = 0;
-            auto result = queue.new_round(1, [&](const message_element& elem) noexcept  {
-               value = elem.message_id;
-               return task_result::resume; });
+            auto value = 0;
+            auto l = [&](const message_element& elem) noexcept  {
+               value = elem.body<test_message>()->value;
+               return task_result::resume; };
+            auto result = queue.new_round(1, l);
             THEN("should consume the 1st element") {
                REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
-               REQUIRE(value == message_id{1});
+               REQUIRE(value == 1);
             }
             AND_THEN("consume 1 again") {
-               auto value = 0;
-               auto result = queue.new_round(1, [&](const message_element& elem) noexcept  {
-                  value = elem.body<test_message>()->value;
-                  return task_result::resume; });
+               auto result = queue.new_round(1, l);
                THEN("should consume the 2nd element") {
                   REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
                   REQUIRE(value == 2);
                }
                AND_THEN("consume 1 again") {
-                  message_id value = 0;
-                  auto result = queue.new_round(1, [&](const message_element& elem) noexcept  {
-                     value = elem.message_id;
-                     return task_result::resume; });
+                  auto result = queue.new_round(1, l);
                   THEN("should consume nothing") {
                      REQUIRE(result == new_round_result{.consumed_items = 0, .stop_all = false});
                   }

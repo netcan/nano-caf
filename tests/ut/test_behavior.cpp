@@ -11,13 +11,43 @@
 namespace {
    using namespace NANO_CAF_NS;
 
-   behavior behaviors{
-      [](my_message_atom, int&, double) {},
-      [](const my_message&) {},
-      [](exit_msg_atom, exit_reason) {}
-   };
+   behavior get_behavior() {
+      return {
+         [](shared_buf_msg_atom, std::shared_ptr<big_msg> ptr) {
+            std::cout << ":" << ptr->b << std::endl;
+         },
+         [](my_message_atom, const int &amount, double currency) {
+            std::cout << amount << ", " << currency << std::endl;
+         },
 
-   SCENARIO("id") {
-      std::cout << from_msg_type_to_id<my_message>::msg_id << std::endl;
+         [](exit_msg_atom, exit_reason) {}
+      };
+   }
+
+   SCENARIO("behavior") {
+      WHEN("pass a my_message") {
+         auto behavior = get_behavior();
+         std::unique_ptr<message_element> msg{make_message<my_message>(10, 2.4)};
+         REQUIRE(msg != nullptr);
+         REQUIRE(behavior.ptr_ != nullptr);
+         REQUIRE(behavior.ptr_->handle_msg(*msg)== task_result::resume);
+      }
+      WHEN("pass a shared_buf_msg") {
+         auto behavior = get_behavior();
+         std::unique_ptr<message_element> msg{make_message<shared_buf_msg>(std::shared_ptr<big_msg>(new big_msg{20, (float)1.4, 2.5}))};
+         REQUIRE(msg != nullptr);
+         REQUIRE(behavior.ptr_ != nullptr);
+         REQUIRE(behavior.ptr_->handle_msg(*msg)== task_result::resume);
+      }
+
+      WHEN("pass a test_message") {
+         auto behavior = get_behavior();
+         std::unique_ptr<message_element> msg{make_message<test_message>(100)};
+         REQUIRE(msg != nullptr);
+         REQUIRE(behavior.ptr_ != nullptr);
+         THEN("should return skip") {
+            REQUIRE(behavior.ptr_->handle_msg(*msg)== task_result::skip);
+         }
+      }
    }
 }

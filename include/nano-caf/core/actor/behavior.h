@@ -57,10 +57,10 @@ namespace detail {
       };
 
       template<size_t N>
-      struct ftype;
+      struct f_type;
 
       template<>
-      struct ftype<0>: base {
+      struct f_type<0>: base {
          using base::base;
 
          auto operator()(message_element& msg) {
@@ -72,14 +72,14 @@ namespace detail {
       };
 
       template<>
-      struct ftype<1>: base {
+      struct f_type<1>: base {
          using base::base;
 
          auto operator()(message_element& msg) {
             auto* body = msg.body<message_type>();
             if(body == nullptr) return false;
 
-            auto& [a1] = *body;
+            auto [a1] = *body;
             base::f_(atom_type{}, a1);
 
             return true;
@@ -87,14 +87,14 @@ namespace detail {
       };
 
       template<>
-      struct ftype<2>: base {
+      struct f_type<2>: base {
          using base::base;
 
          auto operator()(message_element& msg) {
             auto* body = msg.body<message_type>();
             if(body == nullptr) return false;
 
-            auto& [a1, a2] = *body;
+            auto [a1, a2] = *body;
             base::f_(atom_type{}, a1, a2);
 
             return true;
@@ -102,28 +102,28 @@ namespace detail {
       };
 
       template<>
-      struct ftype<3>: base {
+      struct f_type<3>: base {
          using base::base;
 
          auto operator()(message_element& msg) {
             auto* body = msg.body<message_type>();
             if(body == nullptr) return false;
 
-            auto& [a1, a2, a3] = *body;
+            auto [a1, a2, a3] = *body;
             base::f_(atom_type{}, a1, a2, a3);
             return true;
          }
       };
 
       template<>
-      struct ftype<4>: base {
+      struct f_type<4>: base {
          using base::base;
 
          auto operator()(message_element& msg) {
             auto* body = msg.body<message_type>();
             if(body == nullptr) return false;
 
-            auto& [a1, a2, a3, a4] = *body;
+            auto [a1, a2, a3, a4] = *body;
             base::f_(atom_type{}, a1, a2, a3, a4);
 
             return true;
@@ -131,14 +131,14 @@ namespace detail {
       };
 
       template<>
-      struct ftype<5>: base {
+      struct f_type<5>: base {
          using base::base;
 
          auto operator()(message_element& msg) {
             auto* body = msg.body<message_type>();
             if(body == nullptr) return false;
 
-            auto& [a1, a2, a3, a4, a5] = *body;
+            auto [a1, a2, a3, a4, a5] = *body;
             base::f_(atom_type{}, a1, a2, a3, a4, a5);
 
             return true;
@@ -146,14 +146,14 @@ namespace detail {
       };
 
       template<>
-      struct ftype<6>: base {
+      struct f_type<6>: base {
          using base::base;
 
          auto operator()(message_element& msg) {
             auto* body = msg.body<message_type>();
             if(body == nullptr) return false;
 
-            auto& [a1, a2, a3, a4, a5, a6] = *body;
+            auto [a1, a2, a3, a4, a5, a6] = *body;
             base::f_(atom_type{}, a1, a2, a3, a4, a5, a6);
 
             return true;
@@ -161,14 +161,14 @@ namespace detail {
       };
 
       template<>
-      struct ftype<7>: base {
+      struct f_type<7>: base {
          using base::base;
 
          auto operator()(message_element& msg) {
             auto* body = msg.body<message_type>();
             if(body == nullptr) return false;
 
-            auto& [a1, a2, a3, a4, a5, a6, a7] = *body;
+            auto [a1, a2, a3, a4, a5, a6, a7] = *body;
             base::f_(atom_type{}, a1, a2, a3, a4, a5, a6, a7);
 
             return true;
@@ -176,44 +176,40 @@ namespace detail {
       };
 
       template<>
-      struct ftype<8>: base {
+      struct f_type<8>: base {
          using base::base;
 
          auto operator()(message_element& msg) {
             auto* body = msg.body<message_type>();
             if(body == nullptr) return false;
 
-            auto& [a1, a2, a3, a4, a5, a6, a7, a8] = *body;
+            auto [a1, a2, a3, a4, a5, a6, a7, a8] = *body;
             base::f_(atom_type{}, a1, a2, a3, a4, a5, a6, a7, a8);
             return true;
          }
       };
 
       template<>
-      struct ftype<9>: base {
+      struct f_type<9>: base {
          using base::base;
 
          auto operator()(message_element& msg) {
             auto* body = msg.body<message_type>();
             if(body == nullptr) return false;
 
-            auto& [a1, a2, a3, a4, a5, a6, a7, a8, a9] = *body;
+            auto [a1, a2, a3, a4, a5, a6, a7, a8, a9] = *body;
             base::f_(atom_type{}, a1, a2, a3, a4, a5, a6, a7, a8, a9);
 
             return true;
          }
       };
 
-      using type = ftype<decayed_args::size>;
-
-      constexpr static bool value = true;
+      using type = f_type<decayed_args::size>;
    };
 
    template<typename F>
    struct verify_behavior_<F, std::enable_if_t<is_msg_or_atom<F> && !is_atom<F>>> {
       static_assert((callable_trait<F>::num_of_args == 1), "only message argument is allowed");
-      constexpr static bool value = true;
-
       using message_type = std::decay_t<first_arg_t<F>>;
       static_assert(!std::is_pointer_v<message_type>, "don't use pointer, use reference instead");
 
@@ -242,6 +238,17 @@ namespace detail {
       virtual ~msg_handler() = default;
    };
 
+   template<size_t N, typename T, typename = std::enable_if_t<(std::tuple_size<T>::value > N + 1)>>
+   auto call_behavior(T& behaviors, message_element& msg) -> task_result {
+      auto consumed = std::get<N>(behaviors)(msg);
+      return consumed ? task_result::resume : call_behavior<N+1>(behaviors, msg);
+   }
+
+   template<size_t N, typename T, typename ... Args>
+   auto call_behavior(T& behaviors, message_element& msg, Args...) -> task_result {
+      return task_result::skip;
+   }
+
    template<typename ... Args>
    struct behavior_impl : msg_handler {
       behavior_impl(Args&& ... args) : behaviors_{ std::move(args)...} {}
@@ -249,7 +256,7 @@ namespace detail {
       std::tuple<Args...> behaviors_;
 
       auto handle_msg(message_element& msg) -> task_result override {
-         return task_result::skip;
+         return call_behavior<0>(behaviors_, msg);
       }
    };
 }
@@ -258,11 +265,10 @@ struct behavior {
    template<typename ... Args>
    behavior(Args&&...args) {
       static_assert(((callable_trait<Args>::num_of_args > 0) && ...));
-      static_assert((detail::verify_behavior<Args>::value && ...));
-      ptr_ = new detail::behavior_impl{detail::verify_behavior_t<Args>{std::move(args)}...};
+      ptr_.reset(new detail::behavior_impl{detail::verify_behavior_t<Args>{std::move(args)}...});
    }
 
-   detail::msg_handler* ptr_{};
+   std::unique_ptr<detail::msg_handler> ptr_{};
 };
 
 NANO_CAF_NS_END
