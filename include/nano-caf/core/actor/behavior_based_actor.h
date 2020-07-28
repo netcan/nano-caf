@@ -7,6 +7,7 @@
 
 #include <nano-caf/core/actor/actor.h>
 #include <nano-caf/core/actor/behavior.h>
+
 NANO_CAF_NS_BEGIN
 
 struct behavior_based_actor : actor {
