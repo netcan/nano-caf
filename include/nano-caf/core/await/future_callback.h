@@ -39,7 +39,6 @@ struct optional_future_trait<std::optional<std::shared_future<T>>> {
    using type = T;
 };
 
-
 template<typename ... Args>
 struct future_set {
    future_set(Args& ... args) : futures_{std::move(args)...} {}
@@ -99,8 +98,6 @@ private:
    T registry_;
    future_set<Args...> futures_;
 };
-
-
 
 NANO_CAF_NS_END
 

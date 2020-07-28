@@ -30,7 +30,7 @@ private:
 
 private:
    std::vector<worker*> workers_;
-   std::atomic_flag lock_;
+   std::atomic_flag lock_{false};
    size_t current_{};
 };
 

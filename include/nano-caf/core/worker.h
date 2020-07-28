@@ -10,6 +10,8 @@
 #include <nano-caf/util/disable_copy.h>
 #include <cstddef>
 #include <memory>
+#include <mutex>
+#include <condition_variable>
 
 NANO_CAF_NS_BEGIN
 
