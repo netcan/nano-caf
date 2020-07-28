@@ -24,7 +24,7 @@ private:
 
 protected:
    template<typename T, typename ... Args>
-   inline auto sendTo(actor_handle& to, message_id const& id, Args&& ... args) noexcept {
+   inline auto send_to(actor_handle& to, message_id const& id, Args&& ... args) noexcept {
       return to.send<T>(self_handle(), id, std::forward<Args>(args)...);
    }
 

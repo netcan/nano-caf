@@ -85,7 +85,7 @@ namespace {
 
       auto me = system.spawn<ping_actor>();
       REQUIRE(system.get_num_of_actors() == 2);
-      REQUIRE(me.wait_for_exit() == NORMAL_EXIST);
+      REQUIRE(me.wait_for_exit() == NORMAL_EXIT);
       me.release();
 
       system.shutdown();
@@ -168,7 +168,7 @@ namespace {
 
       auto me = system.spawn<future_actor>();
       me.send(1);
-      REQUIRE(me.wait_for_exit() == NORMAL_EXIST);
+      REQUIRE(me.wait_for_exit() == NORMAL_EXIT);
       me.release();
 
       system.shutdown();
