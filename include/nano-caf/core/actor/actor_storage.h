@@ -10,7 +10,7 @@
 #include <nano-caf/core/actor/lifo_inbox.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/sched_actor.h>
-#include <nano-caf/core/await/future.h>
+#include <nano-caf/core/await/future_callback.h>
 #include <vector>
 
 NANO_CAF_NS_BEGIN

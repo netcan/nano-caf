@@ -9,8 +9,8 @@
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/core/actor/exit_reason.h>
 #include <nano-caf/core/actor_system.h>
-#include <nano-caf/core/await/awaitable_object.h>
-#include <nano-caf/core/await/future.h>
+#include <nano-caf/core/await/async_object.h>
+#include <nano-caf/core/await/future_callback.h>
 #include <optional>
 
 NANO_CAF_NS_BEGIN

@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/7/27.
 //
 
-#ifndef NANO_CAF_FUTURE_H
-#define NANO_CAF_FUTURE_H
+#ifndef NANO_CAF_FUTURE_CALLBACK_H
+#define NANO_CAF_FUTURE_CALLBACK_H
 
 #include <nano-caf/nano-caf-ns.h>
 #include <type_traits>
@@ -105,4 +105,4 @@ private:
 
 NANO_CAF_NS_END
 
-#endif //NANO_CAF_FUTURE_H
+#endif //NANO_CAF_FUTURE_CALLBACK_H

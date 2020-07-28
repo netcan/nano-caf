@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/7/27.
 //
 
-#ifndef NANO_CAF_AWAITABLE_OBJECT_H
-#define NANO_CAF_AWAITABLE_OBJECT_H
+#ifndef NANO_CAF_ASYNC_OBJECT_H
+#define NANO_CAF_ASYNC_OBJECT_H
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/resumable.h>
@@ -75,4 +75,4 @@ auto make_async_object(const intrusive_actor_ptr& sender, F&& callable, Args&& .
 
 NANO_CAF_NS_END
 
-#endif //NANO_CAF_AWAITABLE_OBJECT_H
+#endif //NANO_CAF_ASYNC_OBJECT_H
