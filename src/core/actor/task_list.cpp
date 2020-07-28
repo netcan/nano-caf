@@ -3,7 +3,7 @@
 //
 
 #include <nano-caf/core/actor/task_list.h>
-#include <nano-caf/core/actor/message_element.h>
+#include <nano-caf/core/msg/message_element.h>
 
 NANO_CAF_NS_BEGIN
 

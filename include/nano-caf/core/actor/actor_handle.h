@@ -8,7 +8,7 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/enq_result.h>
-#include <nano-caf/core/actor/message_element.h>
+#include <nano-caf/core/msg/message_element.h>
 #include <nano-caf/core/actor/wait_result.h>
 
 NANO_CAF_NS_BEGIN

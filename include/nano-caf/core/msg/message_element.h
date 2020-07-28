@@ -6,7 +6,7 @@
 #define NANO_CAF_MESSAGE_ELEMENT_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/actor/message_id.h>
+#include <nano-caf/core/msg/message_id.h>
 #include <nano-caf/util/intrusive_ptr.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
 #include <utility>

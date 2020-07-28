@@ -4,7 +4,7 @@
 
 #include <catch.hpp>
 #include <nano-caf/core/actor/drr_cached_queue.h>
-#include <nano-caf/core/actor/message_element.h>
+#include <nano-caf/core/msg/message_element.h>
 
 namespace {
    using namespace NANO_CAF_NS;

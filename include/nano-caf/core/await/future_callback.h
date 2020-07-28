@@ -6,7 +6,7 @@
 #define NANO_CAF_FUTURE_CALLBACK_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/actor/message_element.h>
+#include <nano-caf/core/msg/message_element.h>
 #include <nano-caf/util/callable_trait.h>
 #include <type_traits>
 #include <functional>

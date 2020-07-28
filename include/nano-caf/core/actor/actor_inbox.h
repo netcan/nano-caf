@@ -6,7 +6,7 @@
 #define NANO_CAF_ACTOR_INBOX_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/actor/message_element.h>
+#include <nano-caf/core/msg/message_element.h>
 #include <nano-caf/core/actor/lifo_inbox.h>
 #include <nano-caf/core/actor/drr_cached_queue.h>
 

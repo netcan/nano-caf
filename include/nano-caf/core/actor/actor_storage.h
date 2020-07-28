@@ -6,7 +6,7 @@
 #define NANO_CAF_ACTOR_STORAGE_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/actor/message_element.h>
+#include <nano-caf/core/msg/message_element.h>
 #include <nano-caf/core/actor/lifo_inbox.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/sched_actor.h>

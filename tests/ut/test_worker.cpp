@@ -4,7 +4,7 @@
 
 #include <catch.hpp>
 #include <nano-caf/core/worker.h>
-#include <nano-caf/core/actor/message_element.h>
+#include <nano-caf/core/msg/message_element.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor/make_actor.h>
 #include <nano-caf/core/coordinator.h>

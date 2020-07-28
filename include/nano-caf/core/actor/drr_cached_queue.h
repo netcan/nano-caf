@@ -6,7 +6,7 @@
 #define NANO_CAF_DRR_CACHED_QUEUE_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/actor/message_element.h>
+#include <nano-caf/core/msg/message_element.h>
 #include <nano-caf/core/actor/task_list.h>
 #include <nano-caf/core/new_round_result.h>
 #include <cstddef>
