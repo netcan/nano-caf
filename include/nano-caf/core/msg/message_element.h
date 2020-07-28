@@ -33,6 +33,10 @@ struct message_element {
       return reinterpret_cast<const T*>(body_ptr());
    }
 
+   auto get_id() const -> msg_id_t {
+      return message_id.get_id();
+   }
+
    virtual ~message_element() = default;
 
 private:

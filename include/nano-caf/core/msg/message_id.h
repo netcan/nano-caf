@@ -40,6 +40,10 @@ struct message_id {
    operator uint64_t() const {
       return id;
    }
+
+   auto get_id() const -> msg_id_t {
+      return id & 0xFFFF'FFFF;
+   }
 private:
    enum : uint64_t {
       mask = (uint64_t)category::normal - 1
@@ -47,8 +51,6 @@ private:
 private:
    uint64_t id;
 };
-
-constexpr message_id EXIT_MSG{0x0000'FFFF'FFFF'FFFF, message_id::category::urgent };
 
 NANO_CAF_NS_END
 
