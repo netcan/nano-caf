@@ -51,6 +51,7 @@ private:
 };
 
 inline constexpr wait_result NORMAL_EXIT{wait_result::exited, exit_reason::normal};
+inline constexpr wait_result USER_SHUTDOWN{wait_result::exited, exit_reason::user_shutdown};
 
 NANO_CAF_NS_END
 

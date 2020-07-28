@@ -175,12 +175,13 @@ namespace {
       REQUIRE(system.get_num_of_actors() == 0);
    }
 
+   int pong_times_2 = 0;
    struct pong_actor_1 : behavior_based_actor {
       auto get_behavior() -> behavior override {
          return {
             [&](test_message_atom, int value) {
                reply<test_message>(value);
-               pong_times++;
+               pong_times_2++;
             }
          };
       }
@@ -188,23 +189,19 @@ namespace {
 
    struct ping_actor_1 : behavior_based_actor {
       actor_handle pong;
-      size_t times = 0;
 
       auto on_init() noexcept -> void override {
          pong = spawn<pong_actor_1>();
          send_to<test_message>(pong, 1);
-         times = 1;
       }
 
       auto get_behavior() -> behavior override {
          return {
             [&](test_message_atom, int value) {
-               if(times++ < total_times ) {
-                  send_to<test_message>(pong, value + 1);
-               }
-               else {
-                  exit(exit_reason::normal);
-               }
+               send_to<test_message>(pong, value + 1);
+            },
+            [&](exit_msg_atom, exit_reason reason) {
+               std::cout << "exit = " << (int)reason << std::endl;
             }
          };
       }
@@ -218,11 +215,12 @@ namespace {
 
       auto me = system.spawn<ping_actor_1>();
       REQUIRE(system.get_num_of_actors() == 2);
-      REQUIRE(me.wait_for_exit() == NORMAL_EXIT);
+      std::this_thread::sleep_for(std::chrono::seconds {1});
+      me.send<exit_msg>(exit_reason::user_shutdown);
+      REQUIRE(me.wait_for_exit() == USER_SHUTDOWN);
       me.release();
 
       system.shutdown();
-      REQUIRE(pong_times == total_times);
       REQUIRE(system.get_num_of_actors() == 0);
    }
 }
