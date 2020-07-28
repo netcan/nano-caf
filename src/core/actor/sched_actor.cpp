@@ -9,6 +9,7 @@ NANO_CAF_NS_BEGIN
 
 constexpr size_t max_throughput = 3;
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 sched_actor::sched_actor(bool register_to_context)
    : registered_(register_to_context) {
    if(register_to_context) {
@@ -16,12 +17,14 @@ sched_actor::sched_actor(bool register_to_context)
    }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 sched_actor::~sched_actor() {
    if(registered_) {
       to_ctl()->context().deregister_actor();
    }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 auto sched_actor::resume() noexcept  -> resumable::result {
    size_t consumed_msgs = 0;
 
@@ -51,6 +54,7 @@ auto sched_actor::resume() noexcept  -> resumable::result {
    return resumable::result::resume_later;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 auto sched_actor::handle_message_internal(const message_element& msg) noexcept -> task_result {
    user_defined_handle_msg(msg);
    if(msg.message_id == EXIT_MSG) {
