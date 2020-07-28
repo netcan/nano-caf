@@ -22,6 +22,9 @@ struct type_list<H, Ts...> {
 
    template<template<typename T> typename F>
    using transform = type_list<F<H>, F<Ts>...>;
+
+   template<template<typename T> typename F>
+   constexpr static bool pred = (F<Ts>::value && ... && F<H>::value);
 };
 
 NANO_CAF_NS_END

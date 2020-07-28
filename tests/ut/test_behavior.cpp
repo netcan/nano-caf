@@ -11,7 +11,7 @@ namespace {
    using namespace NANO_CAF_NS;
 
    behavior behaviors{
-      [](my_message_atom, int, double) {},
+      [](my_message_atom, int&, double) {},
       [](const my_message&) {}
    };
 }
