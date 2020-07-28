@@ -182,6 +182,9 @@ namespace {
             [&](test_message_atom, int value) {
                reply<test_message>(value);
                pong_times_2++;
+            },
+            [&](exit_msg_atom, exit_reason reason) {
+               std::cout << "pong exit = " << (int)reason << std::endl;
             }
          };
       }
@@ -201,7 +204,8 @@ namespace {
                send<test_message>(pong, value + 1);
             },
             [&](exit_msg_atom, exit_reason reason) {
-               std::cout << "exit = " << (int)reason << std::endl;
+               send<exit_msg>(pong, reason);
+               std::cout << "ping exit = " << (int)reason << std::endl;
             }
          };
       }
