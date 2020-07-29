@@ -37,6 +37,93 @@ namespace detail {
    };
 
    template<typename F>
+   struct behavior_pattern_base {
+      behavior_pattern_base(F&& f) : f_(std::move(f)) {}
+
+      F f_;
+   };
+
+   template<size_t N, typename F, typename MSG_TYPE, typename ATOM_TYPE>
+   struct behavior_pattern;
+
+   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
+   struct behavior_pattern<0, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
+      using behavior_pattern_base<F>::behavior_pattern_base;
+
+      auto operator()(message_element& msg) {
+         auto* body = msg.body<MSG_TYPE>();
+         if(body == nullptr) return false;
+         behavior_pattern_base<F>::f_(ATOM_TYPE{});
+         return true;
+      }
+   };
+
+   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
+   struct behavior_pattern<1, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
+      using behavior_pattern_base<F>::behavior_pattern_base;
+
+      auto operator()(message_element& msg) {
+         auto* body = msg.body<MSG_TYPE>();
+         if(body == nullptr) return false;
+         auto [a1] = *body;
+         behavior_pattern_base<F>::f_(ATOM_TYPE{}, a1);
+         return true;
+      }
+   };
+
+   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
+   struct behavior_pattern<2, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
+      using behavior_pattern_base<F>::behavior_pattern_base;
+
+      auto operator()(message_element& msg) {
+         auto* body = msg.body<MSG_TYPE>();
+         if(body == nullptr) return false;
+         auto [a1, a2] = *body;
+         behavior_pattern_base<F>::f_(ATOM_TYPE{}, a1, a2);
+         return true;
+      }
+   };
+
+   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
+   struct behavior_pattern<3, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
+      using behavior_pattern_base<F>::behavior_pattern_base;
+
+      auto operator()(message_element& msg) {
+         auto* body = msg.body<MSG_TYPE>();
+         if(body == nullptr) return false;
+         auto [a1, a2, a3] = *body;
+         behavior_pattern_base<F>::f_(ATOM_TYPE{}, a1, a2, a3);
+         return true;
+      }
+   };
+
+   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
+   struct behavior_pattern<4, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
+      using behavior_pattern_base<F>::behavior_pattern_base;
+
+      auto operator()(message_element& msg) {
+         auto* body = msg.body<MSG_TYPE>();
+         if(body == nullptr) return false;
+         auto [a1, a2, a3, a4] = *body;
+         behavior_pattern_base<F>::f_(ATOM_TYPE{}, a1, a2, a3, a4);
+         return true;
+      }
+   };
+
+   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
+   struct behavior_pattern<5, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
+      using behavior_pattern_base<F>::behavior_pattern_base;
+
+      auto operator()(message_element& msg) {
+         auto* body = msg.body<MSG_TYPE>();
+         if(body == nullptr) return false;
+         auto [a1, a2, a3, a4, a5] = *body;
+         behavior_pattern_base<F>::f_(ATOM_TYPE{}, a1, a2, a3, a4, a5);
+         return true;
+      }
+   };
+
+   template<typename F>
    struct verify_behavior_<F, std::enable_if_t<is_msg_or_atom<F> && is_atom<F>>> {
       static_assert(!is_non_const_lref<first_arg_t<F>>, "the atom type cannot be non-const-lvalue-ref");
 
@@ -50,161 +137,7 @@ namespace detail {
       static_assert(std::is_same_v<decayed_field_types, decayed_args>, "parameters & message don't match");
       static_assert(args_type::template pred<is_non_rvalue_ref>, "parameter cannot be rvalue-ref type");
 
-      struct base {
-         base(F&& f) : f_(std::move(f)) {}
-
-         F f_;
-      };
-
-      template<size_t N>
-      struct f_type;
-
-      template<>
-      struct f_type<0>: base {
-         using base::base;
-
-         auto operator()(message_element& msg) {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-            base::f_(atom_type{});
-            return true;
-         }
-      };
-
-      template<>
-      struct f_type<1>: base {
-         using base::base;
-
-         auto operator()(message_element& msg) {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-
-            auto [a1] = *body;
-            base::f_(atom_type{}, a1);
-
-            return true;
-         }
-      };
-
-      template<>
-      struct f_type<2>: base {
-         using base::base;
-
-         auto operator()(message_element& msg) {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-
-            auto [a1, a2] = *body;
-            base::f_(atom_type{}, a1, a2);
-
-            return true;
-         }
-      };
-
-      template<>
-      struct f_type<3>: base {
-         using base::base;
-
-         auto operator()(message_element& msg) {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-
-            auto [a1, a2, a3] = *body;
-            base::f_(atom_type{}, a1, a2, a3);
-            return true;
-         }
-      };
-
-      template<>
-      struct f_type<4>: base {
-         using base::base;
-
-         auto operator()(message_element& msg) {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-
-            auto [a1, a2, a3, a4] = *body;
-            base::f_(atom_type{}, a1, a2, a3, a4);
-
-            return true;
-         }
-      };
-
-      template<>
-      struct f_type<5>: base {
-         using base::base;
-
-         auto operator()(message_element& msg) {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-
-            auto [a1, a2, a3, a4, a5] = *body;
-            base::f_(atom_type{}, a1, a2, a3, a4, a5);
-
-            return true;
-         }
-      };
-
-      template<>
-      struct f_type<6>: base {
-         using base::base;
-
-         auto operator()(message_element& msg) {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-
-            auto [a1, a2, a3, a4, a5, a6] = *body;
-            base::f_(atom_type{}, a1, a2, a3, a4, a5, a6);
-
-            return true;
-         }
-      };
-
-      template<>
-      struct f_type<7>: base {
-         using base::base;
-
-         auto operator()(message_element& msg) {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-
-            auto [a1, a2, a3, a4, a5, a6, a7] = *body;
-            base::f_(atom_type{}, a1, a2, a3, a4, a5, a6, a7);
-
-            return true;
-         }
-      };
-
-      template<>
-      struct f_type<8>: base {
-         using base::base;
-
-         auto operator()(message_element& msg) {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-
-            auto [a1, a2, a3, a4, a5, a6, a7, a8] = *body;
-            base::f_(atom_type{}, a1, a2, a3, a4, a5, a6, a7, a8);
-            return true;
-         }
-      };
-
-      template<>
-      struct f_type<9>: base {
-         using base::base;
-
-         auto operator()(message_element& msg) {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-
-            auto [a1, a2, a3, a4, a5, a6, a7, a8, a9] = *body;
-            base::f_(atom_type{}, a1, a2, a3, a4, a5, a6, a7, a8, a9);
-
-            return true;
-         }
-      };
-
-      using type = f_type<decayed_args::size>;
+      using type = behavior_pattern<decayed_args::size, F, message_type, atom_type>;
    };
 
    template<typename F>
