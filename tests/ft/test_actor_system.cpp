@@ -5,8 +5,6 @@
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/actor/actor.h>
-#include <iostream>
-#include <nano-caf/core/actor/behavior_based_actor.h>
 #include "../ut/test_msgs.h"
 
 using namespace NANO_CAF_NS;

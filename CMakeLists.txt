@@ -61,8 +61,7 @@ add_library(nano_caf
         include/nano-caf/core/msg/predefined-msgs.h
         include/nano-caf/core/msg/predefined_msgs_def.h
         include/nano-caf/core/actor/behavior.h
-        include/nano-caf/core/actor/behavior_based_actor.h
-        tests/ft/test_actor_system.cpp)
+        include/nano-caf/core/actor/behavior_based_actor.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp
@@ -82,6 +81,9 @@ add_executable(nano_caf-test
 add_executable(test_actor_system
         tests/ft/test_actor_system.cpp)
 
+add_executable(test_ping_pong
+        tests/ft/test_ping_pong.cpp)
+
 if(UNIX AND NOT APPLE)
     set(LINUX TRUE)
 endif()
@@ -89,7 +91,9 @@ endif()
 if(UNIX)
     target_link_libraries(nano_caf-test nano_caf pthread)
     target_link_libraries(test_actor_system nano_caf pthread)
+    target_link_libraries(test_ping_pong nano_caf pthread)
 else()
     target_link_libraries(nano_caf-test nano_caf)
     target_link_libraries(test_actor_system nano_caf)
+    target_link_libraries(test_ping_pong nano_caf)
 endif()
