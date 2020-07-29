@@ -80,7 +80,7 @@ private:
    std::atomic<size_t> weak_refs_;
    const data_destructor data_dtor_;
    const block_destructor block_dtor_;
-   std::promise<exit_reason> exit_promise_;
+   std::promise<exit_reason> exit_promise_{};
 
 protected:
    actor_context& context_;

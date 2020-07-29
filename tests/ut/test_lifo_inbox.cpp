@@ -91,12 +91,15 @@ namespace {
       auto msg = inbox.take_all();
       REQUIRE(msg != nullptr);
 
+      auto ptr = std::unique_ptr<message_element>(msg);
       msg = msg->next;
       REQUIRE(msg != nullptr);
 
+      ptr.reset(msg);
       msg = msg->next;
       REQUIRE(msg != nullptr);
 
+      ptr.reset(msg);
       msg = msg->next;
       REQUIRE(msg == nullptr);
    }
@@ -121,9 +124,12 @@ namespace {
                }
             }
             WHEN("take all messages") {
-               auto msg = inbox.take_all();
+               auto msg = std::unique_ptr<message_element>(inbox.take_all());
                THEN("should be able to get the message") {
                   REQUIRE(msg != nullptr);
+                  while(msg != nullptr) {
+                      msg.reset(msg->next);
+                  }
                   THEN("the inbox should be empty") {
                      REQUIRE(inbox.empty());
                   }

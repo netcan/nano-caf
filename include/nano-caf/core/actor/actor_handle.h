@@ -43,6 +43,9 @@ struct actor_handle {
       return { .result = wait_result::exited, ptr_->wait_for_exit() };
    }
 
+   ~actor_handle() {
+       ptr_ = nullptr;
+   }
 private:
    auto send_(message_element*) noexcept -> enq_result;
 

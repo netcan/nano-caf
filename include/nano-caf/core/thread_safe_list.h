@@ -27,13 +27,16 @@ struct thread_safe_list {
    }
 
    auto push_back(list_element* ptr) noexcept -> void {
-      spin_lock _{lock_};
+       if(ptr == nullptr) return;
+       {
+           spin_lock _{lock_};
 
-      if(tail_ != nullptr) tail_->next = ptr;
-      else head_ = ptr;
+           if(tail_ != nullptr) tail_->next = ptr;
+           else head_ = ptr;
 
-      tail_ = ptr;
-      ptr->next = nullptr;
+           tail_ = ptr;
+           ptr->next = nullptr;
+       }
    }
 
    auto push_front(list_element* ptr) noexcept -> void {

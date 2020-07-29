@@ -121,12 +121,12 @@ auto worker::cleanup() noexcept -> void {
 
 ////////////////////////////////////////////////////////////////////
 auto worker::resume_job(resumable* job) noexcept -> bool {
-
    switch(job->resume()) {
       case resumable::result::resume_later:
          thread_safe_list::push_back(job);
          break;
       case resumable::result::shutdown_execution_unit:
+         intrusive_ptr_release(job);
          return false;
       case resumable::result::done:
       case resumable::result::awaiting_message:
