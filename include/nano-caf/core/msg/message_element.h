@@ -14,18 +14,18 @@
 NANO_CAF_NS_BEGIN
 
 struct message_element {
-   message_element(const message_id& id) : message_id{id} {}
-   message_element(intrusive_actor_ptr sender, const message_id& id) : sender{sender}, message_id{id} {}
+   message_element(const message_id& id) : msg_id{id} {}
+   message_element(intrusive_actor_ptr sender, const message_id& id) : sender{sender}, msg_id{id} {}
    message_element(uint32_t id, message_id::category category = message_id::normal)
-      : message_id(id, category)
+      : msg_id(id, category)
    {}
 
    auto is_urgent() const noexcept -> bool {
-      return message_id.is_category(message_id::urgent);
+      return msg_id.is_category(message_id::urgent);
    }
 
    auto is_future_response() const noexcept -> bool {
-      return message_id.is_category(message_id::future);
+      return msg_id.is_category(message_id::future);
    }
 
    template<typename T>
@@ -35,7 +35,7 @@ struct message_element {
    }
 
    auto get_id() const -> msg_id_t {
-      return message_id.get_id();
+      return msg_id.get_id();
    }
 
    virtual ~message_element() = default;
@@ -46,7 +46,7 @@ private:
 public:
    message_element* next {};
    intrusive_actor_ptr sender{};
-   message_id message_id;
+   message_id msg_id;
 };
 
    template<typename T, message_id::category CATEGORY>
