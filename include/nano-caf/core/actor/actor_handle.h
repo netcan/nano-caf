@@ -33,7 +33,7 @@ struct actor_handle {
    }
 
    auto release() -> void {
-      ptr_ = nullptr;
+      ptr_.release();
    }
 
    auto wait_for_exit() -> wait_result {

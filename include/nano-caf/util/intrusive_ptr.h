@@ -29,8 +29,7 @@ struct intrusive_ptr {
    }
 
    ~intrusive_ptr() noexcept {
-      if (ptr_)
-         intrusive_ptr_release(ptr_);
+       release();
    }
 
    intrusive_ptr& operator=(T* ptr) noexcept {
@@ -54,6 +53,12 @@ struct intrusive_ptr {
       return !ptr_;
    }
 
+   auto release() -> void {
+       if (ptr_) {
+           intrusive_ptr_release(ptr_);
+           ptr_ = nullptr;
+       }
+   }
    explicit operator bool() const noexcept {
       return ptr_ != nullptr;
    }

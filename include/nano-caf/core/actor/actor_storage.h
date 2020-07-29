@@ -24,6 +24,10 @@ struct actor_storage  {
       p->init_handler();
    }
 
+    ~actor_storage() {
+        //static_assert(offsetof(actor_storage, control) == 0);
+    }
+
 private:
    static auto data_dtor(sched_actor* ptr) -> void {
       auto p = static_cast<internal_actor*>(ptr);
@@ -32,7 +36,7 @@ private:
    }
 
    static auto block_dtor(actor_control_block* ptr) noexcept -> void {
-      operator delete(reinterpret_cast<actor_storage*>(ptr));
+      delete reinterpret_cast<actor_storage<T>*>(ptr);
    }
 
 public:

@@ -115,6 +115,8 @@ auto worker::cleanup() noexcept -> void {
       auto job = thread_safe_list::pop_front<resumable>();
       if(job == nullptr) {
          break;
+      } else {
+         intrusive_ptr_release(job);
       }
    }
 }
