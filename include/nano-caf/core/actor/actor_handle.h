@@ -33,7 +33,7 @@ struct actor_handle {
    }
 
    auto release() -> void {
-      ptr_.release();
+      ptr_ = nullptr;
    }
 
    auto wait_for_exit() -> wait_result {
@@ -44,7 +44,7 @@ struct actor_handle {
    }
 
    ~actor_handle() {
-       ptr_ = nullptr;
+       ptr_.release();
    }
 private:
    auto send_(message_element*) noexcept -> enq_result;

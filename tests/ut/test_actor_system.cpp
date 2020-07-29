@@ -40,7 +40,6 @@ namespace {
       auto actor = system.spawn<my_actor>();
 
       actor.send<test_message>(1);
-      actor.release();
 
       system.power_off();
    }

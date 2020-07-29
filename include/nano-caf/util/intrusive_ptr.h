@@ -32,10 +32,6 @@ struct intrusive_ptr {
        release();
    }
 
-   intrusive_ptr& operator=(T* ptr) noexcept {
-      return operator=(intrusive_ptr{ptr});
-   }
-
    intrusive_ptr& operator=(intrusive_ptr other) noexcept {
       swap(other);
       return *this;
