@@ -6,6 +6,7 @@
 #include <nano-caf/core/resumable.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/coordinator.h>
+#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
@@ -48,8 +49,8 @@ auto worker::stop() noexcept -> void {
 using timespan = std::chrono::duration<int64_t, std::nano>;
 
 constexpr timespan sleep_durations[3] = {
-   timespan{1000},
-   timespan{100000},
+   timespan{1'000'000'000},
+   timespan{1'000'000'000},
    timespan{1'000'000'000},
 };
 
@@ -67,9 +68,9 @@ auto worker::goto_bed() noexcept -> void {
    goto_bed_();
 }
 
+////////////////////////////////////////////////////////////////////
 auto worker::goto_bed_() noexcept -> void {
    std::unique_lock<std::mutex> guard(lock_);
-   //std::cout << "worker " << id_ << " goto bed" << std::endl;
    sleeping = true;
    cv_.wait_for(guard, sleep_durations[strategy_],
                 [&] { return !thread_safe_list::empty(); });
@@ -90,7 +91,8 @@ auto worker::get_a_job() noexcept -> resumable* {
    job = thread_safe_list::pop_front<resumable>();
    if(job != nullptr) return job;
 
-   return coordinator_.try_steal(id_);
+   return job;
+   //return coordinator_.try_steal(id_);
 }
 
 ////////////////////////////////////////////////////////////////////

@@ -2,7 +2,6 @@
 // Created by Darwin Yuan on 2020/7/24.
 //
 
-#include <catch.hpp>
 #include <nano-caf/core/msg/message_element.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
@@ -10,6 +9,8 @@
 #include <iostream>
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include "test_msgs.h"
+#include <catch.hpp>
+#include <nanobench.h>
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -48,8 +49,14 @@ namespace {
    int pong_times = 0;
    struct pong_actor : actor {
       auto handle_message(message_element& msg) noexcept -> task_result override {
-         reply<test_message>(msg.body<test_message>()->value);
-         pong_times++;
+         switch(msg.get_id()) {
+            case from_msg_type_to_id<test_message>::msg_id:
+               reply<test_message>(msg.body<test_message>()->value);
+               pong_times++;
+               break;
+            case from_msg_type_to_id<exit_msg>::msg_id:
+               return task_result::stop_all;
+         }
          return task_result::resume;
       }
    };
@@ -65,12 +72,23 @@ namespace {
       }
 
       auto handle_message(message_element& msg) noexcept -> task_result override {
-         if(times++ < total_times ) {
-            send<test_message>(pong, msg.body<test_message>()->value + 1);
+         switch(msg.get_id()) {
+            case from_msg_type_to_id<test_message>::msg_id:
+               times++;
+               send<test_message>(pong, msg.body<test_message>()->value + 1);
+               break;
+            case from_msg_type_to_id<exit_msg>::msg_id:
+               send<exit_msg>(pong, msg.body<exit_msg>()->reason);
+               break;
+            default:
+               return task_result::skip;
          }
-         else {
-            exit(exit_reason::normal);
-         }
+//         if(times++ < total_times ) {
+//            send<test_message>(pong, msg.body<test_message>()->value + 1);
+//         }
+//         else {
+//            exit(exit_reason::normal);
+//         }
 
          return task_result::resume;
       }
@@ -79,16 +97,18 @@ namespace {
    SCENARIO("ping pang") {
       pong_times = 0;
       actor_system system;
-      system.start(3);
+      system.start(1);
       REQUIRE(system.get_num_of_actors() == 0);
 
       auto me = system.spawn<ping_actor>();
       REQUIRE(system.get_num_of_actors() == 2);
-      REQUIRE(me.wait_for_exit() == NORMAL_EXIT);
+      std::this_thread::sleep_for(std::chrono::seconds {1});
+      me.send<exit_msg>(exit_reason::user_shutdown);
+      REQUIRE(me.wait_for_exit() == USER_SHUTDOWN);
       me.release();
 
       system.shutdown();
-      REQUIRE(pong_times == total_times);
+      //REQUIRE(pong_times == total_times);
       REQUIRE(system.get_num_of_actors() == 0);
    }
 
@@ -142,7 +162,7 @@ namespace {
          }
 
          auto result3 = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
-            std::cout << "async done" << std::endl;
+            //std::cout << "async done" << std::endl;
             final_result = r1 + r2;
             if(final_result == 115000000) {
                exit(exit_reason::normal);
@@ -157,7 +177,7 @@ namespace {
       }
 
       auto handle_message(message_element& msg) noexcept -> task_result override {
-         std::cout << "msg received" << std::endl;
+         //std::cout << "msg received" << std::endl;
          return task_result::resume;
       }
    };
@@ -174,6 +194,20 @@ namespace {
       system.shutdown();
       REQUIRE(system.get_num_of_actors() == 0);
    }
+
+//   SCENARIO("future-calc benchmark") {
+//      ankerl::nanobench::Bench().run("future calc", [&] {
+//         actor_system system;
+//         system.start(1);
+//
+//         auto me = system.spawn<future_actor>();
+//         me.send<test_message>(1);
+//         me.wait_for_exit();
+//         me.release();
+//
+//         system.shutdown();
+//      });
+//   }
 
    int pong_times_2 = 0;
    struct pong_actor_1 : behavior_based_actor {
@@ -214,7 +248,7 @@ namespace {
    SCENARIO("ping pang 2") {
       pong_times = 0;
       actor_system system;
-      system.start(3);
+      system.start(1);
       REQUIRE(system.get_num_of_actors() == 0);
 
       auto me = system.spawn<ping_actor_1>();
@@ -225,6 +259,7 @@ namespace {
       me.release();
 
       system.shutdown();
+      //REQUIRE(pong_times_2 == total_times);
       REQUIRE(system.get_num_of_actors() == 0);
    }
 }
