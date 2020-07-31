@@ -1,8 +1,8 @@
 import sys
 
 head = '''
-#ifndef CUB_MACRO_PP_SIZE_H__
-#define CUB_MACRO_PP_SIZE_H__
+#ifndef __CUB_MACRO_PP_SIZE_H__
+#define __CUB_MACRO_PP_SIZE_H__
 
 #include <nano-caf/util/macro_basic.h>
 
