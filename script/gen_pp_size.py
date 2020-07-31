@@ -56,9 +56,9 @@ def gen_var_seq(n):
         seq = seq + "e{}, ".format(i)
         m = m+1
         if m % 10 == 0:
-            seq = seq + "\\\n"
+            seq = seq + "\\\n      "
 
-    return seq + "size, ...) \\"
+    return "      " + seq + "size, ...) \\"
 
 def main():
     # print command line arguments
