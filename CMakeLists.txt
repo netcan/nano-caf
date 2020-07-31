@@ -62,7 +62,7 @@ add_library(nano_caf
         include/nano-caf/core/msg/predefined_msgs_def.h
         include/nano-caf/core/actor/behavior.h
         include/nano-caf/core/actor/behavior_based_actor.h
-        tests/ft/test_actor_system.cpp)
+        tests/ft/test_actor_system.cpp include/nano-caf/util/reflex.h include/nano-caf/util/macro_pp_size.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp
