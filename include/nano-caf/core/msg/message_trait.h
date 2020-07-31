@@ -14,18 +14,7 @@
 NANO_CAF_NS_BEGIN
 
 using msg_id_t = uint64_t;
-
 struct __atom_signature {};
-
-#define __CAF_def_message(name, id, ...) \
-struct name { constexpr static msg_id_t msg_id = id; __CUB_fields(__VA_ARGS__) }; \
-struct name##_atom : __atom_signature { using msg_type = name; constexpr static msg_id_t msg_id = name::msg_id; }
-
-template<typename T>
-constexpr msg_id_t from_msg_type_to_id = T::msg_id;
-
-template<typename T>
-using from_atom_to_msg_type = typename T::msg_type;
 
 namespace detail {
    template<typename T, size_t ... I>
@@ -33,9 +22,16 @@ namespace detail {
    -> type_list<typename T::template __SeCrEtE_field<I, T>::type...>;
 }
 
-template<typename T>
-using from_msg_type_to_field = decltype(detail::deduce_msg_arg_types<T>(std::make_index_sequence<T::NuM_oF_fIeLdS>{}));
+#define __CAF_def_message(name, id, ...) \
+struct name { \
+   __CUB_fields(__VA_ARGS__) \
+   constexpr static msg_id_t msg_id = id;  \
+   using fIeLd_TyPeS = decltype(detail::deduce_msg_arg_types<name>(std::make_index_sequence<name::NuM_oF_fIeLdS>{})); \
+}; \
+struct name##_atom : __atom_signature { using msg_type = name; constexpr static msg_id_t msg_id = name::msg_id; }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////
 #define CAF_def_message(name, ...) __CAF_def_message(name, __COUNTER__, ##__VA_ARGS__)
 
 NANO_CAF_NS_END
