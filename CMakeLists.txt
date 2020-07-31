@@ -57,7 +57,7 @@ add_library(nano_caf
         include/nano-caf/util/type_list.h
         include/nano-caf/core/msg/predefined-msgs.h
         include/nano-caf/core/actor/behavior.h
-        include/nano-caf/util/reflex.h 
+        include/nano-caf/util/macro_reflex.h
         include/nano-caf/util/macro_pp_size.h
         include/nano-caf/core/actor/behavior_based_actor.h include/nano-caf/util/macro_basic.h)
 

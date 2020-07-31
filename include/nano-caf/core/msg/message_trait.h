@@ -7,7 +7,7 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/util/type_list.h>
-#include <nano-caf/util/reflex.h>
+#include <nano-caf/util/macro_reflex.h>
 #include <cstdint>
 #include <utility>
 
