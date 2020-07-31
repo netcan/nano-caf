@@ -9,10 +9,10 @@ head = '''
 #ifdef _MSC_VER
 
 #define __CUB_pp_size_(...)  \\
-   __CUB_pp_paste(__CUB_pp_size_i(__VA_ARGS__, \\
+   __CUB_paste(__CUB_pp_size_i(__VA_ARGS__, \\
 '''
 
-middle = ''', __CUB_pp_empty())
+middle = ''', __CUB_empty())
 
 #else
 
