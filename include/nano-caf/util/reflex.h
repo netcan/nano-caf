@@ -7,18 +7,13 @@
 
 #include <nano-caf/util/macro_basic.h>
 #include <nano-caf/util/macro_pp_size.h>
+#include <nano-caf/util/macro_reflex_call.h>
 #include <cstddef>
-
-#define __CUB_repeat_call_0(call, i, x, ...)
-#define __CUB_repeat_call_1(call, i, x, ...)  call(i, x) __CUB_repeat_call_0(call, i+1, __VA_ARGS__)
-#define __CUB_repeat_call_2(call, i, x, ...)  call(i, x) __CUB_repeat_call_1(call, i+1, __VA_ARGS__)
 
 #define __CUB_keep__(...) __VA_ARGS__
 #define __CUB_eat__(...)
-
 #define __CUB_var_full(x) __CUB_keep__ x
 #define __CUB_var_name(x) __CUB_eat__  x
-
 
 #define __CUB_field_def__(n, x)                 \
 __CUB_var_full(x);                              \
@@ -37,7 +32,7 @@ __CUB_paste(__CUB_repeat_call_, __CUB_pp_size(__VA_ARGS__)) (__CUB_field_def__, 
 
 
 struct A {
-   __CUB_fields()
+   __CUB_fields((int) a, (double) b)
 };
 
 
