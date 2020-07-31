@@ -31,6 +31,6 @@ struct __SeCrEtE_field<n, T> {                  \
 #define __CUB_fields(...) \
 constexpr static size_t NuM_oF_fIeLdS = __CUB_pp_size(__VA_ARGS__); \
 template<size_t N, typename T> struct __SeCrEtE_field; \
-__CUB_paste(__CUB_repeat_call_, __CUB_pp_size(__VA_ARGS__)) (__CUB_field_def__, 0, __VA_ARGS__)
+__CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__CUB_field_def__, 0, __VA_ARGS__)
 
 #endif //NANO_CAF_MACRO_REFLEX_H

@@ -70,7 +70,6 @@ add_executable(nano_caf-test
         tests/ut/test_actor_inbox.cpp
         tests/ut/test_sched_actor.cpp
         tests/ut/test_actor_system.cpp
-        tests/ut/test_msg_def.h
         tests/ut/test_msgs.h
         tests/ut/test_behavior.cpp
         third-party/nanobench.h

@@ -113,6 +113,6 @@
       size, ...) \
    size
    
-#define __CUB_pp_overload(prefix, ...)  __CUB_pp_paste(prefix, __CUB_pp_size(__VA_ARGS__))
+#define __CUB_overload(prefix, ...)  __CUB_paste(prefix, __CUB_pp_size(__VA_ARGS__))
 
 #endif 
