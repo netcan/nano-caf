@@ -50,11 +50,11 @@ namespace {
    struct pong_actor : actor {
       auto handle_message(message_element& msg) noexcept -> task_result override {
          switch(msg.get_id()) {
-            case from_msg_type_to_id<test_message>::msg_id:
+            case test_message::msg_id:
                reply<test_message>(msg.body<test_message>()->value);
                pong_times++;
                break;
-            case from_msg_type_to_id<exit_msg>::msg_id:
+            case exit_msg::msg_id:
                return task_result::stop_all;
          }
          return task_result::resume;
@@ -73,11 +73,11 @@ namespace {
 
       auto handle_message(message_element& msg) noexcept -> task_result override {
          switch(msg.get_id()) {
-            case from_msg_type_to_id<test_message>::msg_id:
+            case test_message::msg_id:
                times++;
                send<test_message>(pong, msg.body<test_message>()->value + 1);
                break;
-            case from_msg_type_to_id<exit_msg>::msg_id:
+            case exit_msg::msg_id:
                send<exit_msg>(pong, msg.body<exit_msg>()->reason);
                break;
             default:

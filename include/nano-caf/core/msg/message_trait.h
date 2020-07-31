@@ -7,17 +7,35 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/util/type_list.h>
+#include <nano-caf/util/reflex.h>
 #include <cstdint>
+#include <utility>
 
 NANO_CAF_NS_BEGIN
 
 using msg_id_t = uint64_t;
 
-template<typename> struct from_msg_type_to_id;
-template<typename> struct from_atom_to_msg_type;
-template<typename> struct from_msg_type_to_field;
-
 struct __atom_signature {};
+
+#define __CAF_def_message(name, id, ...) \
+struct name { constexpr static msg_id_t msg_id = id; __CUB_fields(__VA_ARGS__) }; \
+struct name##_atom : __atom_signature { using msg_type = name; constexpr static msg_id_t msg_id = name::msg_id; }
+
+template<typename T>
+constexpr msg_id_t from_msg_type_to_id = T::msg_id;
+
+template<typename T>
+using from_atom_to_msg_type = typename T::msg_type;
+
+namespace detail {
+   template<typename T, size_t ... I>
+   auto deduce_msg_arg_types(std::index_sequence<I...>) -> type_list<typename T::template field<I, T>::type...>;
+}
+
+template<typename T>
+using from_msg_type_to_field = decltype(detail::deduce_msg_arg_types<T>(std::make_index_sequence<T::num_of_fields>{}));
+
+#define CAF_def_message(name, ...) __CAF_def_message(name, __COUNTER__, ##__VA_ARGS__)
 
 NANO_CAF_NS_END
 

@@ -18,13 +18,9 @@ struct big_msg {
    double c;
 };
 
-#include <nano-caf/core/msg/message_trait_interp.h>
-#include "test_msg_def.h"
-
-#include <nano-caf/core/msg/message_field_interp.h>
-#include "test_msg_def.h"
-
-#include <nano-caf/core/msg/message_interp_end.h>
+CAF_def_message(my_message, (int) amount, (double) currency);
+CAF_def_message(test_message, (int) value);
+CAF_def_message(shared_buf_msg, (std::shared_ptr<big_msg>) obj);
 
 NANO_CAF_NS_END
 

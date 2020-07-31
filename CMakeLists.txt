@@ -53,13 +53,9 @@ add_library(nano_caf
         include/nano-caf/core/await/async_object.h
         include/nano-caf/core/await/future_callback.h
         include/nano-caf/util/callable_trait.h
-        include/nano-caf/core/msg/message_trait_interp.h
-        include/nano-caf/core/msg/message_field_interp.h
         include/nano-caf/core/msg/message_trait.h
-        include/nano-caf/core/msg/message_interp_end.h
         include/nano-caf/util/type_list.h
         include/nano-caf/core/msg/predefined-msgs.h
-        include/nano-caf/core/msg/predefined_msgs_def.h
         include/nano-caf/core/actor/behavior.h
         include/nano-caf/util/reflex.h 
         include/nano-caf/util/macro_pp_size.h

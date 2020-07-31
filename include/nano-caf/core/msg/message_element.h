@@ -30,7 +30,7 @@ struct message_element {
 
    template<typename T>
    auto body() const noexcept -> const T* {
-      if(from_msg_type_to_id<T>::msg_id != get_id()) return nullptr;
+      if(T::msg_id != get_id()) return nullptr;
       return reinterpret_cast<const T*>(body_ptr());
    }
 
@@ -51,7 +51,7 @@ public:
 
    template<typename T, message_id::category CATEGORY>
    class message_base {
-      constexpr static auto id = message_id{from_msg_type_to_id<T>::msg_id, CATEGORY};
+      constexpr static auto id = message_id{T::msg_id, CATEGORY};
 
    public:
       struct type : message_element {

@@ -25,7 +25,7 @@ namespace detail {
    constexpr bool is_atom = std::is_base_of_v<__atom_signature, std::decay_t<first_arg_t<F>>>;
 
    template<typename F>
-   constexpr bool is_msg_or_atom = std::is_same_v<const msg_id_t, decltype(from_msg_type_to_id<std::decay_t<first_arg_t<F>>>::msg_id)>;
+   constexpr bool is_msg_or_atom = std::is_same_v<const msg_id_t, decltype(std::decay_t<first_arg_t<F>>::msg_id)>;
 
    ////////////////////////////////////////////////////////////////////////////////////////
    template<typename F, typename = void>
@@ -130,8 +130,8 @@ namespace detail {
       using decayed_args = typename callable_trait<F>::decayed_args_type::tail;
       using args_type = typename callable_trait<F>::args_type::tail;
       using atom_type = std::decay_t<first_arg_t<F>>;
-      using message_type = typename from_atom_to_msg_type<atom_type>::type;
-      using fields_types = typename from_msg_type_to_field<message_type>::type::tail;
+      using message_type = typename atom_type::msg_type;
+      using fields_types = from_msg_type_to_field<message_type>;
       using decayed_field_types = typename fields_types::template transform<std::decay_t>;
 
       static_assert(std::is_same_v<decayed_field_types, decayed_args>, "parameters & message don't match");

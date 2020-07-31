@@ -26,14 +26,8 @@ struct field<n, T> {                            \
 };
 
 #define __CUB_fields(...) \
-constexpr static size_t num_of_field = __CUB_pp_size(__VA_ARGS__); \
+constexpr static size_t num_of_fields = __CUB_pp_size(__VA_ARGS__); \
 template<size_t N, typename T> struct field; \
 __CUB_paste(__CUB_repeat_call_, __CUB_pp_size(__VA_ARGS__)) (__CUB_field_def__, 0, __VA_ARGS__)
-
-
-struct A {
-   __CUB_fields((int) a, (double) b)
-};
-
 
 #endif //NANO_CAF_REFLEX_H

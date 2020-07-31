@@ -12,13 +12,8 @@
 
 NANO_CAF_NS_BEGIN
 
-#include <nano-caf/core/msg/message_trait_interp.h>
-#include <nano-caf/core/msg/predefined_msgs_def.h>
-
-#include <nano-caf/core/msg/message_field_interp.h>
-#include <nano-caf/core/msg/predefined_msgs_def.h>
-
-#include <nano-caf/core/msg/message_interp_end.h>
+CAF_def_message(exit_msg, (exit_reason) reason);
+CAF_def_message(future_done);
 
 NANO_CAF_NS_END
 
