@@ -83,12 +83,6 @@ namespace {
             default:
                return task_result::skip;
          }
-//         if(times++ < total_times ) {
-//            send<test_message>(pong, msg.body<test_message>()->value + 1);
-//         }
-//         else {
-//            exit(exit_reason::normal);
-//         }
 
          return task_result::resume;
       }
