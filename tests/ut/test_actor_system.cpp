@@ -248,7 +248,7 @@ namespace {
    SCENARIO("ping pang 2") {
       pong_times = 0;
       actor_system system;
-      system.start(1);
+      system.start(2);
       REQUIRE(system.get_num_of_actors() == 0);
 
       auto me = system.spawn<ping_actor_1>();
