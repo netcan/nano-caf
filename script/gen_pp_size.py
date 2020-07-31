@@ -4,13 +4,11 @@ head = '''
 #ifndef CUB_MACRO_PP_SIZE_H__
 #define CUB_MACRO_PP_SIZE_H__
 
-#define __CUB_pp_empty()
-#define __CUB_pp_concat(x, y) x ## y
-#define __CUB_pp_paste(x, y) __CUB_pp_concat(x, y)
+#include <nano-caf/util/macro_basic.h>
 
 #ifdef _MSC_VER
 
-#define __CUB_pp_size(...)  \\
+#define __CUB_pp_size_(...)  \\
    __CUB_pp_paste(__CUB_pp_size_i(__VA_ARGS__, \\
 '''
 
@@ -18,7 +16,7 @@ middle = ''', __CUB_pp_empty())
 
 #else
 
-#define __CUB_pp_size(...)     \\
+#define __CUB_pp_size_(...)     \\
    __CUB_pp_size_i(__VA_ARGS__, \\
 '''
 
@@ -26,6 +24,7 @@ end = '''
 
 #endif
 
+#define __CUB_pp_size(...) __CUB_pp_size_(__dummy__, ##__VA_ARGS__)
 #define __CUB_pp_size_i( \\
 '''
 
@@ -41,7 +40,7 @@ def gen_seq(n):
     seq = ""
     m = 0
     for i in reversed(range(n)):
-        seq = seq + "{}, ".format(i+1)
+        seq = seq + "{}, ".format(i)
         m = m+1
         if m % 10 == 0:
             seq = seq + "\\\n      "
