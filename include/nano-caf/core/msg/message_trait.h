@@ -29,7 +29,8 @@ using from_atom_to_msg_type = typename T::msg_type;
 
 namespace detail {
    template<typename T, size_t ... I>
-   auto deduce_msg_arg_types(std::index_sequence<I...>) -> type_list<typename T::template field<I, T>::type...>;
+   auto deduce_msg_arg_types(std::index_sequence<I...>)
+   -> type_list<typename T::template __SeCrEtE_field<I, T>::type...>;
 }
 
 template<typename T>
