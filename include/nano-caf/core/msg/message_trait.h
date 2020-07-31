@@ -34,7 +34,7 @@ namespace detail {
 }
 
 template<typename T>
-using from_msg_type_to_field = decltype(detail::deduce_msg_arg_types<T>(std::make_index_sequence<T::num_of_fields>{}));
+using from_msg_type_to_field = decltype(detail::deduce_msg_arg_types<T>(std::make_index_sequence<T::NuM_oF_fIeLdS>{}));
 
 #define CAF_def_message(name, ...) __CAF_def_message(name, __COUNTER__, ##__VA_ARGS__)
 
