@@ -22,7 +22,7 @@ __CUB_var_full(x);                              \
 template <typename T>                           \
 struct __SeCrEtE_field<n, T> {                  \
    using type = decltype(T::__CUB_var_name(x)); \
-   static auto get(T& obj) -> type { return obj.__CUB_var_name(x); } \
+   static auto get(T& obj) -> decltype(auto) { return (obj.__CUB_var_name(x)); } \
    constexpr static auto get(const T& obj) -> decltype(auto) { return (obj.__CUB_var_name(x)); } \
    constexpr static auto name() -> const char* const { return __CUB_stringify(__CUB_var_name(x)); } \
 };
