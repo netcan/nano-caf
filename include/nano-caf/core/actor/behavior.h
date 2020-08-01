@@ -109,7 +109,6 @@ namespace detail {
    template<typename ... Args>
    struct behaviors : msg_handler {
       behaviors(Args&& ... args) : behaviors_{std::move(args)...} {}
-
       auto handle_msg(message_element& msg) -> task_result override {
          return handle(msg, std::make_index_sequence<sizeof...(Args)>{}) ?
                 task_result::resume : task_result::skip;
