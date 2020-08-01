@@ -36,7 +36,7 @@ struct name##_atom : __atom_signature { \
     constexpr static msg_id_t msg_id = id; \
 }; \
 struct name { \
-   __CUB_fields(__VA_ARGS__) \
+   __CUB_fields_only(__VA_ARGS__) \
    constexpr static msg_id_t msg_id = id;  \
 }
 
