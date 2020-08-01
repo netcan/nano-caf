@@ -5,12 +5,19 @@
 #include <catch.hpp>
 #include <nano-caf/core/actor/actor_inbox.h>
 #include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/util/aggregate_reflex.h>
 #include "test_msgs.h"
 
 namespace {
    using namespace NANO_CAF_NS;
 
+   struct Foo {
+      int a = 10;
+      double b = 2.0;
+   };
+
    SCENARIO("consume an empty inbox") {
+      //std::cout << aggregate_fields_type<2, Foo>::type << std::endl;
       actor_inbox inbox{};
       WHEN("consume elements") {
          uint32_t times = 0;
