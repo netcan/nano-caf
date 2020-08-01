@@ -37,10 +37,18 @@ namespace detail {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 namespace detail {
-   template<typename F>
+   template<typename F, typename MSG_TYPE>
    struct behavior_base {
       behavior_base(F &&f) : f_(std::move(f)) {}
       F f_;
+
+      template<typename H>
+      auto handle_msg(message_element &msg, H&& handler) -> bool {
+         auto *body = msg.body<MSG_TYPE>();
+         if (body == nullptr) return false;
+         handler(*body, f_);
+         return true;
+      }
    };
 
    template<typename F, typename = void>
@@ -60,16 +68,15 @@ namespace detail {
       static_assert(std::is_same_v<decayed_field_types, decayed_args>, "parameters & message don't match");
       static_assert(args_type::template pred<is_non_rvalue_ref>, "parameter cannot be rvalue-ref type");
 
-      using base = behavior_base<F>;
+      using base = behavior_base<F, message_type>;
       struct type : base {
          using base::base;
          auto operator()(message_element &msg) {
-            auto *body = msg.body<message_type>();
-            if (body == nullptr) return false;
-            aggregate_trait<message_type>::call(*body, [this](auto &&... args) {
-               base::f_(atom_type{}, std::forward<decltype(args)>(args)...);
+            return base::handle_msg(msg, [](const message_type& msg, auto& f) {
+               aggregate_trait<message_type>::call(msg, [&](auto &&... args) {
+                  f(atom_type{}, std::forward<decltype(args)>(args)...);
+               });
             });
-            return true;
          }
       };
    };
@@ -80,14 +87,11 @@ namespace detail {
       using message_type = std::decay_t<first_arg_t<F>>;
       static_assert(!std::is_pointer_v<message_type>, "don't use pointer, use reference instead");
 
-      using base = behavior_base<F>;
+      using base = behavior_base<F, message_type>;
       struct type : base {
          using base::base;
          auto operator()(message_element &msg) -> bool {
-            auto *body = msg.body<message_type>();
-            if (body == nullptr) return false;
-            base::f_(*body);
-            return true;
+            return base::handle_msg(msg, [](const message_type& msg, auto& f) { f(msg); });
          }
       };
    };
