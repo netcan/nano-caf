@@ -66,7 +66,6 @@ namespace detail {
       static_assert(std::is_same_v<decayed_field_types, decayed_args>, "parameters & message don't match");
       static_assert(args_type::template pred<is_non_rvalue_ref>, "parameter cannot be rvalue-ref type");
 
-      //using type = behavior_pattern<decayed_args::size, F, message_type, atom_type>;
       using type = behavior_pattern<F, message_type, atom_type>;
    };
 
@@ -101,25 +100,19 @@ namespace detail {
       virtual ~msg_handler() = default;
    };
 
-   template<size_t N, typename T, typename = std::enable_if_t<(std::tuple_size<T>::value > N)>>
-   auto call_behavior(T& behaviors, message_element& msg) -> task_result {
-      auto consumed = std::get<N>(behaviors)(msg);
-      return consumed ? task_result::resume : call_behavior<N+1>(behaviors, msg);
-   }
-
-   template<size_t N, typename T, typename ... Args>
-   auto call_behavior(T& behaviors, message_element& msg, Args...) -> task_result {
-      return task_result::skip;
-   }
-
    template<typename ... Args>
    struct behavior_impl : msg_handler {
       behavior_impl(Args&& ... args) : behaviors_{ std::move(args)...} {}
 
       std::tuple<Args...> behaviors_;
 
+      template<size_t ... I>
+      auto handle(message_element& msg, std::index_sequence<I...>) -> bool {
+         return (std::get<I>(behaviors_)(msg) || ...);
+      }
+
       auto handle_msg(message_element& msg) -> task_result override {
-         return call_behavior<0>(behaviors_, msg);
+         return handle(msg, std::make_index_sequence<sizeof...(Args)>{}) ? task_result::resume : task_result::skip;
       }
    };
 }
