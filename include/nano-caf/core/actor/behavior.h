@@ -28,32 +28,26 @@ namespace detail {
    template<typename F>
    constexpr bool is_msg_or_atom = std::is_same_v<const msg_id_t, decltype(std::decay_t<first_arg_t<F>>::msg_id)>;
 
-   ////////////////////////////////////////////////////////////////////////////////////////
-   template<typename F, typename = void>
-   struct verify_behavior_;
 
    template<typename T>
    struct is_non_rvalue_ref {
       constexpr static bool value = !std::is_rvalue_reference_v<T>;
    };
+}
 
-   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
-   struct behavior_pattern {
-      behavior_pattern(F&& f) : f_(std::move(f)) {}
-      auto operator()(message_element& msg) {
-         auto* body = msg.body<MSG_TYPE>();
-         if(body == nullptr) return false;
-         aggregate_trait<MSG_TYPE>::call(*body, [this](auto&& ... args) {
-            f_(ATOM_TYPE{}, std::forward<decltype(args)>(args)...);
-         });
-         return true;
-      }
-
+////////////////////////////////////////////////////////////////////////////////////////
+namespace detail {
+   template<typename F>
+   struct behavior_base {
+      behavior_base(F &&f) : f_(std::move(f)) {}
       F f_;
    };
 
+   template<typename F, typename = void>
+   struct behavior_trait;
+
    template<typename F>
-   struct verify_behavior_<F, std::enable_if_t<is_msg_or_atom<F> && is_atom<F>>> {
+   struct behavior_trait<F, std::enable_if_t<is_msg_or_atom<F> && is_atom<F>>> {
       static_assert(!is_non_const_lref<first_arg_t<F>>, "the atom type cannot be non-const-lvalue-ref");
 
       using decayed_args = typename callable_trait<F>::decayed_args_type::tail;
@@ -66,43 +60,54 @@ namespace detail {
       static_assert(std::is_same_v<decayed_field_types, decayed_args>, "parameters & message don't match");
       static_assert(args_type::template pred<is_non_rvalue_ref>, "parameter cannot be rvalue-ref type");
 
-      using type = behavior_pattern<F, message_type, atom_type>;
-   };
+      using base = behavior_base<F>;
+      struct type : base {
+         using base::base;
 
-   template<typename F>
-   struct verify_behavior_<F, std::enable_if_t<is_msg_or_atom<F> && !is_atom<F>>> {
-      static_assert((callable_trait<F>::num_of_args == 1), "only message argument is allowed");
-      using message_type = std::decay_t<first_arg_t<F>>;
-      static_assert(!std::is_pointer_v<message_type>, "don't use pointer, use reference instead");
-
-      struct type {
-         type(F&& f) : f_(std::move(f)) {}
-
-         F f_;
-
-         auto operator()(message_element& msg) -> bool {
-            auto* body = msg.body<message_type>();
-            if(body == nullptr) return false;
-            f_(*body);
+         auto operator()(message_element &msg) {
+            auto *body = msg.body<message_type>();
+            if (body == nullptr) return false;
+            aggregate_trait<message_type>::call(*body, [this](auto &&... args) {
+               base::f_(atom_type{}, std::forward<decltype(args)>(args)...);
+            });
             return true;
          }
       };
    };
 
    template<typename F>
-   using verify_behavior = verify_behavior_<F, void>;
+   struct behavior_trait<F, std::enable_if_t<is_msg_or_atom<F> && !is_atom<F>>> {
+      static_assert((callable_trait<F>::num_of_args == 1), "only message argument is allowed");
+      using message_type = std::decay_t<first_arg_t<F>>;
+      static_assert(!std::is_pointer_v<message_type>, "don't use pointer, use reference instead");
+
+      using base = behavior_base<F>;
+      struct type : base {
+         using base::base;
+
+         auto operator()(message_element &msg) -> bool {
+            auto *body = msg.body<message_type>();
+            if (body == nullptr) return false;
+            base::f_(*body);
+            return true;
+         }
+      };
+   };
 
    template<typename F>
-   using verify_behavior_t = typename verify_behavior<F>::type;
+   using behavior_t = typename behavior_trait<F>::type;
+}
 
+/////////////////////////////////////////////////////////////////////////////////////
+namespace detail {
    struct msg_handler {
       virtual auto handle_msg(message_element& msg) -> task_result = 0;
       virtual ~msg_handler() = default;
    };
 
    template<typename ... Args>
-   struct behavior_impl : msg_handler {
-      behavior_impl(Args&& ... args) : behaviors_{ std::move(args)...} {}
+   struct behaviors : msg_handler {
+      behaviors(Args&& ... args) : behaviors_{std::move(args)...} {}
 
       auto handle_msg(message_element& msg) -> task_result override {
          return handle(msg, std::make_index_sequence<sizeof...(Args)>{}) ?
@@ -119,11 +124,12 @@ namespace detail {
    };
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
 struct behavior {
    template<typename ... Args>
    behavior(Args&&...args) {
       static_assert(((callable_trait<Args>::num_of_args > 0) && ...));
-      ptr_.reset(new detail::behavior_impl{detail::verify_behavior_t<Args>{std::move(args)}...});
+      ptr_.reset(new detail::behaviors{detail::behavior_t<Args>{std::move(args)}...});
    }
 
    std::unique_ptr<detail::msg_handler> ptr_{};
