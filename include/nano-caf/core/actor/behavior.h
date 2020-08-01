@@ -104,17 +104,18 @@ namespace detail {
    struct behavior_impl : msg_handler {
       behavior_impl(Args&& ... args) : behaviors_{ std::move(args)...} {}
 
-      std::tuple<Args...> behaviors_;
+      auto handle_msg(message_element& msg) -> task_result override {
+         return handle(msg, std::make_index_sequence<sizeof...(Args)>{}) ?
+                task_result::resume : task_result::skip;
+      }
 
+   private:
       template<size_t ... I>
       auto handle(message_element& msg, std::index_sequence<I...>) -> bool {
          return (std::get<I>(behaviors_)(msg) || ...);
       }
 
-      auto handle_msg(message_element& msg) -> task_result override {
-         return handle(msg, std::make_index_sequence<sizeof...(Args)>{}) ?
-            task_result::resume : task_result::skip;
-      }
+      std::tuple<Args...> behaviors_;
    };
 }
 
