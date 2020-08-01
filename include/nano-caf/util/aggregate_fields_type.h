@@ -10,56 +10,80 @@ NANO_CAF_NS_BEGIN
 
 namespace detail {
 template<size_t N, typename T, typename = void>
-struct __aggregate_fields_type;
+struct aggregate_fields_type;
 
 template<typename T>
-struct __aggregate_fields_type<0, T, std::enable_if_t<std::is_aggregate_v<T>>> {
+struct aggregate_fields_type<0, T, std::enable_if_t<std::is_aggregate_v<T>>> {
    using type = type_list<>;
 };
 
 
 template<typename T>
-class __aggregate_fields_type<1, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<1, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1] = T{};
         return type_list<decltype(a1)>{};
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1] = obj;
+        return f(a1);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<2, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<2, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2] = T{};
         return type_list<decltype(a1),decltype(a2)>{};
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2] = obj;
+        return f(a1,a2);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<3, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<3, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3)>{};
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3] = obj;
+        return f(a1,a2,a3);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<4, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<4, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4)>{};
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4] = obj;
+        return f(a1,a2,a3,a4);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<5, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<5, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4),decltype(a5)
@@ -67,10 +91,16 @@ class __aggregate_fields_type<5, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5] = obj;
+        return f(a1,a2,a3,a4,a5);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<6, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<6, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4),decltype(a5),
@@ -78,10 +108,16 @@ class __aggregate_fields_type<6, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6] = obj;
+        return f(a1,a2,a3,a4,a5,a6);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<7, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<7, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4),decltype(a5),
@@ -89,10 +125,16 @@ class __aggregate_fields_type<7, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<8, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<8, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4),decltype(a5),
@@ -100,10 +142,16 @@ class __aggregate_fields_type<8, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<9, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<9, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4),decltype(a5),
@@ -111,10 +159,16 @@ class __aggregate_fields_type<9, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<10, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<10, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
               ] = T{};
@@ -124,10 +178,18 @@ class __aggregate_fields_type<10, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
+              ] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
+              );
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<11, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<11, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11] = T{};
@@ -137,10 +199,18 @@ class __aggregate_fields_type<11, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<12, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<12, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12] = T{};
@@ -150,10 +220,18 @@ class __aggregate_fields_type<12, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<13, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<13, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13] = T{};
@@ -163,10 +241,18 @@ class __aggregate_fields_type<13, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<14, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<14, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14] = T{};
@@ -176,10 +262,18 @@ class __aggregate_fields_type<14, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<15, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<15, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15] = T{};
@@ -190,10 +284,18 @@ class __aggregate_fields_type<15, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<16, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<16, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16] = T{};
@@ -204,10 +306,18 @@ class __aggregate_fields_type<16, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<17, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<17, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17] = T{};
@@ -218,10 +328,18 @@ class __aggregate_fields_type<17, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<18, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<18, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18] = T{};
@@ -232,10 +350,18 @@ class __aggregate_fields_type<18, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<19, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<19, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19] = T{};
@@ -246,10 +372,18 @@ class __aggregate_fields_type<19, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<20, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<20, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20
@@ -262,10 +396,20 @@ class __aggregate_fields_type<20, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20
+              ] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20
+              );
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<21, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<21, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -278,10 +422,20 @@ class __aggregate_fields_type<21, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<22, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<22, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -294,10 +448,20 @@ class __aggregate_fields_type<22, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<23, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<23, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -310,10 +474,20 @@ class __aggregate_fields_type<23, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<24, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<24, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -326,10 +500,20 @@ class __aggregate_fields_type<24, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<25, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<25, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -343,10 +527,20 @@ class __aggregate_fields_type<25, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<26, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<26, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -360,10 +554,20 @@ class __aggregate_fields_type<26, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<27, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<27, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -377,10 +581,20 @@ class __aggregate_fields_type<27, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<28, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<28, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -394,10 +608,20 @@ class __aggregate_fields_type<28, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<29, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<29, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -411,10 +635,20 @@ class __aggregate_fields_type<29, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<30, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<30, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -430,10 +664,22 @@ class __aggregate_fields_type<30, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30
+              ] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30
+              );
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<31, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<31, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -449,10 +695,22 @@ class __aggregate_fields_type<31, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<32, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<32, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -468,10 +726,22 @@ class __aggregate_fields_type<32, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<33, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<33, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -487,10 +757,22 @@ class __aggregate_fields_type<33, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<34, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<34, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -506,10 +788,22 @@ class __aggregate_fields_type<34, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<35, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<35, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -526,10 +820,22 @@ class __aggregate_fields_type<35, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<36, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<36, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -546,10 +852,22 @@ class __aggregate_fields_type<36, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<37, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<37, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -566,10 +884,22 @@ class __aggregate_fields_type<37, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<38, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<38, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -586,10 +916,22 @@ class __aggregate_fields_type<38, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<39, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<39, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -606,10 +948,22 @@ class __aggregate_fields_type<39, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<40, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<40, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -628,10 +982,24 @@ class __aggregate_fields_type<40, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40
+              ] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40
+              );
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<41, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<41, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -650,10 +1018,24 @@ class __aggregate_fields_type<41, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<42, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<42, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -672,10 +1054,24 @@ class __aggregate_fields_type<42, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<43, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<43, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -694,10 +1090,24 @@ class __aggregate_fields_type<43, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<44, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<44, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -716,10 +1126,24 @@ class __aggregate_fields_type<44, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<45, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<45, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -739,10 +1163,24 @@ class __aggregate_fields_type<45, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<46, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<46, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -762,10 +1200,24 @@ class __aggregate_fields_type<46, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<47, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<47, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -785,10 +1237,24 @@ class __aggregate_fields_type<47, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<48, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<48, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -808,10 +1274,24 @@ class __aggregate_fields_type<48, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<49, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<49, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -831,10 +1311,24 @@ class __aggregate_fields_type<49, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<50, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<50, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -856,10 +1350,26 @@ class __aggregate_fields_type<50, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50
+              ] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50
+              );
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<51, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<51, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -881,10 +1391,26 @@ class __aggregate_fields_type<51, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<52, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<52, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -906,10 +1432,26 @@ class __aggregate_fields_type<52, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<53, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<53, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -931,10 +1473,26 @@ class __aggregate_fields_type<53, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<54, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<54, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -956,10 +1514,26 @@ class __aggregate_fields_type<54, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<55, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<55, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -982,10 +1556,26 @@ class __aggregate_fields_type<55, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<56, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<56, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1008,10 +1598,26 @@ class __aggregate_fields_type<56, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<57, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<57, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1034,10 +1640,26 @@ class __aggregate_fields_type<57, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<58, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<58, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1060,10 +1682,26 @@ class __aggregate_fields_type<58, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<59, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<59, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1086,10 +1724,26 @@ class __aggregate_fields_type<59, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<60, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<60, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1114,10 +1768,28 @@ class __aggregate_fields_type<60, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60
+              ] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60
+              );
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<61, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<61, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1142,10 +1814,28 @@ class __aggregate_fields_type<61, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<62, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<62, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1170,10 +1860,28 @@ class __aggregate_fields_type<62, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<63, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<63, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1198,10 +1906,28 @@ class __aggregate_fields_type<63, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<64, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<64, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1226,10 +1952,28 @@ class __aggregate_fields_type<64, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<65, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<65, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1255,10 +1999,28 @@ class __aggregate_fields_type<65, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<66, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<66, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1284,10 +2046,28 @@ class __aggregate_fields_type<66, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<67, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<67, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1313,10 +2093,28 @@ class __aggregate_fields_type<67, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<68, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<68, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1342,10 +2140,28 @@ class __aggregate_fields_type<68, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<69, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<69, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1371,10 +2187,28 @@ class __aggregate_fields_type<69, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<70, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<70, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1402,10 +2236,30 @@ class __aggregate_fields_type<70, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70
+              ] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70
+              );
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<71, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<71, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1433,10 +2287,30 @@ class __aggregate_fields_type<71, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<72, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<72, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1464,10 +2338,30 @@ class __aggregate_fields_type<72, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<73, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<73, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1495,10 +2389,30 @@ class __aggregate_fields_type<73, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<74, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<74, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1526,10 +2440,30 @@ class __aggregate_fields_type<74, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<75, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<75, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1558,10 +2492,30 @@ class __aggregate_fields_type<75, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<76, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<76, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1590,10 +2544,30 @@ class __aggregate_fields_type<76, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<77, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<77, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1622,10 +2596,30 @@ class __aggregate_fields_type<77, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<78, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<78, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1654,10 +2648,30 @@ class __aggregate_fields_type<78, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<79, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<79, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1686,10 +2700,30 @@ class __aggregate_fields_type<79, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<80, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<80, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1720,10 +2754,32 @@ class __aggregate_fields_type<80, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80
+              ] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80
+              );
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<81, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<81, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1754,10 +2810,32 @@ class __aggregate_fields_type<81, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<82, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<82, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1788,10 +2866,32 @@ class __aggregate_fields_type<82, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<83, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<83, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1822,10 +2922,32 @@ class __aggregate_fields_type<83, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<84, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<84, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1856,10 +2978,32 @@ class __aggregate_fields_type<84, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<85, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<85, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1891,10 +3035,32 @@ class __aggregate_fields_type<85, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<86, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<86, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1926,10 +3092,32 @@ class __aggregate_fields_type<86, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<87, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<87, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1961,10 +3149,32 @@ class __aggregate_fields_type<87, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<88, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<88, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -1996,10 +3206,32 @@ class __aggregate_fields_type<88, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<89, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<89, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2031,10 +3263,32 @@ class __aggregate_fields_type<89, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<90, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<90, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2068,10 +3322,34 @@ class __aggregate_fields_type<90, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90
+              ] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90
+              );
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<91, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<91, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2105,10 +3383,34 @@ class __aggregate_fields_type<91, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<92, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<92, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2142,10 +3444,34 @@ class __aggregate_fields_type<92, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<93, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<93, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2179,10 +3505,34 @@ class __aggregate_fields_type<93, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<94, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<94, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2216,10 +3566,34 @@ class __aggregate_fields_type<94, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<95, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<95, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2254,10 +3628,34 @@ class __aggregate_fields_type<95, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<96, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<96, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2292,10 +3690,34 @@ class __aggregate_fields_type<96, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95,a96] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95,a96);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<97, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<97, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2330,10 +3752,34 @@ class __aggregate_fields_type<97, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95,a96,a97] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95,a96,a97);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<98, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<98, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2368,10 +3814,34 @@ class __aggregate_fields_type<98, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95,a96,a97,a98] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95,a96,a97,a98);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<99, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<99, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2406,10 +3876,34 @@ class __aggregate_fields_type<99, T, std::enable_if_t<std::is_aggregate_v<T>>> {
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95,a96,a97,a98,a99] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95,a96,a97,a98,a99);
+    }
 };
 
 template<typename T>
-class __aggregate_fields_type<100, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<100, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
               a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
@@ -2446,6 +3940,32 @@ class __aggregate_fields_type<100, T, std::enable_if_t<std::is_aggregate_v<T>>> 
     }    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F& f) {
+        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95,a96,a97,a98,a99,a100
+              ] = obj;
+        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,
+              a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,
+              a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,
+              a41,a42,a43,a44,a45,a46,a47,a48,a49,a50,
+              a51,a52,a53,a54,a55,a56,a57,a58,a59,a60,
+              a61,a62,a63,a64,a65,a66,a67,a68,a69,a70,
+              a71,a72,a73,a74,a75,a76,a77,a78,a79,a80,
+              a81,a82,a83,a84,a85,a86,a87,a88,a89,a90,
+              a91,a92,a93,a94,a95,a96,a97,a98,a99,a100
+              );
+    }
 };
 
 }

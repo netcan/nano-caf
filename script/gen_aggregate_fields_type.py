@@ -13,10 +13,10 @@ NANO_CAF_NS_BEGIN
 
 namespace detail {
 template<size_t N, typename T, typename = void>
-struct __aggregate_fields_type;
+struct aggregate_fields_type;
 
 template<typename T>
-struct __aggregate_fields_type<0, T, std::enable_if_t<std::is_aggregate_v<T>>> {
+struct aggregate_fields_type<0, T, std::enable_if_t<std::is_aggregate_v<T>>> {
    using type = type_list<>;
 };
 
@@ -32,13 +32,19 @@ NANO_CAF_NS_END
 
 name = '''
 template<typename T>
-class __aggregate_fields_type<{0}, T, std::enable_if_t<std::is_aggregate_v<T>>> {{ 
+class aggregate_fields_type<{0}, T, std::enable_if_t<std::is_aggregate_v<T>>> {{ 
     constexpr static auto deduce_type() {{
         auto [{1}] = T{{}};
         return type_list<{2}>{{}};
     }}    
 public:
     using type = decltype(deduce_type());
+    
+    template <typename F>
+    static auto call(T& obj, F&& f) {{
+        auto [{3}] = obj;
+        return f({4});
+    }}
 }};
 '''
 
@@ -58,7 +64,7 @@ def gen_one(n):
         if m % 5 == 0:
             decltypes = decltypes + "\n              "
 
-    return name.format(n, bindings, decltypes)
+    return name.format(n, bindings, decltypes, bindings, bindings)
 
 def gen_all(n):
     all = ""
