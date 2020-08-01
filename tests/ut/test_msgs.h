@@ -16,8 +16,14 @@ struct big_msg {
    double c;
 };
 
-CAF_def_message(my_message, (int) amount, (double) currency);
-CAF_def_message(test_message, (int) value);
-CAF_def_message(shared_buf_msg, (std::shared_ptr<big_msg>) obj);
+CAF_def_message(my_message,
+   (int) amount,
+   (double) currency);
+
+CAF_def_message(test_message,
+   (int) value);
+
+CAF_def_message(shared_buf_msg,
+   (std::shared_ptr<big_msg>) obj);
 
 #endif //NANO_CAF_TEST_MSGS_H

@@ -28,7 +28,6 @@ namespace detail {
    template<typename F>
    constexpr bool is_msg_or_atom = std::is_same_v<const msg_id_t, decltype(std::decay_t<first_arg_t<F>>::msg_id)>;
 
-
    template<typename T>
    struct is_non_rvalue_ref {
       constexpr static bool value = !std::is_rvalue_reference_v<T>;

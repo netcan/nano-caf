@@ -107,7 +107,7 @@ namespace {
    }
 
    struct future_actor : actor {
-      int value = 10;
+      const int value = 10;
       unsigned long final_result = 0;
 
       auto add(int a, int b) {
@@ -234,7 +234,7 @@ namespace {
             [&](exit_msg_atom, exit_reason reason) {
                send<exit_msg>(pong, reason);
                std::cout << "ping exit = " << (int)reason << std::endl;
-            }
+            },
          };
       }
    };

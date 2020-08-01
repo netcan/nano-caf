@@ -89,8 +89,8 @@ struct with_futures {
       if(futures_.invoke(std::forward<F>(f), seq_type{})) return true;
 
       return registry_(new generic_future_callback(
-         [=, func = std::move(f), futures = std::move(futures_)]() -> bool {
-            return futures.invoke(func, seq_type{});
+         [=, futures = std::move(futures_)]() mutable -> bool {
+            return futures.invoke(std::move(f), seq_type{});
          }));
    }
 
