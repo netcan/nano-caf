@@ -42,8 +42,7 @@ namespace detail {
       behavior_base(F &&f) : f_(std::move(f)) {}
       F f_;
 
-      template<typename H>
-      auto handle_msg(message_element &msg, H&& handler) -> bool {
+      auto handle_msg(message_element &msg, void (*handler)(const MSG_TYPE& msg, F& f)) -> bool {
          auto *body = msg.body<MSG_TYPE>();
          if (body == nullptr) return false;
          handler(*body, f_);
@@ -72,7 +71,7 @@ namespace detail {
       struct type : base {
          using base::base;
          auto operator()(message_element &msg) {
-            return base::handle_msg(msg, [](const message_type& msg, auto& f) {
+            return base::handle_msg(msg, [](const message_type& msg, F& f) {
                aggregate_trait<message_type>::call(msg, [&](auto &&... args) {
                   f(atom_type{}, std::forward<decltype(args)>(args)...);
                });
@@ -91,7 +90,7 @@ namespace detail {
       struct type : base {
          using base::base;
          auto operator()(message_element &msg) -> bool {
-            return base::handle_msg(msg, [](const message_type& msg, auto& f) { f(msg); });
+            return base::handle_msg(msg, [](const message_type& msg, F& f) { f(msg); });
          }
       };
    };
