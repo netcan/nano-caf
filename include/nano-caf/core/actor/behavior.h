@@ -63,7 +63,6 @@ namespace detail {
       using base = behavior_base<F>;
       struct type : base {
          using base::base;
-
          auto operator()(message_element &msg) {
             auto *body = msg.body<message_type>();
             if (body == nullptr) return false;
@@ -84,7 +83,6 @@ namespace detail {
       using base = behavior_base<F>;
       struct type : base {
          using base::base;
-
          auto operator()(message_element &msg) -> bool {
             auto *body = msg.body<message_type>();
             if (body == nullptr) return false;
