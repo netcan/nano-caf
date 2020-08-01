@@ -34,7 +34,7 @@ struct aggregate_info {
    using fields_type = typename detail::aggregate_fields_type<size, T>::type;
 
    template <typename F>
-   static auto call(T& obj, F&& f) {
+   static auto call(const T& obj, F&& f) {
       return detail::aggregate_fields_type<size, T>::call(obj, std::forward<F>(f));
    }
 };

@@ -41,7 +41,7 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(T& obj, F&& f) {{
+    static auto call(const T& obj, F&& f) {{
         auto [{3}] = obj;
         return f({4});
     }}

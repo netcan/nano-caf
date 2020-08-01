@@ -22,17 +22,23 @@ namespace detail {
    template<typename T, size_t ... I>
    auto deduce_msg_field_types(std::index_sequence<I...>)
    -> type_list<typename T::template __SeCrEtE_field<I, T>::type...>;
+
+   template<typename T>
+   using msg_fields_types =
+      decltype(detail::deduce_msg_field_types<T>(std::make_index_sequence<T::NuM_oF_fIeLdS>{}));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CAF_def_message(name, id, ...) \
+struct name; \
+struct name##_atom : __atom_signature { \
+    using msg_type = name; \
+    constexpr static msg_id_t msg_id = id; \
+}; \
 struct name { \
    __CUB_fields(__VA_ARGS__) \
    constexpr static msg_id_t msg_id = id;  \
-   using fIeLd_TyPeS = decltype(detail::deduce_msg_field_types<name>(std::make_index_sequence<name::NuM_oF_fIeLdS>{})); \
-}; \
-struct name##_atom : __atom_signature { using msg_type = name; constexpr static msg_id_t msg_id = name::msg_id; }
-
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define CAF_def_message(name, ...) __CAF_def_message(name, __COUNTER__, ##__VA_ARGS__)

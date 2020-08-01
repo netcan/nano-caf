@@ -11,6 +11,7 @@
 #include <nano-caf/core/msg/message_element.h>
 #include <nano-caf/core/actor/task_list.h>
 #include <tuple>
+#include <nano-caf/util/aggregate_reflex.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -36,91 +37,19 @@ namespace detail {
       constexpr static bool value = !std::is_rvalue_reference_v<T>;
    };
 
-   template<typename F>
-   struct behavior_pattern_base {
-      behavior_pattern_base(F&& f) : f_(std::move(f)) {}
+   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
+   struct behavior_pattern {
+      behavior_pattern(F&& f) : f_(std::move(f)) {}
+      auto operator()(message_element& msg) {
+         auto* body = msg.body<MSG_TYPE>();
+         if(body == nullptr) return false;
+         aggregate_info<MSG_TYPE>::call(*body, [this](auto&& ... args) {
+            f_(ATOM_TYPE{}, std::forward<decltype(args)>(args)...);
+         });
+         return true;
+      }
 
       F f_;
-   };
-
-   template<size_t N, typename F, typename MSG_TYPE, typename ATOM_TYPE>
-   struct behavior_pattern;
-
-   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
-   struct behavior_pattern<0, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
-      using behavior_pattern_base<F>::behavior_pattern_base;
-
-      auto operator()(message_element& msg) {
-         auto* body = msg.body<MSG_TYPE>();
-         if(body == nullptr) return false;
-         behavior_pattern_base<F>::f_(ATOM_TYPE{});
-         return true;
-      }
-   };
-
-   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
-   struct behavior_pattern<1, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
-      using behavior_pattern_base<F>::behavior_pattern_base;
-
-      auto operator()(message_element& msg) {
-         auto* body = msg.body<MSG_TYPE>();
-         if(body == nullptr) return false;
-         auto [a1] = *body;
-         behavior_pattern_base<F>::f_(ATOM_TYPE{}, a1);
-         return true;
-      }
-   };
-
-   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
-   struct behavior_pattern<2, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
-      using behavior_pattern_base<F>::behavior_pattern_base;
-
-      auto operator()(message_element& msg) {
-         auto* body = msg.body<MSG_TYPE>();
-         if(body == nullptr) return false;
-         auto [a1, a2] = *body;
-         behavior_pattern_base<F>::f_(ATOM_TYPE{}, a1, a2);
-         return true;
-      }
-   };
-
-   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
-   struct behavior_pattern<3, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
-      using behavior_pattern_base<F>::behavior_pattern_base;
-
-      auto operator()(message_element& msg) {
-         auto* body = msg.body<MSG_TYPE>();
-         if(body == nullptr) return false;
-         auto [a1, a2, a3] = *body;
-         behavior_pattern_base<F>::f_(ATOM_TYPE{}, a1, a2, a3);
-         return true;
-      }
-   };
-
-   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
-   struct behavior_pattern<4, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
-      using behavior_pattern_base<F>::behavior_pattern_base;
-
-      auto operator()(message_element& msg) {
-         auto* body = msg.body<MSG_TYPE>();
-         if(body == nullptr) return false;
-         auto [a1, a2, a3, a4] = *body;
-         behavior_pattern_base<F>::f_(ATOM_TYPE{}, a1, a2, a3, a4);
-         return true;
-      }
-   };
-
-   template<typename F, typename MSG_TYPE, typename ATOM_TYPE>
-   struct behavior_pattern<5, F, MSG_TYPE, ATOM_TYPE>: behavior_pattern_base<F> {
-      using behavior_pattern_base<F>::behavior_pattern_base;
-
-      auto operator()(message_element& msg) {
-         auto* body = msg.body<MSG_TYPE>();
-         if(body == nullptr) return false;
-         auto [a1, a2, a3, a4, a5] = *body;
-         behavior_pattern_base<F>::f_(ATOM_TYPE{}, a1, a2, a3, a4, a5);
-         return true;
-      }
    };
 
    template<typename F>
@@ -131,13 +60,14 @@ namespace detail {
       using args_type = typename callable_trait<F>::args_type::tail;
       using atom_type = std::decay_t<first_arg_t<F>>;
       using message_type = typename atom_type::msg_type;
-      using fields_types = typename message_type::fIeLd_TyPeS;
+      using fields_types = typename aggregate_info<message_type>::fields_type;
       using decayed_field_types = typename fields_types::template transform<std::decay_t>;
 
       static_assert(std::is_same_v<decayed_field_types, decayed_args>, "parameters & message don't match");
       static_assert(args_type::template pred<is_non_rvalue_ref>, "parameter cannot be rvalue-ref type");
 
-      using type = behavior_pattern<decayed_args::size, F, message_type, atom_type>;
+      //using type = behavior_pattern<decayed_args::size, F, message_type, atom_type>;
+      using type = behavior_pattern<F, message_type, atom_type>;
    };
 
    template<typename F>
