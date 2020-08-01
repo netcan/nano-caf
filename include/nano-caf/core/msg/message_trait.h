@@ -6,32 +6,25 @@
 #define NANO_CAF_MESSAGE_TRAIT_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/util/type_list.h>
 #include <nano-caf/util/macro_reflex.h>
 #include <cstdint>
-#include <utility>
 
 NANO_CAF_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 using msg_id_t = uint64_t;
-struct __atom_signature {};
 
-///////////////////////////////////////////////////////////////////////////////////////////////
 namespace detail {
-   template<typename T, size_t ... I>
-   auto deduce_msg_field_types(std::index_sequence<I...>)
-   -> type_list<typename T::template __SeCrEtE_field<I, T>::type...>;
-
-   template<typename T>
-   using msg_fields_types =
-      decltype(detail::deduce_msg_field_types<T>(std::make_index_sequence<T::NuM_oF_fIeLdS>{}));
+   struct __atom_signature {};
 }
+
+template<typename T>
+constexpr bool is_msg_atom = std::is_base_of_v<detail::__atom_signature, T>;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CAF_def_message(name, id, ...) \
 struct name; \
-struct name##_atom : NANO_CAF_NS::__atom_signature { \
+struct name##_atom : NANO_CAF_NS::detail::__atom_signature { \
     using msg_type = name; \
     constexpr static NANO_CAF_NS::msg_id_t msg_id = id; \
 }; \

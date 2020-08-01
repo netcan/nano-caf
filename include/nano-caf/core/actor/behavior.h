@@ -10,8 +10,8 @@
 #include <nano-caf/core/msg/message_trait.h>
 #include <nano-caf/core/msg/message_element.h>
 #include <nano-caf/core/actor/task_list.h>
-#include <tuple>
 #include <nano-caf/util/aggregate_reflex.h>
+#include <tuple>
 
 NANO_CAF_NS_BEGIN
 
@@ -23,7 +23,7 @@ namespace detail {
    using first_arg_t = typename callable_trait<F>::template arg<0>;
 
    template<typename F>
-   constexpr bool is_atom = std::is_base_of_v<__atom_signature, std::decay_t<first_arg_t<F>>>;
+   constexpr bool is_atom = is_msg_atom<std::decay_t<first_arg_t<F>>>;
 
    template<typename F>
    constexpr bool is_msg_or_atom = std::is_same_v<const msg_id_t, decltype(std::decay_t<first_arg_t<F>>::msg_id)>;

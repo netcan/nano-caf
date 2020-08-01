@@ -8,7 +8,24 @@
 #include <nano-caf/util/macro_basic.h>
 #include <nano-caf/util/macro_pp_size.h>
 #include <nano-caf/util/macro_reflex_call.h>
+#include <nano-caf/util/type_list.h>
 #include <cstddef>
+#include <utility>
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+NANO_CAF_NS_BEGIN
+
+namespace detail {
+   template<typename T, size_t ... I>
+   auto deduce_msg_field_types(std::index_sequence<I...>)
+   -> type_list<typename T::template __SeCrEtE_field<I, T>::type...>;
+
+   template<typename T>
+   using msg_fields_types =
+   decltype(detail::deduce_msg_field_types<T>(std::make_index_sequence<T::NuM_oF_fIeLdS>{}));
+}
+
+NANO_CAF_NS_END
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_keep__(...) __VA_ARGS__
@@ -32,7 +49,6 @@ struct __SeCrEtE_field<n, T> {                  \
 constexpr static size_t NuM_oF_fIeLdS = __CUB_pp_size(__VA_ARGS__); \
 template<size_t N, typename T> struct __SeCrEtE_field; \
 __CUB_overload(__CUB_repeat_call_, __VA_ARGS__) (__CUB_field_def__, 0, __VA_ARGS__)
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_field_def_only__(n, x) __CUB_var_full(x);
