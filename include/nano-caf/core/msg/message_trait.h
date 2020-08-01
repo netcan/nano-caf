@@ -31,13 +31,13 @@ namespace detail {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CAF_def_message(name, id, ...) \
 struct name; \
-struct name##_atom : __atom_signature { \
+struct name##_atom : NANO_CAF_NS::__atom_signature { \
     using msg_type = name; \
-    constexpr static msg_id_t msg_id = id; \
+    constexpr static NANO_CAF_NS::msg_id_t msg_id = id; \
 }; \
 struct name { \
    __CUB_fields_only(__VA_ARGS__) \
-   constexpr static msg_id_t msg_id = id;  \
+   constexpr static NANO_CAF_NS::msg_id_t msg_id = id;  \
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

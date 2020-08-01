@@ -10,8 +10,6 @@
 #include <nano-caf/core/msg/predefined-msgs.h>
 #include <cstdint>
 
-NANO_CAF_NS_BEGIN
-
 struct big_msg {
    int a;
    float b;
@@ -21,7 +19,5 @@ struct big_msg {
 CAF_def_message(my_message, (int) amount, (double) currency);
 CAF_def_message(test_message, (int) value);
 CAF_def_message(shared_buf_msg, (std::shared_ptr<big_msg>) obj);
-
-NANO_CAF_NS_END
 
 #endif //NANO_CAF_TEST_MSGS_H

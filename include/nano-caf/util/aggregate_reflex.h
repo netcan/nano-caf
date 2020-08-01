@@ -29,13 +29,13 @@ namespace detail {
 }
 
 template<typename T, typename = std::enable_if_t<std::is_aggregate_v<T>>>
-struct aggregate_info {
-   constexpr static size_t size = detail::aggregate_fields_number<T>::size;
-   using fields_type = typename detail::aggregate_fields_type<size, T>::type;
+struct aggregate_trait {
+   constexpr static size_t num_of_fields = detail::aggregate_fields_number<T>::size;
+   using fields_type = typename detail::aggregate_fields_type<num_of_fields, T>::type;
 
    template <typename F>
    static auto call(const T& obj, F&& f) {
-      return detail::aggregate_fields_type<size, T>::call(obj, std::forward<F>(f));
+      return detail::aggregate_fields_type<num_of_fields, T>::call(obj, std::forward<F>(f));
    }
 };
 

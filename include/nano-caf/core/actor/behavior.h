@@ -43,7 +43,7 @@ namespace detail {
       auto operator()(message_element& msg) {
          auto* body = msg.body<MSG_TYPE>();
          if(body == nullptr) return false;
-         aggregate_info<MSG_TYPE>::call(*body, [this](auto&& ... args) {
+         aggregate_trait<MSG_TYPE>::call(*body, [this](auto&& ... args) {
             f_(ATOM_TYPE{}, std::forward<decltype(args)>(args)...);
          });
          return true;
@@ -60,7 +60,7 @@ namespace detail {
       using args_type = typename callable_trait<F>::args_type::tail;
       using atom_type = std::decay_t<first_arg_t<F>>;
       using message_type = typename atom_type::msg_type;
-      using fields_types = typename aggregate_info<message_type>::fields_type;
+      using fields_types = typename aggregate_trait<message_type>::fields_type;
       using decayed_field_types = typename fields_types::template transform<std::decay_t>;
 
       static_assert(std::is_same_v<decayed_field_types, decayed_args>, "parameters & message don't match");
