@@ -8,7 +8,7 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor/lifo_inbox.h>
-#include <nano-caf/core/actor/drr_cached_queue.h>
+#include <nano-caf/core/actor/drr_queue.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -27,8 +27,8 @@ private:
    auto reload() noexcept -> void;
 
 private:
-   drr_cached_queue urgent_queue{};
-   drr_cached_queue normal_queue{};
+   drr_queue urgent_queue{};
+   drr_queue normal_queue{};
 };
 
 NANO_CAF_NS_END

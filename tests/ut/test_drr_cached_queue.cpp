@@ -27,7 +27,7 @@ namespace {
                times++;
                return task_result::resume; });
             THEN("should consume 2 elements") {
-               REQUIRE(result == new_round_result{.consumed_items = 2, .stop_all = false});
+               REQUIRE(result == new_round_result{2});
                REQUIRE(times == 2);
             }
             THEN("the queue should be empty now") {
@@ -42,19 +42,19 @@ namespace {
                return task_result::resume; };
             auto result = queue.new_round(1, l);
             THEN("should consume the 1st element") {
-               REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
+               REQUIRE(result == new_round_result{1});
                REQUIRE(value == 1);
             }
             AND_THEN("consume 1 again") {
                auto result = queue.new_round(1, l);
                THEN("should consume the 2nd element") {
-                  REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
+                  REQUIRE(result == new_round_result{1});
                   REQUIRE(value == 2);
                }
                AND_THEN("consume 1 again") {
                   auto result = queue.new_round(1, l);
                   THEN("should consume nothing") {
-                     REQUIRE(result == new_round_result{.consumed_items = 0, .stop_all = false});
+                     REQUIRE(result == new_round_result{0});
                   }
                }
             }
@@ -75,7 +75,7 @@ namespace {
             times++;
             return task_result::skip; });
          THEN("should consume 0 elements") {
-            REQUIRE(result == new_round_result{.consumed_items = 0, .stop_all = false});
+            REQUIRE(result == new_round_result{0});
             REQUIRE(times == 2);
          }
          THEN("the queue should not be empty now") {
@@ -87,7 +87,7 @@ namespace {
                times++;
                return task_result::resume; });
             THEN("should consume 2 elements") {
-               REQUIRE(result == new_round_result{.consumed_items = 2, .stop_all = false});
+               REQUIRE(result == new_round_result{2});
                REQUIRE(times == 2);
             }
             THEN("the queue should be empty now") {
@@ -110,7 +110,7 @@ namespace {
             times++;
             return task_result::skip; });
          THEN("should consume 0 elements") {
-            REQUIRE(result == new_round_result{.consumed_items = 0, .stop_all = false});
+            REQUIRE(result == new_round_result{0});
             REQUIRE(times == 2);
          }
          THEN("the queue should not be empty now") {
@@ -122,7 +122,7 @@ namespace {
                times++;
                return task_result::resume; });
             THEN("should consume 1 elements") {
-               REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
+               REQUIRE(result == new_round_result{1});
                REQUIRE(times == 1);
             }
             THEN("the queue should not be empty now") {
@@ -146,7 +146,7 @@ namespace {
             times++;
             return task_result::done; });
          THEN("should consume 1 element") {
-            REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = true});
+            REQUIRE(!result);
             REQUIRE(times == 1);
          }
          THEN("the queue should not be empty now") {
@@ -158,7 +158,7 @@ namespace {
                times++;
                return task_result::resume; });
             THEN("should consume the last element") {
-               REQUIRE(result == new_round_result{.consumed_items = 2, .stop_all = false});
+               REQUIRE(result == new_round_result{2});
                REQUIRE(times == 2);
             }
             THEN("the queue should be empty now") {
@@ -182,7 +182,7 @@ namespace {
             times++;
             return task_result::done; });
          THEN("should consume 1 elements") {
-            REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = true});
+            REQUIRE(!result);
             REQUIRE(times == 1);
          }
          THEN("the queue should not be empty now") {
@@ -194,7 +194,7 @@ namespace {
                times++;
                return task_result::resume; });
             THEN("should consume the rest element") {
-               REQUIRE(result == new_round_result{.consumed_items = 2, .stop_all = false});
+               REQUIRE(result == new_round_result{2});
                REQUIRE(times == 2);
             }
             THEN("the queue should be empty now") {
@@ -221,7 +221,7 @@ namespace {
                times++;
                return task_result::resume; });
             THEN("should consume the rest element") {
-               REQUIRE(result == new_round_result{.consumed_items = 2, .stop_all = false});
+               REQUIRE(result == new_round_result{2});
                REQUIRE(times == 2);
             }
          }
@@ -236,7 +236,7 @@ namespace {
                times++;
                return task_result::resume; });
             THEN("should consume the rest element") {
-               REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
+               REQUIRE(result == new_round_result{1});
                REQUIRE(times == 1);
             }
          }
@@ -259,7 +259,7 @@ namespace {
             return task_result::resume;
          });
          THEN("should consume nothing") {
-            REQUIRE(result == new_round_result{.consumed_items = 0, .stop_all = false});
+            REQUIRE(result == new_round_result{0});
             REQUIRE(times == 0);
          }
       }

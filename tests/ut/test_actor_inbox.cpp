@@ -25,7 +25,7 @@ namespace {
             times++;
             return task_result::resume; });
          THEN("should consume 0 elements") {
-            REQUIRE(result == new_round_result{.consumed_items = 0, .stop_all = false});
+            REQUIRE(result == new_round_result{0});
             REQUIRE(times == 0);
          }
       }
@@ -42,7 +42,7 @@ namespace {
             times++;
             return task_result::resume; });
          THEN("should consume all elements") {
-            REQUIRE(result == new_round_result{.consumed_items = 3, .stop_all = false});
+            REQUIRE(result == new_round_result{3});
             REQUIRE(times == 3);
          }
       }
@@ -59,7 +59,7 @@ namespace {
             times++;
             return task_result::resume; });
          THEN("should consume all elements") {
-            REQUIRE(result.consumed_items == 3);
+            REQUIRE(*result == 3);
             REQUIRE(times == 3);
          }
       }
@@ -80,21 +80,21 @@ namespace {
 
          auto result = inbox.new_round(1, l);
          THEN("should consume the 1st urgent element") {
-            REQUIRE(result.consumed_items == 1);
+            REQUIRE(*result == 1);
             REQUIRE(value == 2);
             REQUIRE(urgent);
          }
          AND_WHEN("consume 1 element") {
             auto result = inbox.new_round(1, l);
             THEN("should consume the 2nd urgent element") {
-               REQUIRE(result.consumed_items == 1);
+               REQUIRE(*result == 1);
                REQUIRE(value == 3);
                REQUIRE(urgent);
             }
             AND_WHEN("consume 1 element") {
                auto result = inbox.new_round(1, l);
                THEN("should consume the  normal element") {
-                  REQUIRE(result.consumed_items == 1);
+                  REQUIRE(*result == 1);
                   REQUIRE(value == 1);
                   REQUIRE_FALSE(urgent);
                }

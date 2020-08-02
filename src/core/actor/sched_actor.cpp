@@ -41,11 +41,11 @@ auto sched_actor::resume() noexcept  -> resumable::result {
             return result;
       });
 
-      if(result.stop_all) {
+      if(!result) {
          return result::done;
       }
 
-      consumed_msgs += result.consumed_items;
+      consumed_msgs += *result;
    }
 
    if(actor_inbox::empty() && actor_inbox::try_block()) {

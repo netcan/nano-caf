@@ -10,17 +10,21 @@ NANO_CAF_NS_BEGIN
 //////////////////////////////////////////////////////////////
 auto actor_inbox::new_round(size_t quota, message_consumer f) noexcept -> new_round_result {
    reload();
-   if(empty()) return { 0, false};
+   if(empty()) return 0;
 
    auto total = quota + urgent_queue.deficit() + normal_queue.deficit();
 
    auto result = urgent_queue.new_round(total, f);
-   if (result.stop_all || result.consumed_items >= total) {
+   if (!result.has_value() || *result >= total) {
       return result;
    }
 
-   auto result2 = normal_queue.new_round(total - result.consumed_items, f);
-   return {result.consumed_items + result2.consumed_items, result2.stop_all };
+   auto result2 = normal_queue.new_round(total - *result, f);
+   if(result2) {
+      return *result + *result2;
+   }
+
+   return std::nullopt;
 }
 
 //////////////////////////////////////////////////////////////

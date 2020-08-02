@@ -19,7 +19,7 @@ auto drr_queue::inc_deficit(size_t quota) noexcept -> void {
 }
 
 auto drr_queue::new_round(size_t quota, message_consumer f) noexcept -> new_round_result {
-   if(task_list::empty()) return {0, false};
+   if(task_list::empty()) return 0;
 
    deficit_ += quota;
 
@@ -28,23 +28,21 @@ auto drr_queue::new_round(size_t quota, message_consumer f) noexcept -> new_roun
       switch(task_result result = f(*ptr); result) {
          case task_result::skip:
             ++deficit_;
-            if(task_list::empty()) return {consumed, false};
+            if(task_list::empty()) return consumed;
             break;
          case task_result::resume:
             ++consumed;
             if(task_list::empty()) {
                deficit_ = 0;
-               return {consumed, false};
+               return consumed;
             }
             break;
          default:
-            ++consumed;
-            if(task_list::empty()) deficit_ = 0;
-            return {consumed, result == task_result::done};
+            return std::nullopt;
       }
    }
 
-   return {consumed, false};
+   return consumed;
 }
 
 NANO_CAF_NS_END
