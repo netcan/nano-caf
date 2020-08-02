@@ -4,7 +4,7 @@
 
 #include <catch.hpp>
 #include <nano-caf/core/actor/sched_actor.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor/actor.h>
 #include "test_msgs.h"
 
@@ -23,7 +23,7 @@ namespace {
 
    struct my_actor : sched_actor {
       std::vector<int> values;
-      auto user_defined_handle_msg(message_element& msg) noexcept -> task_result override {
+      auto user_defined_handle_msg(message& msg) noexcept -> task_result override {
          values.push_back(msg.body<test_message>()->value);
          return task_result::resume;
       }

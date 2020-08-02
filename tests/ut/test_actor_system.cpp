@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/7/24.
 //
 
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/actor/actor.h>
@@ -23,7 +23,7 @@ namespace {
 
    struct my_actor : actor {
       std::vector<size_t> values;
-      auto handle_message(message_element& msg) noexcept -> task_result override {
+      auto handle_message(message& msg) noexcept -> task_result override {
          values.push_back(msg.body<test_message>()->value);
          return task_result::resume;
       }
@@ -48,7 +48,7 @@ namespace {
 
    int pong_times = 0;
    struct pong_actor : actor {
-      auto handle_message(message_element& msg) noexcept -> task_result override {
+      auto handle_message(message& msg) noexcept -> task_result override {
          switch(msg.get_id()) {
             case test_message::msg_id:
                reply<test_message>(msg.body<test_message>()->value);
@@ -71,7 +71,7 @@ namespace {
          times = 1;
       }
 
-      auto handle_message(message_element& msg) noexcept -> task_result override {
+      auto handle_message(message& msg) noexcept -> task_result override {
          switch(msg.get_id()) {
             case test_message::msg_id:
                times++;
@@ -170,7 +170,7 @@ namespace {
          }
       }
 
-      auto handle_message(message_element& msg) noexcept -> task_result override {
+      auto handle_message(message& msg) noexcept -> task_result override {
          //std::cout << "msg received" << std::endl;
          return task_result::resume;
       }

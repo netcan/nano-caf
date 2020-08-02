@@ -39,8 +39,8 @@ private:
       exiting_flag = 0x0000'0001,
    };
 
-   auto handle_message_internal(message_element& msg) noexcept -> task_result;
-   virtual auto user_defined_handle_msg(message_element&) noexcept -> task_result {
+   auto handle_message_internal(message& msg) noexcept -> task_result;
+   virtual auto user_defined_handle_msg(message&) noexcept -> task_result {
       return task_result::stop_all;
    }
 
@@ -65,7 +65,7 @@ protected:
    }
 
 private:
-   message_element* current_message_{};
+   message* current_message_{};
    uint32_t flags_{};
    exit_reason reason_;
    bool registered_;

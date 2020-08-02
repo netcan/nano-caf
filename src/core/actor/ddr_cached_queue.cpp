@@ -3,11 +3,11 @@
 //
 
 #include <nano-caf/core/actor/drr_cached_queue.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/message.h>
 
 NANO_CAF_NS_BEGIN
 
-inline auto drr_cached_queue::next() noexcept -> std::unique_ptr<message_element> {
+inline auto drr_cached_queue::next() noexcept -> std::unique_ptr<message> {
    return task_list::next(deficit_);
 }
 

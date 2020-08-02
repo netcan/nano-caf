@@ -56,7 +56,7 @@ public:
       return id & mask;
    }
 
-   friend struct message_element;
+   friend struct message;
 
    template <typename F, typename R>
    friend struct async_object;

@@ -3,7 +3,7 @@
 //
 
 #include <nano-caf/core/actor/actor_inbox.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/message.h>
 
 NANO_CAF_NS_BEGIN
 

@@ -1,7 +1,7 @@
 //
 // Created by godsme on 7/29/20.
 //
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/actor/actor.h>

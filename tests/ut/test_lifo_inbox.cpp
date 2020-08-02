@@ -4,7 +4,7 @@
 
 #include <catch.hpp>
 #include <nano-caf/core/actor/lifo_inbox.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/make_message.h>
 #include "test_msgs.h"
 
 namespace {
@@ -91,7 +91,7 @@ namespace {
       auto msg = inbox.take_all();
       REQUIRE(msg != nullptr);
 
-      auto ptr = std::unique_ptr<message_element>(msg);
+      auto ptr = std::unique_ptr<message>(msg);
       msg = msg->next;
       REQUIRE(msg != nullptr);
 
@@ -124,7 +124,7 @@ namespace {
                }
             }
             WHEN("take all messages") {
-               auto msg = std::unique_ptr<message_element>(inbox.take_all());
+               auto msg = std::unique_ptr<message>(inbox.take_all());
                THEN("should be able to get the message") {
                   REQUIRE(msg != nullptr);
                   while(msg != nullptr) {

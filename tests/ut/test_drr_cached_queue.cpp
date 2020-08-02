@@ -4,7 +4,7 @@
 
 #include <catch.hpp>
 #include <nano-caf/core/actor/drr_cached_queue.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/make_message.h>
 #include "test_msgs.h"
 
 namespace {
@@ -23,7 +23,7 @@ namespace {
          }
          THEN("if consume 2 element once") {
             uint32_t times = 0;
-            auto result = queue.new_round(2, [&](const message_element& elem) noexcept  {
+            auto result = queue.new_round(2, [&](const message& elem) noexcept  {
                times++;
                return task_result::resume; });
             THEN("should consume 2 elements") {
@@ -37,7 +37,7 @@ namespace {
 
          AND_WHEN("consume 1 ") {
             auto value = 0;
-            auto l = [&](const message_element& elem) noexcept  {
+            auto l = [&](const message& elem) noexcept  {
                value = elem.body<test_message>()->value;
                return task_result::resume; };
             auto result = queue.new_round(1, l);
@@ -71,7 +71,7 @@ namespace {
 
       THEN("if consume 2 element once") {
          uint32_t times = 0;
-         auto result = queue.new_round(2, [&](const message_element& elem) noexcept  {
+         auto result = queue.new_round(2, [&](const message& elem) noexcept  {
             times++;
             return task_result::skip; });
          THEN("should consume 0 elements") {
@@ -83,7 +83,7 @@ namespace {
          }
          THEN("even consume it with 0 quota") {
             uint32_t times = 0;
-            auto result = queue.new_round(0, [&](const message_element& elem) noexcept  {
+            auto result = queue.new_round(0, [&](const message& elem) noexcept  {
                times++;
                return task_result::resume; });
             THEN("should consume 2 elements") {
@@ -106,7 +106,7 @@ namespace {
 
       THEN("if consume 2 element once") {
          uint32_t times = 0;
-         auto result = queue.new_round(1, [&](const message_element& elem) noexcept  {
+         auto result = queue.new_round(1, [&](const message& elem) noexcept  {
             times++;
             return task_result::skip; });
          THEN("should consume 0 elements") {
@@ -118,7 +118,7 @@ namespace {
          }
          THEN("even consume it with 0 quota") {
             uint32_t times = 0;
-            auto result = queue.new_round(0, [&](const message_element& elem) noexcept  {
+            auto result = queue.new_round(0, [&](const message& elem) noexcept  {
                times++;
                return task_result::resume; });
             THEN("should consume 1 elements") {
@@ -142,7 +142,7 @@ namespace {
 
       THEN("if consume 3 element once") {
          uint32_t times = 0;
-         auto result = queue.new_round(3, [&](const message_element& elem) noexcept  {
+         auto result = queue.new_round(3, [&](const message& elem) noexcept  {
             times++;
             return task_result::stop; });
          THEN("should consume 1 element") {
@@ -154,7 +154,7 @@ namespace {
          }
          THEN("even consume it with 0 quota") {
             uint32_t times = 0;
-            auto result = queue.new_round(0, [&](const message_element& elem) noexcept  {
+            auto result = queue.new_round(0, [&](const message& elem) noexcept  {
                times++;
                return task_result::resume; });
             THEN("should consume the last element") {
@@ -178,7 +178,7 @@ namespace {
 
       THEN("if consume 3 element once") {
          uint32_t times = 0;
-         auto result = queue.new_round(3, [&](const message_element& elem) noexcept  {
+         auto result = queue.new_round(3, [&](const message& elem) noexcept  {
             times++;
             return task_result::stop_all; });
          THEN("should consume 1 elements") {
@@ -190,7 +190,7 @@ namespace {
          }
          THEN("even consume it with 0 quota") {
             uint32_t times = 0;
-            auto result = queue.new_round(0, [&](const message_element& elem) noexcept  {
+            auto result = queue.new_round(0, [&](const message& elem) noexcept  {
                times++;
                return task_result::resume; });
             THEN("should consume the rest element") {
@@ -217,7 +217,7 @@ namespace {
 
          THEN("even consume it with 0 quota") {
             uint32_t times = 0;
-            auto result = queue.new_round(0, [&](const message_element& elem) noexcept  {
+            auto result = queue.new_round(0, [&](const message& elem) noexcept  {
                times++;
                return task_result::resume; });
             THEN("should consume the rest element") {
@@ -232,7 +232,7 @@ namespace {
 
          THEN("even consume it with 0 quota") {
             uint32_t times = 0;
-            auto result = queue.new_round(0, [&](const message_element& elem) noexcept  {
+            auto result = queue.new_round(0, [&](const message& elem) noexcept  {
                times++;
                return task_result::resume; });
             THEN("should consume the rest element") {
@@ -254,7 +254,7 @@ namespace {
 
       THEN("even consume it with 0 quota") {
          uint32_t times = 0;
-         auto result = queue.new_round(0, [&](const message_element &elem) noexcept {
+         auto result = queue.new_round(0, [&](const message &elem) noexcept {
             times++;
             return task_result::resume;
          });

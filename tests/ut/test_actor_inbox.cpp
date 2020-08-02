@@ -4,7 +4,7 @@
 
 #include <catch.hpp>
 #include <nano-caf/core/actor/actor_inbox.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/make_message.h>
 #include <nano-caf/util/aggregate_reflex.h>
 #include "test_msgs.h"
 
@@ -21,7 +21,7 @@ namespace {
       actor_inbox inbox{};
       WHEN("consume elements") {
          uint32_t times = 0;
-         auto result = inbox.new_round(100, [&](const message_element& elem) noexcept  {
+         auto result = inbox.new_round(100, [&](const message& elem) noexcept  {
             times++;
             return task_result::resume; });
          THEN("should consume 0 elements") {
@@ -38,7 +38,7 @@ namespace {
       inbox.enqueue(make_message<test_message>(3));
       WHEN("consume elements") {
          uint32_t times = 0;
-         auto result = inbox.new_round(100, [&](const message_element& elem) noexcept  {
+         auto result = inbox.new_round(100, [&](const message& elem) noexcept  {
             times++;
             return task_result::resume; });
          THEN("should consume all elements") {
@@ -55,7 +55,7 @@ namespace {
       inbox.enqueue(make_message<test_message, message_id::urgent>(3));
       WHEN("consume elements") {
          uint32_t times = 0;
-         auto result = inbox.new_round(100, [&](const message_element& elem) noexcept  {
+         auto result = inbox.new_round(100, [&](const message& elem) noexcept  {
             times++;
             return task_result::resume; });
          THEN("should consume all elements") {
@@ -73,7 +73,7 @@ namespace {
       WHEN("consume 1 element") {
          auto value = 0;
          bool urgent = false;
-         auto l = [&](const message_element& elem) noexcept  {
+         auto l = [&](const message& elem) noexcept  {
             value = elem.body<test_message>()->value;
             urgent = elem.is_urgent();
             return task_result::resume; };

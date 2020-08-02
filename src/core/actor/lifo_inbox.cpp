@@ -3,7 +3,7 @@
 //
 
 #include <nano-caf/core/actor/lifo_inbox.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/message.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -13,7 +13,7 @@ lifo_inbox::lifo_inbox() {
 }
 
 //////////////////////////////////////////////////////////////////
-auto lifo_inbox::enqueue(message_element* msg) noexcept -> enq_result {
+auto lifo_inbox::enqueue(message* msg) noexcept -> enq_result {
    if(msg == nullptr) return enq_result::null_msg;
 
    auto e = head();
@@ -35,8 +35,8 @@ auto lifo_inbox::enqueue(message_element* msg) noexcept -> enq_result {
 }
 
 //////////////////////////////////////////////////////////////////
-auto lifo_inbox::take_all() noexcept -> message_element* {
-   message_element* result = head();
+auto lifo_inbox::take_all() noexcept -> message* {
+   message* result = head();
    if(result == close_tag() || result == block_tag() || result == nullptr) {
       return nullptr;
    }
@@ -49,7 +49,7 @@ auto lifo_inbox::take_all() noexcept -> message_element* {
 
 //////////////////////////////////////////////////////////////////
 auto lifo_inbox::try_block() noexcept -> bool {
-   message_element* e = nullptr;
+   message* e = nullptr;
    auto result = stack_.compare_exchange_weak(e, block_tag(),
       std::memory_order_release,
       std::memory_order_relaxed);
@@ -81,7 +81,7 @@ lifo_inbox::~lifo_inbox() noexcept {
 }
 
 //////////////////////////////////////////////////////////////////
-auto lifo_inbox::destroy(message_element* result) noexcept -> void {
+auto lifo_inbox::destroy(message* result) noexcept -> void {
    while(result != nullptr) {
       auto p = result;
       result = result->next;

@@ -6,7 +6,7 @@
 #define NANO_CAF_ACTOR_STORAGE_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor/lifo_inbox.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/sched_actor.h>
@@ -74,7 +74,7 @@ private:
          }
       }
 
-      auto user_defined_handle_msg(message_element& msg) noexcept -> task_result override {
+      auto user_defined_handle_msg(message& msg) noexcept -> task_result override {
          if(msg.is_future_response()) {
             check_futures();
             return task_result::resume;

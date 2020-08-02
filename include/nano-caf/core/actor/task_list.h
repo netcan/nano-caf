@@ -6,7 +6,7 @@
 #define NANO_CAF_TASK_LIST_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/message.h>
 #include <cstddef>
 #include <memory>
 
@@ -20,9 +20,9 @@ enum class task_result {
 };
 
 struct task_list {
-   auto next(size_t& deficit) noexcept -> std::unique_ptr<message_element>;
-   auto push_back(message_element* ptr) noexcept -> void;
-   auto push_front(message_element* ptr) noexcept -> void;
+   auto next(size_t& deficit) noexcept -> std::unique_ptr<message>;
+   auto push_back(message* ptr) noexcept -> void;
+   auto push_front(message* ptr) noexcept -> void;
    auto append_list(task_list& list) noexcept -> void;
    auto prepend_list(task_list& list) noexcept -> void;
    ~task_list() noexcept;
@@ -39,8 +39,8 @@ private:
    auto reset() noexcept -> void;
 
 private:
-   message_element* head_{};
-   message_element* tail_{};
+   message* head_{};
+   message* tail_{};
    size_t total_task_size_{};
 };
 

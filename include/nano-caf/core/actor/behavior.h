@@ -8,7 +8,7 @@
 #include <nano-caf/util/type_list.h>
 #include <nano-caf/util/callable_trait.h>
 #include <nano-caf/core/msg/message_trait.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor/task_list.h>
 #include <nano-caf/util/aggregate_reflex.h>
 #include <tuple>
@@ -41,7 +41,7 @@ namespace detail {
       behavior_base(F &&f) : f_(std::move(f)) {}
       F f_;
 
-      auto handle_msg(message_element &msg, void (*handler)(const MSG_TYPE& msg, F& f)) -> bool {
+      auto handle_msg(message &msg, void (*handler)(const MSG_TYPE& msg, F& f)) -> bool {
          auto *body = msg.body<MSG_TYPE>();
          if (body == nullptr) return false;
          handler(*body, f_);
@@ -69,7 +69,7 @@ namespace detail {
       using base = behavior_base<F, message_type>;
       struct type : base {
          using base::base;
-         auto operator()(message_element &msg) {
+         auto operator()(message &msg) {
             return base::handle_msg(msg, [](const message_type& msg, F& f) {
                aggregate_trait<message_type>::call(msg, [&](auto &&... args) {
                   f(atom_type{}, std::forward<decltype(args)>(args)...);
@@ -88,7 +88,7 @@ namespace detail {
       using base = behavior_base<F, message_type>;
       struct type : base {
          using base::base;
-         auto operator()(message_element &msg) -> bool {
+         auto operator()(message &msg) -> bool {
             return base::handle_msg(msg, [](const message_type& msg, F& f) { f(msg); });
          }
       };
@@ -101,21 +101,21 @@ namespace detail {
 /////////////////////////////////////////////////////////////////////////////////////
 namespace detail {
    struct msg_handler {
-      virtual auto handle_msg(message_element& msg) -> task_result = 0;
+      virtual auto handle_msg(message& msg) -> task_result = 0;
       virtual ~msg_handler() = default;
    };
 
    template<typename ... Args>
    struct behaviors : msg_handler {
       behaviors(Args&& ... args) : behaviors_{std::move(args)...} {}
-      auto handle_msg(message_element& msg) -> task_result override {
+      auto handle_msg(message& msg) -> task_result override {
          return handle(msg, std::make_index_sequence<sizeof...(Args)>{}) ?
                 task_result::resume : task_result::skip;
       }
 
    private:
       template<size_t ... I>
-      auto handle(message_element& msg, std::index_sequence<I...>) -> bool {
+      auto handle(message& msg, std::index_sequence<I...>) -> bool {
          return (std::get<I>(behaviors_)(msg) || ...);
       }
 

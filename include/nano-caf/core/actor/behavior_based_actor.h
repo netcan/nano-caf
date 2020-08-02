@@ -12,7 +12,7 @@ NANO_CAF_NS_BEGIN
 
 struct behavior_based_actor : actor {
 protected:
-   virtual auto handle_message(message_element& msg) noexcept -> task_result final {
+   virtual auto handle_message(message& msg) noexcept -> task_result final {
       if(behavior_.get() == nullptr) {
          auto behavior = get_behavior();
          behavior_.reset(behavior.ptr_.release());

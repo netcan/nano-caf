@@ -13,7 +13,7 @@ add_library(nano_caf
         include/nano-caf/core/actor_system.h
         include/nano-caf/util/disable_copy.h
         include/nano-caf/core/actor/lifo_inbox.h
-        include/nano-caf/core/msg/message_element.h
+        include/nano-caf/core/msg/message.h
         src/core/actor/lifo_inbox.cpp
         include/nano-caf/core/actor/actor_inbox.h
         src/core/actor/actor_inbox.cpp
@@ -62,7 +62,7 @@ add_library(nano_caf
         include/nano-caf/core/actor/behavior_based_actor.h
         include/nano-caf/util/macro_basic.h
         include/nano-caf/util/aggregate_fields_type.h
-        include/nano-caf/util/aggregate_reflex.h)
+        include/nano-caf/util/aggregate_reflex.h include/nano-caf/core/msg/make_message.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp

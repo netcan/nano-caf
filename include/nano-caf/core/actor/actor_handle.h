@@ -8,12 +8,12 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/enq_result.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/make_message.h>
 #include <nano-caf/core/actor/wait_result.h>
 
 NANO_CAF_NS_BEGIN
 
-struct message_element;
+struct message;
 
 struct actor_handle {
    actor_handle(intrusive_actor_ptr ptr = nullptr) : ptr_{ptr} {}
@@ -47,7 +47,7 @@ struct actor_handle {
        ptr_.release();
    }
 private:
-   auto send_(message_element*) noexcept -> enq_result;
+   auto send_(message*) noexcept -> enq_result;
 
 private:
    intrusive_actor_ptr ptr_{};

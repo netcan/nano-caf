@@ -3,12 +3,12 @@
 //
 
 #include <nano-caf/core/actor/task_list.h>
-#include <nano-caf/core/msg/message_element.h>
+#include <nano-caf/core/msg/message.h>
 
 NANO_CAF_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////////
-auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message_element> {
+auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message> {
    if(deficit == 0) return nullptr;
 
    if(head_ != nullptr) {
@@ -18,7 +18,7 @@ auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message_elemen
       total_task_size_--;
       deficit--;
       elem->next = nullptr;
-      return std::unique_ptr<message_element>(elem);
+      return std::unique_ptr<message>(elem);
    }
 
    deficit = 0;
@@ -26,7 +26,7 @@ auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message_elemen
 }
 
 ///////////////////////////////////////////////////////////
-auto task_list::push_back(message_element* ptr) noexcept -> void {
+auto task_list::push_back(message* ptr) noexcept -> void {
    if(tail_ != nullptr) tail_->next = ptr;
    else head_ = ptr;
 
@@ -37,7 +37,7 @@ auto task_list::push_back(message_element* ptr) noexcept -> void {
 }
 
 ///////////////////////////////////////////////////////////
-auto task_list::push_front(message_element* ptr) noexcept -> void {
+auto task_list::push_front(message* ptr) noexcept -> void {
    if(tail_ == nullptr) tail_ = ptr;
 
    ptr->next = head_;
