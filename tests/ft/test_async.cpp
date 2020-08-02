@@ -121,7 +121,7 @@ void run_on_thread(size_t num_of_threads, char const* name) {
    system.shutdown();
 }
 
-#define __(n) n,  #n " threads"
+#define __(n) n, "3 tasks on " #n " threads"
 
 int main() {
    run_on_thread(__(1));
