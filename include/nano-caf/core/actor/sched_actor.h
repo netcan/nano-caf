@@ -31,7 +31,6 @@ protected:
       if(!(flags_ & exiting_flag)) {
          flags_ |= exiting_flag;
          reason_ = reason;
-         to_ctl()->on_exit(reason_);
       }
    }
 private:

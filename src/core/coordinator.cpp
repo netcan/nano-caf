@@ -4,6 +4,7 @@
 
 #include <nano-caf/core/coordinator.h>
 #include <nano-caf/core/worker.h>
+#include <nano-caf/core/resumable.h>
 #include <random>
 
 NANO_CAF_NS_BEGIN
@@ -22,9 +23,8 @@ auto coordinator::launch(size_t num_of_workers) noexcept -> void {
 
 ////////////////////////////////////////////////////////////////////
 auto coordinator::schedule_job(resumable& job) noexcept -> void {
-   spin_lock lock(lock_);
-   workers_[current_]->external_enqueue(&job);
-   current_ = (++current_) % workers_.size();
+   // always give it to the last served worker to maximum localization
+   workers_[job.last_served_worker()]->external_enqueue(&job);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -71,8 +71,9 @@ auto coordinator::try_steal(size_t id) noexcept -> resumable* {
       if(victim != id) {
          auto job = workers_[victim]->take_one();
          if(job != nullptr) {
-            return job;
+            job->set_last_served_worker(id);
          }
+         return job;
       }
    }
 

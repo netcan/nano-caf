@@ -30,6 +30,14 @@ struct resumable : list_element {
       ptr->intrusive_ptr_release_impl();
    }
 
+   auto set_last_served_worker(size_t worker_id) -> void {
+      served_worker_ = worker_id;
+   }
+
+   auto last_served_worker() -> bool {
+      return served_worker_;
+   }
+
 private:
    auto to_value_ptr() -> void* override {
       return reinterpret_cast<void*>(this);
@@ -40,6 +48,8 @@ private:
    virtual auto intrusive_ptr_release_impl() noexcept -> void {
       delete this;
    }
+
+   size_t served_worker_{};
 };
 
 NANO_CAF_NS_END

@@ -49,8 +49,8 @@ auto worker::stop() noexcept -> void {
 using timespan = std::chrono::duration<int64_t, std::nano>;
 
 constexpr timespan sleep_durations[3] = {
-   timespan{1'000'000'000},
-   timespan{1'000'000'000},
+   timespan{1'000},
+   timespan{1'000'000},
    timespan{1'000'000'000},
 };
 
@@ -91,8 +91,7 @@ auto worker::get_a_job() noexcept -> resumable* {
    job = thread_safe_list::pop_front<resumable>();
    if(job != nullptr) return job;
 
-   return job;
-   //return coordinator_.try_steal(id_);
+   return coordinator_.try_steal(id_);
 }
 
 ////////////////////////////////////////////////////////////////////

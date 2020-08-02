@@ -30,8 +30,6 @@ private:
 
 private:
    std::vector<worker*> workers_;
-   std::atomic_flag lock_{false};
-   size_t current_{};
 };
 
 NANO_CAF_NS_END
