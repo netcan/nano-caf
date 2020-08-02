@@ -10,7 +10,7 @@
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include "test_msgs.h"
 #include <catch.hpp>
-#include <nanobench.h>
+
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -112,7 +112,7 @@ namespace {
 
       auto add(int a, int b) {
          unsigned long result = 0;
-         for(int i = 0; i < 100000000; i++) {
+         for(int i = 0; i < 1000000; i++) {
             result += (a * b + value);
          }
 
@@ -129,7 +129,7 @@ namespace {
             size_t result = 0;
             int a = 20;
             int b = 4;
-            for(int i = 0; i < 100000000; i++) {
+            for(int i = 0; i < 1000000; i++) {
                result += (a * b + value);
             }
 
@@ -158,7 +158,7 @@ namespace {
          auto result3 = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
             //std::cout << "async done" << std::endl;
             final_result = r1 + r2;
-            if(final_result == 11500000000) {
+            if(final_result == 115000000) {
                exit(exit_reason::normal);
             } else {
                exit(exit_reason::unknown);
@@ -171,7 +171,6 @@ namespace {
       }
 
       auto handle_message(message& msg) noexcept -> task_result override {
-         //std::cout << "msg received" << std::endl;
          return task_result::resume;
       }
    };
@@ -189,19 +188,18 @@ namespace {
       REQUIRE(system.get_num_of_actors() == 0);
    }
 
-   SCENARIO("future-calc benchmark") {
-      actor_system system;
-      system.start(2);
-
-      ankerl::nanobench::Bench().run("future calc", [&] {
-         auto me = system.spawn<future_actor>();
-         me.send<test_message>(1);
-         me.wait_for_exit();
-         me.release();
-      });
-
-      system.shutdown();
-   }
+//   SCENARIO("future-calc benchmark") {
+//      actor_system system;
+//      system.start(1);
+//      ankerl::nanobench::Bench().run("future calc", [&] {
+//         auto me = system.spawn<future_actor>();
+//         me.send<test_message>(1);
+//         me.wait_for_exit();
+//         me.release();
+//      });
+//
+//      system.shutdown();
+//   }
 
    int pong_times_2 = 0;
    struct pong_actor_1 : behavior_based_actor {
@@ -212,7 +210,6 @@ namespace {
                pong_times_2++;
             },
             [&](exit_msg_atom, exit_reason reason) {
-               std::cout << "pong exit = " << (int)reason << std::endl;
             }
          };
       }
@@ -233,7 +230,6 @@ namespace {
             },
             [&](exit_msg_atom, exit_reason reason) {
                send<exit_msg>(pong, reason);
-               std::cout << "ping exit = " << (int)reason << std::endl;
             },
          };
       }

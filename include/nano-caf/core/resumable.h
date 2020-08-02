@@ -34,7 +34,7 @@ struct resumable : list_element {
       served_worker_ = worker_id;
    }
 
-   auto last_served_worker() -> bool {
+   auto last_served_worker() -> size_t {
       return served_worker_;
    }
 
@@ -49,7 +49,7 @@ private:
       delete this;
    }
 
-   size_t served_worker_{};
+   size_t served_worker_{std::numeric_limits<size_t>::max()};
 };
 
 NANO_CAF_NS_END

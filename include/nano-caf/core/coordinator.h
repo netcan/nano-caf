@@ -25,6 +25,7 @@ struct coordinator {
 
 private:
    auto try_steal(size_t id) noexcept -> resumable*;
+   auto get_target_worker(resumable& job) -> size_t;
 
    friend struct worker;
 

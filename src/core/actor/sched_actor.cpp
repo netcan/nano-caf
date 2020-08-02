@@ -5,6 +5,7 @@
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_context.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
+#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
@@ -42,6 +43,7 @@ auto sched_actor::resume() noexcept  -> resumable::result {
       });
 
       if(!result) {
+         std::cout << "notify exit" << std::endl;
          to_ctl()->on_exit(reason_);
          return result::done;
       }

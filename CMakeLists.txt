@@ -33,7 +33,6 @@ add_library(nano_caf
         include/nano-caf/core/actor/actor_control_block.h
         src/core/actor/actor_control_block.cpp
         include/nano-caf/core/cache_line_size.h
-        include/nano-caf/core/exeution_unit.h
         include/nano-caf/core/worker.h
         src/core/worker.cpp tests/ut/test_worker.cpp
         include/nano-caf/core/actor/make_actor.h
@@ -62,7 +61,12 @@ add_library(nano_caf
         include/nano-caf/core/actor/behavior_based_actor.h
         include/nano-caf/util/macro_basic.h
         include/nano-caf/util/aggregate_fields_type.h
-        include/nano-caf/util/aggregate_reflex.h include/nano-caf/core/msg/make_message.h include/nano-caf/core/actor/drr_queue.h src/core/actor/drr_queue.cpp include/nano-caf/util/either.h include/nano-caf/util/unit.h)
+        include/nano-caf/util/aggregate_reflex.h
+        include/nano-caf/core/msg/make_message.h
+        include/nano-caf/core/actor/drr_queue.h
+        src/core/actor/drr_queue.cpp
+        include/nano-caf/util/either.h
+        include/nano-caf/util/unit.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp
@@ -74,12 +78,14 @@ add_executable(nano_caf-test
         tests/ut/test_sched_actor.cpp
         tests/ut/test_actor_system.cpp
         tests/ut/test_msgs.h
-        tests/ut/test_behavior.cpp
-        third-party/nanobench.h
-        tests/ut/nanobench.cpp)
+        tests/ut/test_behavior.cpp)
 
 add_executable(test_actor_system
         tests/ft/test_actor_system.cpp)
+
+add_executable(test_async tests/ft/test_async.cpp
+        third-party/nanobench.h
+        tests/ut/nanobench.cpp)
 
 add_executable(test_ping_pong
         tests/ft/test_ping_pong.cpp)
@@ -92,8 +98,10 @@ if(UNIX)
     target_link_libraries(nano_caf-test nano_caf pthread)
     target_link_libraries(test_actor_system nano_caf pthread)
     target_link_libraries(test_ping_pong nano_caf pthread)
+    target_link_libraries(test_async nano_caf pthread)
 else()
     target_link_libraries(nano_caf-test nano_caf)
     target_link_libraries(test_actor_system nano_caf)
     target_link_libraries(test_ping_pong nano_caf)
+    target_link_libraries(test_async nano_caf)
 endif()

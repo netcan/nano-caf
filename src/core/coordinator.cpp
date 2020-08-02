@@ -21,10 +21,30 @@ auto coordinator::launch(size_t num_of_workers) noexcept -> void {
    }
 }
 
+auto coordinator::get_target_worker(resumable& job) -> size_t {
+   auto worker_id = job.last_served_worker();
+   if(worker_id < workers_.size()) {
+      return worker_id;
+   }
+
+   if(workers_.size() > 1) {
+      std::random_device r;
+      std::default_random_engine regen{r()};
+      std::uniform_int_distribution<size_t> uniform(0, workers_.size()-1);
+      worker_id = uniform(regen);
+   } else {
+      worker_id = 0;
+   }
+
+   job.set_last_served_worker(worker_id);
+
+   return worker_id;
+}
+
 ////////////////////////////////////////////////////////////////////
 auto coordinator::schedule_job(resumable& job) noexcept -> void {
    // always give it to the last served worker to maximum localization
-   workers_[job.last_served_worker()]->external_enqueue(&job);
+   workers_[get_target_worker(job)]->external_enqueue(&job);
 }
 
 ////////////////////////////////////////////////////////////////////

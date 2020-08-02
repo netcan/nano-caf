@@ -17,24 +17,24 @@ NANO_CAF_NS_BEGIN
 template <typename F, typename R>
 struct async_object : resumable {
    async_object(intrusive_actor_ptr sender, F&& f)
-      : f{std::move(f)}
+      : f_{std::move(f)}
       , sender_{sender}
       {}
 
    virtual auto resume() noexcept -> result override {
-      auto result = f();
-      promise.set_value(result);
+      auto result = f_();
+      promise_.set_value(result);
       sender_.send<future_done, (message_id::category)message_id::future>();
       return result::done;
    }
 
    auto get_future() {
-      return promise.get_future();
+      return promise_.get_future();
    }
 
 private:
-   std::promise<R> promise;
-   F f;
+   std::promise<R> promise_;
+   F f_;
    actor_handle sender_;
 };
 
