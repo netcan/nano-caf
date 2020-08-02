@@ -6,7 +6,7 @@
 #include <nano-caf/core/resumable.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/coordinator.h>
-#include <iostream>
+#include <nano-caf/util/likely.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -63,7 +63,7 @@ namespace {
 
 ////////////////////////////////////////////////////////////////////
 auto worker::goto_bed() noexcept -> void {
-   if(strategy_ < 2 && (++tried_times_) >= config[strategy_].try_times) {
+   if(__unlikely(strategy_ < 2 && (++tried_times_) >= config[strategy_].try_times)) {
       ++strategy_;
       tried_times_ = 0;
    }
@@ -84,13 +84,10 @@ auto worker::wakeup_worker() noexcept -> void {
 
 ////////////////////////////////////////////////////////////////////
 auto worker::get_a_job() noexcept -> resumable* {
-   auto job = cmd_queue_.pop_front<resumable>();
-   if(job != nullptr) return job;
+   if(auto job = cmd_queue_.pop_front<resumable>(); __unlikely(job != nullptr)) return job;
+   if(auto job = job_queue_.pop_front<resumable>(); __likely(job != nullptr)) return job;
 
-   job = job_queue_.pop_front<resumable>();
-   if(job != nullptr) return job;
-
-   if((tried_times_ % config[strategy_].intervals) == 0) {
+   if(__unlikely((tried_times_ % config[strategy_].intervals) == 0)) {
       return coordinator_.try_steal(id_);
    }
 
@@ -135,7 +132,6 @@ auto worker::resume_job(resumable* job) noexcept -> bool {
          return false;
       case resumable::result::done:
       case resumable::result::awaiting_message:
-      default:
          intrusive_ptr_release(job);
          break;
    }

@@ -89,12 +89,11 @@ struct future_actor : actor {
          exit(exit_reason::unhandled_exception);
       }
 
-      auto result3 = with(future1, future2, future3)([this](unsigned long r1, unsigned long  r2, unsigned long r3) {
-         //std::cout << "async done" << std::endl;
-         final_result = r1 + r2 + r3;
-         //std::cout << "async done = " << final_result << std::endl;
-         exit(exit_reason::normal);
-      });
+      auto result3 = with(future1, future2, future3)(
+         [this](unsigned long r1, unsigned long  r2, unsigned long r3) {
+            final_result = r1 + r2 + r3;
+            exit(exit_reason::normal);
+         });
 
       if(!result3) {
          exit(exit_reason::unhandled_exception);
@@ -106,19 +105,23 @@ struct future_actor : actor {
    }
 };
 
-
 void run_on_thread(size_t num_of_threads, char const* name) {
    actor_system system;
    system.start(num_of_threads);
 
    ankerl::nanobench::Bench().minEpochIterations(10).run(name, [&] {
       auto me = system.spawn<future_actor>();
-      me.send<test_message>(1);
       me.wait_for_exit();
       me.release();
    });
 
    system.shutdown();
+
+//   std::cout << "--------------------------------" << std::endl;
+//   for(size_t i=0; i<num_of_threads; i++) {
+//      std::cout << "worker[" <<i<<"] = " << system.sched_jobs(i) << " jobs" << std::endl;
+//   }
+//   std::cout << "================================" << std::endl;
 }
 
 #define __(n) n, "3 tasks on " #n " threads"

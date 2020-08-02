@@ -66,7 +66,7 @@ add_library(nano_caf
         include/nano-caf/core/actor/drr_queue.h
         src/core/actor/drr_queue.cpp
         include/nano-caf/util/either.h
-        include/nano-caf/util/unit.h)
+        include/nano-caf/util/unit.h include/nano-caf/util/likely.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp
