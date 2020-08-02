@@ -42,7 +42,6 @@ private:
    auto goto_bed() noexcept -> void;
    auto wakeup_worker() noexcept -> void;
    auto get_a_job() noexcept -> resumable*;
-   auto goto_bed_() noexcept -> void;
 
 private:
    std::thread thread_{};

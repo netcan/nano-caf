@@ -48,34 +48,33 @@ auto worker::stop() noexcept -> void {
 ////////////////////////////////////////////////////////////////////
 using timespan = std::chrono::duration<int64_t, std::nano>;
 
-constexpr timespan sleep_durations[3] = {
-   timespan{1'000},
-   timespan{1'000'000},
-   timespan{1'000'000'000},
-};
-
-constexpr size_t try_times[3] = {
-   100,
-   10,
-   1
-};
+namespace {
+   struct {
+      timespan sleep_durations;
+      size_t try_times;
+      size_t intervals;
+   }
+   config[3] = {
+      {timespan{1'000},      100, 10},
+      {timespan{1000'000},     500, 5},
+      {timespan{1000'000'000}, 1, 1}
+   };
+}
 
 ////////////////////////////////////////////////////////////////////
 auto worker::goto_bed() noexcept -> void {
-   if(strategy_ < 2 && tried_times_++ >= try_times[strategy_]) {
+   if(strategy_ < 2 && (++tried_times_) >= config[strategy_].try_times) {
       ++strategy_;
+      tried_times_ = 0;
    }
-   goto_bed_();
-}
 
-////////////////////////////////////////////////////////////////////
-auto worker::goto_bed_() noexcept -> void {
    std::unique_lock<std::mutex> guard(lock_);
    sleeping = true;
-   cv_.wait_for(guard, sleep_durations[strategy_],
+   cv_.wait_for(guard, config[strategy_].sleep_durations,
                 [&] { return !thread_safe_list::empty(); });
    sleeping = false;
 }
+
 ////////////////////////////////////////////////////////////////////
 auto worker::wakeup_worker() noexcept -> void {
    std::unique_lock<std::mutex> guard(lock_);
@@ -91,7 +90,11 @@ auto worker::get_a_job() noexcept -> resumable* {
    job = thread_safe_list::pop_front<resumable>();
    if(job != nullptr) return job;
 
-   return coordinator_.try_steal(id_);
+   if((tried_times_ % config[strategy_].intervals) == 0) {
+      return coordinator_.try_steal(id_);
+   }
+
+   return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////
