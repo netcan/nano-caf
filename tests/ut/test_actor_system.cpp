@@ -55,7 +55,7 @@ namespace {
                pong_times++;
                break;
             case exit_msg::msg_id:
-               return task_result::stop_all;
+               return task_result::done;
          }
          return task_result::resume;
       }

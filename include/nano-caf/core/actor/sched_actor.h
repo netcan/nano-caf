@@ -41,7 +41,7 @@ private:
 
    auto handle_message_internal(message& msg) noexcept -> task_result;
    virtual auto user_defined_handle_msg(message&) noexcept -> task_result {
-      return task_result::stop_all;
+      return task_result::done;
    }
 
 private:

@@ -144,9 +144,9 @@ namespace {
          uint32_t times = 0;
          auto result = queue.new_round(3, [&](const message& elem) noexcept  {
             times++;
-            return task_result::stop; });
+            return task_result::done; });
          THEN("should consume 1 element") {
-            REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = false});
+            REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = true});
             REQUIRE(times == 1);
          }
          THEN("the queue should not be empty now") {
@@ -180,7 +180,7 @@ namespace {
          uint32_t times = 0;
          auto result = queue.new_round(3, [&](const message& elem) noexcept  {
             times++;
-            return task_result::stop_all; });
+            return task_result::done; });
          THEN("should consume 1 elements") {
             REQUIRE(result == new_round_result{.consumed_items = 1, .stop_all = true});
             REQUIRE(times == 1);

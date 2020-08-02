@@ -19,7 +19,7 @@ protected:
       }
 
       if(behavior_.get() == nullptr) {
-         return task_result::stop_all;
+         return task_result::done;
       }
 
       return behavior_->handle_msg(msg);

@@ -15,8 +15,7 @@ NANO_CAF_NS_BEGIN
 enum class task_result {
    resume,
    skip,
-   stop,
-   stop_all,
+   done
 };
 
 struct task_list {

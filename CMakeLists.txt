@@ -62,7 +62,7 @@ add_library(nano_caf
         include/nano-caf/core/actor/behavior_based_actor.h
         include/nano-caf/util/macro_basic.h
         include/nano-caf/util/aggregate_fields_type.h
-        include/nano-caf/util/aggregate_reflex.h include/nano-caf/core/msg/make_message.h)
+        include/nano-caf/util/aggregate_reflex.h include/nano-caf/core/msg/make_message.h include/nano-caf/core/actor/drr_queue.h src/core/actor/drr_queue.cpp)
 
 add_executable(nano_caf-test
         third-party/catch.hpp

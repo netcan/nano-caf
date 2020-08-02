@@ -5,9 +5,7 @@
 #ifndef NANO_CAF_MAKE_MESSAGE_H
 #define NANO_CAF_MAKE_MESSAGE_H
 
-#include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/msg/message.h>
-#include <utility>
 
 NANO_CAF_NS_BEGIN
 
