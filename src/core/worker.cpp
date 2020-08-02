@@ -102,6 +102,7 @@ auto worker::run() noexcept -> void {
    while (1) {
       auto job = get_a_job();
       if(job != nullptr) {
+         sched_jobs_++;
          if(!resume_job(job)) return;
          strategy_ = 0;
          tried_times_ = 0;

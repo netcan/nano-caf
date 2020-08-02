@@ -25,6 +25,8 @@ struct actor_context
    auto register_actor() -> void;
    auto deregister_actor() -> void;
 
+   using coordinator::sched_jobs;
+
 protected:
    auto wait_actors_done() -> void;
 

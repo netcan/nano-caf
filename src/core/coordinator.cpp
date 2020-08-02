@@ -49,6 +49,8 @@ auto coordinator::schedule_job(resumable& job) noexcept -> void {
 
 ////////////////////////////////////////////////////////////////////
 auto coordinator::shutdown() noexcept -> void {
+   if(shutdown_) return;
+
    for(auto& worker : workers_) {
       if(worker != nullptr) {
          worker->stop();
@@ -61,17 +63,25 @@ auto coordinator::shutdown() noexcept -> void {
       }
    }
 
+   sched_jobs_.reserve(workers_.size());
+
+   for(auto& worker : workers_) {
+      sched_jobs_.push_back(worker->sched_jobs());
+   }
+
    for(auto& worker : workers_) {
       if(worker != nullptr) {
          delete worker;
          worker = nullptr;
       }
    }
+
+   shutdown_ = true;
 }
 
 ////////////////////////////////////////////////////////////////////
 coordinator::~coordinator() noexcept {
-      shutdown();
+   shutdown();
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -100,5 +110,10 @@ auto coordinator::try_steal(size_t id) noexcept -> resumable* {
    return nullptr;
 }
 
+////////////////////////////////////////////////////////////////////
+auto coordinator::sched_jobs(size_t worker_id) const noexcept -> size_t {
+   if(shutdown_) return sched_jobs_[worker_id];
+   return workers_[worker_id]->sched_jobs();
+}
 
 NANO_CAF_NS_END

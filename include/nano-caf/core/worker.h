@@ -38,6 +38,10 @@ worker : disable_copy {
       return id_;
    }
 
+   auto sched_jobs() const -> size_t {
+      return sched_jobs_;
+   }
+
 private:
    auto run() noexcept -> void;
    auto resume_job(resumable*) noexcept -> bool;
@@ -58,6 +62,7 @@ private:
    coordinator& coordinator_;
    size_t strategy_{};
    size_t tried_times_{};
+   size_t sched_jobs_{};
 
    std::thread thread_{};
 };

@@ -20,7 +20,6 @@ struct pong_actor_1 : behavior_based_actor {
                 pong_times_2++;
             },
             [&](exit_msg_atom, exit_reason reason) {
-                std::cout << "pong exit = " << (int)reason << std::endl;
             }
         };
     }
@@ -41,21 +40,36 @@ struct ping_actor_1 : behavior_based_actor {
                 },
                 [&](exit_msg_atom, exit_reason reason) {
                     send<exit_msg>(pong, reason);
-                    std::cout << "ping exit = " << (int)reason << std::endl;
                 }
         };
     }
 };
 
+auto run(size_t num_of_worker) {
+   pong_times_2 = 0;
+
+   actor_system system;
+   system.start(num_of_worker);
+
+   auto me = system.spawn<ping_actor_1>();
+   std::this_thread::sleep_for(std::chrono::seconds {1});
+   me.send<exit_msg>(exit_reason::user_shutdown);
+   me.wait_for_exit();
+   me.release();
+
+   system.shutdown();
+
+   std::cout << "[" << num_of_worker << " threads] ping pong times = " << pong_times_2 * 2 << std::endl;
+
+   for(size_t i=0; i<num_of_worker; i++) {
+      std::cout << "worker[" <<i<<"] = " << system.sched_jobs(i) << " jobs" << std::endl;
+   }
+}
+
 int main() {
-    actor_system system;
-    system.start(2);
-
-    auto me = system.spawn<ping_actor_1>();
-    std::this_thread::sleep_for(std::chrono::seconds {1});
-    me.send<exit_msg>(exit_reason::user_shutdown);
-    me.wait_for_exit();
-    me.release();
-
-    system.shutdown();
+   run(1);
+   run(2);
+   run(3);
+   run(4);
+   run(5);
 }

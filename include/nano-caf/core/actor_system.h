@@ -17,6 +17,7 @@ struct actor_system
 
    using actor_context::spawn;
    using actor_context::get_num_of_actors;
+   using actor_context::sched_jobs;
 };
 
 NANO_CAF_NS_END

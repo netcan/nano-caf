@@ -20,6 +20,7 @@ struct coordinator {
    auto launch(size_t num_of_workers) noexcept -> void;
    auto shutdown() noexcept -> void;
    auto schedule_job(resumable&) noexcept -> void;
+   auto sched_jobs(size_t worker_id) const noexcept -> size_t;
 
    ~coordinator() noexcept;
 
@@ -31,6 +32,8 @@ private:
 
 private:
    std::vector<worker*> workers_;
+   std::vector<size_t> sched_jobs_;
+   bool shutdown_{};
 };
 
 NANO_CAF_NS_END
