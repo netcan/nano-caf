@@ -18,6 +18,7 @@ struct future_actor : actor {
    unsigned long final_result = 0;
 
    auto add(int a, int b) {
+      //std::cout << "calc future 1" << std::endl;
       std::random_device r;
       std::default_random_engine regen{r()};
       std::uniform_int_distribution<size_t> uniform(0, 1000);
@@ -37,6 +38,7 @@ struct future_actor : actor {
       }
 
       auto future2 = async([this]() {
+         //std::cout << "calc future 2" << std::endl;
          size_t result = 0;
          int a = 20;
          int b = 4;
@@ -55,6 +57,7 @@ struct future_actor : actor {
       }
 
       auto future3 = async([this]() {
+         //std::cout << "calc future 3" << std::endl;
          size_t result = 0;
          int a = 20;
          int b = 42;
@@ -91,6 +94,7 @@ struct future_actor : actor {
 
       auto result3 = with(future1, future2, future3)(
          [this](unsigned long r1, unsigned long  r2, unsigned long r3) {
+            //std::cout << "future done" << std::endl;
             final_result = r1 + r2 + r3;
             exit(exit_reason::normal);
          });
@@ -109,19 +113,20 @@ void run_on_thread(size_t num_of_threads, char const* name) {
    actor_system system;
    system.start(num_of_threads);
 
-   ankerl::nanobench::Bench().minEpochIterations(10).run(name, [&] {
+   ankerl::nanobench::Bench().minEpochIterations(109).run(name, [&] {
       auto me = system.spawn<future_actor>();
+      me.send<my_message>(1);
       me.wait_for_exit();
       me.release();
    });
 
    system.shutdown();
 
-//   std::cout << "--------------------------------" << std::endl;
-//   for(size_t i=0; i<num_of_threads; i++) {
-//      std::cout << "worker[" <<i<<"] = " << system.sched_jobs(i) << " jobs" << std::endl;
-//   }
-//   std::cout << "================================" << std::endl;
+   std::cout << "--------------------------------" << std::endl;
+   for(size_t i=0; i<num_of_threads; i++) {
+      std::cout << "worker[" <<i<<"] = " << system.sched_jobs(i) << " jobs" << std::endl;
+   }
+   std::cout << "================================" << std::endl;
 }
 
 #define __(n) n, "3 tasks on " #n " threads"

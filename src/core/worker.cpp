@@ -55,8 +55,8 @@ namespace {
       size_t intervals;
    }
    config[3] = {
-      {timespan{1'000},      100, 10},
-      {timespan{1000'000},     500, 5},
+      {timespan{10'000},      100, 10},
+      {timespan{1'000'000},     500, 5},
       {timespan{1000'000'000}, 1, 1}
    };
 }
@@ -132,6 +132,7 @@ auto worker::resume_job(resumable* job) noexcept -> bool {
          return false;
       case resumable::result::done:
       case resumable::result::awaiting_message:
+      default:
          intrusive_ptr_release(job);
          break;
    }

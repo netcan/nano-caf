@@ -52,7 +52,7 @@ struct thread_safe_list {
 
    auto empty() const noexcept -> bool {
       spin_lock _{lock_};
-      return head_ != nullptr;
+      return head_ == nullptr;
    }
 
    ~thread_safe_list() {
