@@ -5,7 +5,6 @@
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_context.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
-#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
