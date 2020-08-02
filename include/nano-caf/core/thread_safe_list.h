@@ -8,6 +8,7 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/spin_lock.h>
 #include <nano-caf/util/list_element.h>
+#include <nano-caf/util/likely.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -27,29 +28,31 @@ struct thread_safe_list {
    }
 
    auto push_back(list_element* ptr) noexcept -> void {
-       if(ptr == nullptr) return;
-       {
-           spin_lock _{lock_};
+      if(__unlikely(ptr == nullptr)) return;
+      {
+         spin_lock _{lock_};
 
-           if(tail_ != nullptr) tail_->next = ptr;
-           else head_ = ptr;
+         if(__likely(tail_ != nullptr)) tail_->next = ptr;
+         else head_ = ptr;
 
-           tail_ = ptr;
-           ptr->next = nullptr;
-       }
+         tail_ = ptr;
+         ptr->next = nullptr;
+      }
    }
 
    auto push_front(list_element* ptr) noexcept -> void {
-      spin_lock _{lock_};
-
-      if(tail_ == nullptr) tail_ = ptr;
-      ptr->next = head_;
-      head_ = ptr;
+      if(__unlikely(ptr == nullptr)) return;
+      {
+         spin_lock _{lock_};
+         if(__unlikely(tail_ == nullptr)) tail_ = ptr;
+         ptr->next = head_;
+         head_ = ptr;
+      }
    }
 
    auto empty() const noexcept -> bool {
       spin_lock _{lock_};
-      return head_ == nullptr;
+      return head_ != nullptr;
    }
 
    ~thread_safe_list() {
@@ -61,7 +64,7 @@ struct thread_safe_list {
 private:
    auto pop_front_() noexcept -> list_element* {
       spin_lock _{lock_};
-      if(head_ != nullptr) {
+      if(__likely(head_ != nullptr)) {
          auto elem = head_;
          head_ = elem->next;
          if (head_ == nullptr) tail_ = nullptr;
