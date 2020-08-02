@@ -19,6 +19,4 @@ auto actor_system::power_off() noexcept -> void {
    coordinator::shutdown();
 }
 
-
-
 NANO_CAF_NS_END

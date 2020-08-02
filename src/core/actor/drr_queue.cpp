@@ -11,7 +11,6 @@ inline auto drr_queue::next() noexcept -> std::unique_ptr<message> {
    return task_list::next(deficit_);
 }
 
-
 auto drr_queue::inc_deficit(size_t quota) noexcept -> void {
    if(!task_list::empty()) {
       deficit_ += quota;

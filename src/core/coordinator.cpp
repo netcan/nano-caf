@@ -21,6 +21,7 @@ auto coordinator::launch(size_t num_of_workers) noexcept -> void {
    }
 }
 
+////////////////////////////////////////////////////////////////////
 auto coordinator::get_target_worker(resumable& job) -> size_t {
    auto worker_id = job.last_served_worker();
    if(worker_id < workers_.size()) {
@@ -110,7 +111,7 @@ auto coordinator::try_steal(size_t id) noexcept -> resumable* {
    return nullptr;
 }
 
-////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 auto coordinator::sched_jobs(size_t worker_id) const noexcept -> size_t {
    if(shutdown_) return sched_jobs_[worker_id];
    return workers_[worker_id]->sched_jobs();
