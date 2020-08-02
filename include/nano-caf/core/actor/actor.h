@@ -47,8 +47,9 @@ protected:
       if(obj == nullptr) {
          return std::nullopt;
       }
+      auto result = std::optional{std::shared_future{obj->get_future()}};
       self().context().schedule_job(*obj);
-      return std::optional{std::shared_future{obj->get_future()}};
+      return result;
    }
 
    template<typename ... Args>

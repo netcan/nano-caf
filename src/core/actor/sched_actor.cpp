@@ -43,7 +43,6 @@ auto sched_actor::resume() noexcept  -> resumable::result {
       });
 
       if(!result) {
-         std::cout << "notify exit" << std::endl;
          to_ctl()->on_exit(reason_);
          return result::done;
       }

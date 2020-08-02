@@ -26,25 +26,25 @@ struct future_actor : actor {
    }
 
    auto on_init() noexcept -> void override {
-//      auto future1 = async(&future_actor::add, this, 5, 3);
-//      if(!future1) {
-//         exit(exit_reason::unhandled_exception);
-//      }
-//
-//         auto future2 = async([this]() {
-//            size_t result = 0;
-//            int a = 20;
-//            int b = 4;
-//            for(int i = 0; i < 1000000; i++) {
-//               result += (a * b + value);
-//            }
-//
-//            return result;
-//         });
-//         if(!future2) {
-//            exit(exit_reason::unhandled_exception);
-//         }
-//
+      auto future1 = async(&future_actor::add, this, 5, 3);
+      if(!future1) {
+         exit(exit_reason::unhandled_exception);
+      }
+
+         auto future2 = async([this]() {
+            size_t result = 0;
+            int a = 20;
+            int b = 4;
+            for(int i = 0; i < 1000000; i++) {
+               result += (a * b + value);
+            }
+
+            return result;
+         });
+         if(!future2) {
+            exit(exit_reason::unhandled_exception);
+         }
+
 ////         auto result1 = with(future1)([this](unsigned long r1) {
 ////            //std::cout << "async future1 done = " << r1 << std::endl;
 ////         });
@@ -61,24 +61,22 @@ struct future_actor : actor {
 ////            exit(exit_reason::unhandled_exception);
 ////         }
 //
-//         auto result3 = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
-//            //std::cout << "async done" << std::endl;
-//            final_result = r1 + r2;
-//            if(final_result == 115000000) {
-//               exit(exit_reason::normal);
-//            } else {
-//               exit(exit_reason::unknown);
-//            }
-//         });
-//
-//         if(!result3) {
-//            exit(exit_reason::unhandled_exception);
-//         }
+         auto result3 = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
+            //std::cout << "async done" << std::endl;
+            final_result = r1 + r2;
+            if(final_result == 115000000) {
+               exit(exit_reason::normal);
+            } else {
+               exit(exit_reason::unknown);
+            }
+         });
+
+         if(!result3) {
+            exit(exit_reason::unhandled_exception);
+         }
    }
 
    auto handle_message(message& msg) noexcept -> task_result override {
-      std::cout << "msg received" << std::endl;
-      exit(exit_reason::normal);
       return task_result::resume;
    }
 };
