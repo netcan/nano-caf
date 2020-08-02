@@ -4,6 +4,7 @@
 
 #include <nano-caf/core/actor/actor_inbox.h>
 #include <nano-caf/core/msg/message.h>
+#include <nano-caf/util/likely.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -15,16 +16,16 @@ auto actor_inbox::new_round(size_t quota, message_consumer f) noexcept -> new_ro
    auto total = quota + urgent_queue.deficit() + normal_queue.deficit();
 
    auto result = urgent_queue.new_round(total, f);
-   if (!result.has_value() || *result >= total) {
+   if (__unlikely(!result.has_value() || *result >= total)) {
       return result;
    }
 
    auto result2 = normal_queue.new_round(total - *result, f);
-   if(result2) {
-      return *result + *result2;
+   if(__unlikely(!result2.has_value())) {
+      return std::nullopt;
    }
 
-   return std::nullopt;
+   return *result + *result2;
 }
 
 //////////////////////////////////////////////////////////////
@@ -35,7 +36,7 @@ auto actor_inbox::reload() noexcept -> void {
       auto ptr = message;
       message = message->next;
 
-      if(ptr->is_urgent()) {
+      if(__unlikely(ptr->is_urgent())) {
          urgent.push_front(ptr);
       } else {
          normal.push_front(ptr);

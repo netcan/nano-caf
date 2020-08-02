@@ -4,14 +4,15 @@
 
 #include <nano-caf/core/actor/task_list.h>
 #include <nano-caf/core/msg/message.h>
+#include <nano-caf/util/likely.h>
 
 NANO_CAF_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////////
 auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message> {
-   if(deficit == 0) return nullptr;
+   if(__unlikely(deficit == 0)) return nullptr;
 
-   if(head_ != nullptr) {
+   if(__likely(head_ != nullptr)) {
       auto elem = head_;
       head_ = head_->next;
       if (head_ == nullptr) tail_ = nullptr;
@@ -27,7 +28,7 @@ auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message> {
 
 ///////////////////////////////////////////////////////////
 auto task_list::push_back(message* ptr) noexcept -> void {
-   if(tail_ != nullptr) tail_->next = ptr;
+   if(__likely(tail_ != nullptr)) tail_->next = ptr;
    else head_ = ptr;
 
    tail_ = ptr;
@@ -38,7 +39,7 @@ auto task_list::push_back(message* ptr) noexcept -> void {
 
 ///////////////////////////////////////////////////////////
 auto task_list::push_front(message* ptr) noexcept -> void {
-   if(tail_ == nullptr) tail_ = ptr;
+   if(__unlikely(tail_ == nullptr)) tail_ = ptr;
 
    ptr->next = head_;
    head_ = ptr;
@@ -47,9 +48,9 @@ auto task_list::push_front(message* ptr) noexcept -> void {
 }
 ///////////////////////////////////////////////////////////
 auto task_list::append_list(task_list& list) noexcept -> void{
-   if(list.empty()) return;
+   if(__unlikely(list.empty())) return;
 
-   if(tail_ != nullptr) {
+   if(__likely(tail_ != nullptr)) {
       tail_->next = list.head_;
    } else {
       head_ = list.head_;
@@ -63,7 +64,7 @@ auto task_list::append_list(task_list& list) noexcept -> void{
 
 ///////////////////////////////////////////////////////////
 auto task_list::prepend_list(task_list& list) noexcept -> void {
-   if(list.empty()) return;
+   if(__unlikely(list.empty())) return;
 
    if(tail_ == nullptr) {
       tail_ = list.tail_;

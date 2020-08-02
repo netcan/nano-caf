@@ -4,6 +4,7 @@
 
 #include <nano-caf/core/actor/lifo_inbox.h>
 #include <nano-caf/core/msg/message.h>
+#include <nano-caf/util/likely.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -14,7 +15,7 @@ lifo_inbox::lifo_inbox() {
 
 //////////////////////////////////////////////////////////////////
 auto lifo_inbox::enqueue(message* msg) noexcept -> enq_result {
-   if(msg == nullptr) return enq_result::null_msg;
+   if(__unlikely(msg == nullptr)) return enq_result::null_msg;
 
    auto e = head();
    auto eof = close_tag();
@@ -37,7 +38,7 @@ auto lifo_inbox::enqueue(message* msg) noexcept -> enq_result {
 //////////////////////////////////////////////////////////////////
 auto lifo_inbox::take_all() noexcept -> message* {
    message* result = head();
-   if(result == close_tag() || result == block_tag() || result == nullptr) {
+   if(__unlikely(result == close_tag() || result == block_tag() || result == nullptr)) {
       return nullptr;
    }
 

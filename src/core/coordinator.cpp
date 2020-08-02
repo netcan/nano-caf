@@ -86,7 +86,7 @@ coordinator::~coordinator() noexcept {
 
 ////////////////////////////////////////////////////////////////////
 auto coordinator::try_steal(size_t id) noexcept -> resumable* {
-   if(workers_.size() == 1) {
+   if(__unlikely(workers_.size() == 1)) {
       return nullptr;
    }
 
@@ -98,7 +98,7 @@ auto coordinator::try_steal(size_t id) noexcept -> resumable* {
 
    for(auto i = 0; i < try_times; ++i) {
       auto victim = uniform(regen);
-      if(victim != id) {
+      if(__likely(victim != id)) {
          auto job = workers_[victim]->take_one();
          if(job != nullptr) {
             job->set_last_served_worker(id);
