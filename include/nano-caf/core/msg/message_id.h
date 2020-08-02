@@ -11,28 +11,39 @@
 
 NANO_CAF_NS_BEGIN
 
-struct message_id {
-   enum category : uint64_t {
-      future = uint64_t(1) << 61,
-      normal = uint64_t(1) << 62,
-      urgent = uint64_t(1) << 63,
+class message_id {
+   enum : uint64_t {
+      future_mask = uint64_t(1) << 61,
+      normal_mask = uint64_t(1) << 62,
+      urgent_mask = uint64_t(1) << 63,
    };
 
-   constexpr message_id(uint64_t id, bool is_urgent = false)
-      : message_id(id, is_urgent ? urgent : normal)
-   {}
+   enum : uint64_t {
+      future = future_mask | normal_mask
+   };
+
+public:
+   enum category : uint64_t {
+      normal = normal_mask,
+      urgent = urgent_mask,
+   };
 
    constexpr message_id(uint64_t id, category category)
-      : id{(id & mask) | ((uint64_t)category)}
+      : id{(id & mask) | category }
    {}
 
    auto is_category(category category) const -> bool {
-      return id & ((uint64_t)category);
+      return id & category;
+   }
+
+   auto test_flag(uint64_t flag) const -> bool {
+      return id & flag;
    }
 
    auto operator==(const message_id& rhs) const {
       return id == rhs.id;
    }
+
    auto operator!=(const message_id& rhs) const {
       return !operator==(rhs);
    }
@@ -42,12 +53,19 @@ struct message_id {
    }
 
    auto get_id() const -> msg_id_t {
-      return id & 0xFFFF'FFFF;
+      return id & mask;
    }
+
+   friend struct message_element;
+
+   template <typename F, typename R>
+   friend struct async_object;
+
 private:
    enum : uint64_t {
-      mask = (uint64_t)category::normal - 1
+      mask = 0x0000'0000'FFFF'FFFF
    };
+
 private:
    uint64_t id;
 };

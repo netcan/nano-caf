@@ -15,7 +15,11 @@ NANO_CAF_NS_BEGIN
 
 struct message_element {
    message_element(const message_id& id) : msg_id{id} {}
-   message_element(intrusive_actor_ptr sender, const message_id& id) : sender{sender}, msg_id{id} {}
+   message_element(intrusive_actor_ptr sender, const message_id& id)
+      : sender{sender}
+      , msg_id{id}
+   {}
+
    message_element(uint32_t id, message_id::category category = message_id::normal)
       : msg_id(id, category)
    {}
@@ -25,7 +29,7 @@ struct message_element {
    }
 
    auto is_future_response() const noexcept -> bool {
-      return msg_id.is_category(message_id::future);
+      return msg_id.test_flag(message_id::future_mask);
    }
 
    template<typename T>
@@ -49,16 +53,16 @@ public:
    message_id msg_id;
 };
 
-   template<typename T, message_id::category CATEGORY>
-   class message_base {
-      constexpr static auto id = message_id{T::msg_id, CATEGORY};
+template<typename T, message_id::category CATEGORY>
+class message_base {
+   constexpr static auto id = message_id{T::msg_id, CATEGORY};
 
-   public:
-      struct type : message_element {
-         type() : message_element(id) {}
-         type(intrusive_actor_ptr sender) : message_element(sender, id) {}
-      };
+public:
+   struct type : message_element {
+      type() : message_element(id) {}
+      type(intrusive_actor_ptr sender) : message_element(sender, id) {}
    };
+};
 
 template<typename T, message_id::category CATEGORY, typename = void>
 struct message : message_base<T, CATEGORY>::type {
