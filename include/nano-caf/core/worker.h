@@ -12,6 +12,7 @@
 #include <memory>
 #include <mutex>
 #include <condition_variable>
+#include <nano-caf/core/cache_line_size.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -19,7 +20,9 @@ struct resumable;
 
 struct coordinator;
 
-struct worker : private thread_safe_list, disable_copy {
+struct
+//alignas(CACHE_LINE_SIZE)
+worker : disable_copy {
    worker(coordinator& coordinator, size_t id) : coordinator_(coordinator), id_(id) {}
    worker(const worker&) = delete;
 
@@ -44,15 +47,19 @@ private:
    auto get_a_job() noexcept -> resumable*;
 
 private:
-   std::thread thread_{};
-   std::mutex lock_{};
-   std::condition_variable cv_{};
-   coordinator& coordinator_;
+   thread_safe_list job_queue_{};
    thread_safe_list cmd_queue_{};
    size_t id_{};
+
+   std::mutex lock_{};
+   std::condition_variable cv_{};
+   bool sleeping{false};
+
+   coordinator& coordinator_;
    size_t strategy_{};
    size_t tried_times_{};
-   bool sleeping{false};
+
+   std::thread thread_{};
 };
 
 NANO_CAF_NS_END

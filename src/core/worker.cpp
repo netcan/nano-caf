@@ -12,13 +12,13 @@ NANO_CAF_NS_BEGIN
 
 ////////////////////////////////////////////////////////////////////
 auto worker::take_one() noexcept -> resumable* {
-   return thread_safe_list::pop_front<resumable>();
+   return job_queue_.pop_front<resumable>();
 }
 
 ////////////////////////////////////////////////////////////////////
 auto worker::external_enqueue(resumable* job) noexcept -> void {
    intrusive_ptr_add_ref(job);
-   thread_safe_list::push_back(job);
+   job_queue_.push_back(job);
    wakeup_worker();
 }
 
@@ -71,14 +71,14 @@ auto worker::goto_bed() noexcept -> void {
    std::unique_lock<std::mutex> guard(lock_);
    sleeping = true;
    cv_.wait_for(guard, config[strategy_].sleep_durations,
-                [&] { return !thread_safe_list::empty(); });
+                [&] { return !job_queue_.empty(); });
    sleeping = false;
 }
 
 ////////////////////////////////////////////////////////////////////
 auto worker::wakeup_worker() noexcept -> void {
    std::unique_lock<std::mutex> guard(lock_);
-   if (sleeping && (!thread_safe_list::empty() || !cmd_queue_.empty()))
+   if (sleeping && (!job_queue_.empty() || !cmd_queue_.empty()))
       cv_.notify_one();
 }
 
@@ -87,7 +87,7 @@ auto worker::get_a_job() noexcept -> resumable* {
    auto job = cmd_queue_.pop_front<resumable>();
    if(job != nullptr) return job;
 
-   job = thread_safe_list::pop_front<resumable>();
+   job = job_queue_.pop_front<resumable>();
    if(job != nullptr) return job;
 
    if((tried_times_ % config[strategy_].intervals) == 0) {
@@ -114,7 +114,7 @@ auto worker::run() noexcept -> void {
 ////////////////////////////////////////////////////////////////////
 auto worker::cleanup() noexcept -> void {
    while (1) {
-      auto job = thread_safe_list::pop_front<resumable>();
+      auto job = job_queue_.pop_front<resumable>();
       if(job == nullptr) {
          break;
       } else {
@@ -127,7 +127,7 @@ auto worker::cleanup() noexcept -> void {
 auto worker::resume_job(resumable* job) noexcept -> bool {
    switch(job->resume()) {
       case resumable::result::resume_later:
-         thread_safe_list::push_back(job);
+         job_queue_.push_back(job);
          break;
       case resumable::result::shutdown_execution_unit:
          intrusive_ptr_release(job);
