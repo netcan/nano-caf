@@ -26,8 +26,8 @@ auto double_end_list::enqueue(double_end_list_elem* elem) -> result {
 
    {
       spin_lock lock(tail_lock_);
-      tail_.load()->next = node;
-      tail_ = node;
+      tail_.load(std::memory_order_relaxed)->next.store(node, std::memory_order_relaxed);
+      tail_.store(node, std::memory_order_relaxed);
    }
 
    return ok;
@@ -39,14 +39,14 @@ auto double_end_list::pop_front() noexcept -> double_end_list_elem* {
    {
       spin_lock lock(head_lock_);
 
-      first = head_.load();
-      auto next = first->next.load();
+      first = head_.load(std::memory_order_relaxed);
+      auto next = first->next.load(std::memory_order_relaxed);
       if(next == nullptr) return nullptr;
 
       result = next->elem;
       assert(result != nullptr);
       next->elem = nullptr;
-      head_ = next;
+      head_.store(next, std::memory_order_relaxed);
    }
 
    // save the node for reuse
