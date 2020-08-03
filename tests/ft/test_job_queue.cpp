@@ -26,22 +26,7 @@ struct job2 : list_element {
    }
 };
 
-const unsigned long total = 100000;
-std::vector<job*> all_jobs;
-void init_jobs() {
-   all_jobs.reserve(total);
-   for(int i=0; i<total; i++) {
-      all_jobs.emplace_back(new job{i});
-   }
-}
-
-std::vector<job2*> all_jobs2;
-void init_jobs2() {
-   all_jobs2.reserve(total);
-   for(int i=0; i<total; i++) {
-      all_jobs2.emplace_back(new job2{i});
-   }
-}
+const unsigned long total = 10000;
 
 auto double_end_list_one_round() -> void {
    double_end_list list{};
@@ -49,7 +34,7 @@ auto double_end_list_one_round() -> void {
    std::mutex mutex;
    std::condition_variable cv;
 
-   std::thread reader([&]{
+   auto l = [&]{
       {
          std::unique_lock lock{mutex};
          cv.wait(lock, [&] { return started; });
@@ -59,25 +44,14 @@ auto double_end_list_one_round() -> void {
       while (1) {
          auto p = list.pop_front();
          if(p != nullptr) {
+            delete p;
             if(++i == total/2) break;
          }
       }
-   });
+   };
 
-   std::thread reader2([&]{
-      {
-         std::unique_lock lock{mutex};
-         cv.wait(lock, [&] { return started; });
-      }
-
-      int i = 0;
-      while (1) {
-         auto p = list.pop_front();
-         if(p != nullptr) {
-            if(++i == total/2) break;
-         }
-      }
-   });
+   std::thread reader(l);
+   std::thread reader2(l);
 
    std::thread writer([&]{
       {
@@ -87,7 +61,7 @@ auto double_end_list_one_round() -> void {
 
       auto half = total/2;
       for(int i=0; i<half; i++) {
-         list.enqueue(all_jobs[i]);
+         list.enqueue(new job{i});
       }
    });
 
@@ -98,7 +72,7 @@ auto double_end_list_one_round() -> void {
       }
 
       for(int i=total/2; i<total; i++) {
-         list.enqueue(all_jobs[i]);
+         list.enqueue(new job{i});
       }
    });
 
@@ -120,7 +94,7 @@ auto thread_safe_list_one_round() -> void {
    std::mutex mutex;
    std::condition_variable cv;
 
-   std::thread reader([&]{
+   auto l = [&]{
       {
          std::unique_lock lock{mutex};
          cv.wait(lock, [&]{ return started; });
@@ -130,25 +104,14 @@ auto thread_safe_list_one_round() -> void {
       while (1) {
          auto p = list.dequeue<job2>();
          if(p != nullptr) {
+            delete p;
             if(++i == total/2) break;
          }
       }
-   });
+   };
 
-   std::thread reader2([&]{
-      {
-         std::unique_lock lock{mutex};
-         cv.wait(lock, [&]{ return started; });
-      }
-
-      int i = 0;
-      while (1) {
-         auto p = list.dequeue<job2>();
-         if(p != nullptr) {
-            if(++i == total/2) break;
-         }
-      }
-   });
+   std::thread reader(l);
+   std::thread reader2(l);
 
    std::thread writer([&]{
       {
@@ -158,7 +121,7 @@ auto thread_safe_list_one_round() -> void {
 
       auto half = total/2;
       for(int i=0; i<half; i++) {
-         list.enqueue(all_jobs2[i]);
+         list.enqueue(new job2{i});
       }
    });
 
@@ -169,7 +132,7 @@ auto thread_safe_list_one_round() -> void {
       }
 
       for(int i=total/2; i<total; i++) {
-         list.enqueue(all_jobs2[i]);
+         list.enqueue(new job2{i});
       }
    });
 
@@ -198,8 +161,6 @@ auto thread_safe_list_test() -> void {
 }
 
 int main() {
-   init_jobs();
-   init_jobs2();
    double_end_list_test();
    thread_safe_list_test();
 }
