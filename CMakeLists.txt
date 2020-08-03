@@ -66,7 +66,7 @@ add_library(nano_caf
         include/nano-caf/core/actor/drr_queue.h
         src/core/actor/drr_queue.cpp
         include/nano-caf/util/either.h
-        include/nano-caf/util/unit.h include/nano-caf/util/likely.h include/nano-caf/core/double_end_list.h src/core/double_end_list.cpp)
+        include/nano-caf/util/unit.h include/nano-caf/util/likely.h include/nano-caf/core/double_end_list.h src/core/double_end_list.cpp src/core/thread_safe_list.cpp)
 
 add_executable(nano_caf-test
         third-party/catch.hpp
@@ -90,6 +90,11 @@ add_executable(test_async tests/ft/test_async.cpp
 add_executable(test_ping_pong
         tests/ft/test_ping_pong.cpp)
 
+add_executable(test_job_queue
+        tests/ft/test_job_queue.cpp
+        third-party/nanobench.h
+        tests/ut/nanobench.cpp)
+
 if(UNIX AND NOT APPLE)
     set(LINUX TRUE)
 endif()
@@ -99,9 +104,11 @@ if(UNIX)
     target_link_libraries(test_actor_system nano_caf pthread)
     target_link_libraries(test_ping_pong nano_caf pthread)
     target_link_libraries(test_async nano_caf pthread)
+    target_link_libraries(test_job_queue nano_caf pthread)
 else()
     target_link_libraries(nano_caf-test nano_caf)
     target_link_libraries(test_actor_system nano_caf)
     target_link_libraries(test_ping_pong nano_caf)
     target_link_libraries(test_async nano_caf)
+    target_link_libraries(test_job_queue nano_caf)
 endif()

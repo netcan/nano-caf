@@ -16,63 +16,21 @@ NANO_CAF_NS_BEGIN
 // dynamically alloc memory, which would cause more
 // problems, even slower.
 struct thread_safe_list {
-   thread_safe_list() {
-      lock_.clear();
-   }
+   thread_safe_list();
 
    template<typename T>
    auto dequeue() noexcept -> T* {
-      auto elem = pop_front_();
+      auto elem = pop_front();
       if(elem == nullptr) return nullptr;
       return elem->to_value<T>();
    }
 
-   auto enqueue(list_element* ptr) noexcept -> void {
-      if(__unlikely(ptr == nullptr)) return;
-      {
-         spin_lock _{lock_};
+   auto enqueue(list_element* ptr) noexcept -> void;
+   auto push_front(list_element* ptr) noexcept -> void;
+   auto empty() const noexcept -> bool;
+   auto pop_front() noexcept -> list_element*;
 
-         if(__likely(tail_ != nullptr)) tail_->next = ptr;
-         else head_ = ptr;
-
-         tail_ = ptr;
-         ptr->next = nullptr;
-      }
-   }
-
-   auto push_front(list_element* ptr) noexcept -> void {
-      if(__unlikely(ptr == nullptr)) return;
-      {
-         spin_lock _{lock_};
-         if(__unlikely(tail_ == nullptr)) tail_ = ptr;
-         ptr->next = head_;
-         head_ = ptr;
-      }
-   }
-
-   auto empty() const noexcept -> bool {
-      spin_lock _{lock_};
-      return head_ == nullptr;
-   }
-
-   ~thread_safe_list() {
-      for(auto elem = pop_front_(); elem != nullptr; elem = pop_front_()) {
-         delete elem;
-      }
-   }
-
-private:
-   auto pop_front_() noexcept -> list_element* {
-      spin_lock _{lock_};
-      if(__likely(head_ != nullptr)) {
-         auto elem = head_;
-         head_ = elem->next;
-         if (head_ == nullptr) tail_ = nullptr;
-         return elem;
-      }
-
-      return nullptr;
-   }
+   ~thread_safe_list();
 
 private:
    list_element* head_ {};
