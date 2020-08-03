@@ -13,7 +13,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <nano-caf/core/cache_line_size.h>
-#include "double_end_list.h"
+#include <nano-caf/core/double_end_list.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -52,8 +52,8 @@ private:
    auto get_a_job() noexcept -> resumable*;
 
 private:
-   double_end_list job_queue_{};
-   double_end_list cmd_queue_{};
+   job_list_t job_queue_{};
+   job_list_t cmd_queue_{};
    size_t id_{};
 
    std::mutex lock_{};

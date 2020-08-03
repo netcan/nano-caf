@@ -7,7 +7,8 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <memory>
-#include "cache_line_size.h"
+#include <nano-caf/core/cache_line_size.h>
+#include <nano-caf/core/thread_safe_list.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -77,14 +78,22 @@ private:
 private:
    alignas(CACHE_LINE_SIZE) char __align_boundary_0[0];
    std::atomic<double_end_list_node*> head_{nullptr};
-   std::atomic_flag head_lock_{false};
 
    alignas(CACHE_LINE_SIZE) char __align_boundary_1[0];
    std::atomic<double_end_list_node*> tail_{nullptr};
-   std::atomic_flag tail_lock_{false};
 
    alignas(CACHE_LINE_SIZE) char __align_boundary_2[0];
+   std::atomic_flag head_lock_{false};
+   std::atomic_flag tail_lock_{false};
 };
+
+#ifdef USE_DOUBLE_END_LIST
+using list_element_t = double_end_list_elem;
+using job_list_t = double_end_list;
+#else
+using list_element_t = list_element;
+using job_list_t = thread_safe_list;
+#endif
 
 NANO_CAF_NS_END
 
