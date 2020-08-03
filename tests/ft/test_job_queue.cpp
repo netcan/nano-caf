@@ -26,9 +26,9 @@ struct job2 : list_element {
    }
 };
 
-const unsigned long total = 10000;
+const unsigned long total = 1000;
 
-auto double_end_list_one_round() -> void {
+auto double_end_list_one_round(size_t number) -> void {
    double_end_list list{};
    bool started = false;
    std::mutex mutex;
@@ -45,36 +45,33 @@ auto double_end_list_one_round() -> void {
          auto p = list.pop_front();
          if(p != nullptr) {
             delete p;
-            if(++i == total/2) break;
+            if(++i == total) break;
          }
       }
    };
 
-   std::thread reader(l);
-   std::thread reader2(l);
+   std::vector<std::thread> reader;
 
-   std::thread writer([&]{
+   for(size_t i = 0; i<number; i++) {
+      reader.emplace_back(l);
+   }
+
+   auto w = [&]{
       {
          std::unique_lock lock{mutex};
          cv.wait(lock, [&]{ return started; });
       }
 
-      auto half = total/2;
-      for(int i=0; i<half; i++) {
+      for(int i=0; i<total; i++) {
          list.enqueue(new job{i});
       }
-   });
+   };
 
-   std::thread writer2([&]{
-      {
-         std::unique_lock lock{mutex};
-         cv.wait(lock, [&]{ return started; });
-      }
+   std::vector<std::thread> writer;
+   for(size_t i = 0; i<number; i++) {
+      writer.emplace_back(w);
+   }
 
-      for(int i=total/2; i<total; i++) {
-         list.enqueue(new job{i});
-      }
-   });
 
    {
       std::unique_lock lock{mutex};
@@ -82,13 +79,16 @@ auto double_end_list_one_round() -> void {
       cv.notify_all();
    }
 
-   writer.join();
-   writer2.join();
-   reader.join();
-   reader2.join();
+   for(size_t i = 0; i<number; i++) {
+      writer[i].join();
+   }
+
+   for(size_t i = 0; i<number; i++) {
+      reader[i].join();
+   }
 }
 
-auto thread_safe_list_one_round() -> void {
+auto thread_safe_list_one_round(size_t number) -> void {
    thread_safe_list list{};
    bool started = false;
    std::mutex mutex;
@@ -105,36 +105,32 @@ auto thread_safe_list_one_round() -> void {
          auto p = list.dequeue<job2>();
          if(p != nullptr) {
             delete p;
-            if(++i == total/2) break;
+            if(++i == total) break;
          }
       }
    };
 
-   std::thread reader(l);
-   std::thread reader2(l);
+   std::vector<std::thread> reader;
 
-   std::thread writer([&]{
+   for(size_t i = 0; i<number; i++) {
+      reader.emplace_back(l);
+   }
+
+  auto w = [&]{
       {
          std::unique_lock lock{mutex};
          cv.wait(lock, [&]{ return started; });
       }
 
-      auto half = total/2;
-      for(int i=0; i<half; i++) {
+      for(int i=0; i<total; i++) {
          list.enqueue(new job2{i});
       }
-   });
+   };
 
-   std::thread writer2([&]{
-      {
-         std::unique_lock lock{mutex};
-         cv.wait(lock, [&]{ return started; });
-      }
-
-      for(int i=total/2; i<total; i++) {
-         list.enqueue(new job2{i});
-      }
-   });
+   std::vector<std::thread> writer;
+   for(size_t i = 0; i<number; i++) {
+      writer.emplace_back(w);
+   }
 
    {
       std::unique_lock lock{mutex};
@@ -142,25 +138,28 @@ auto thread_safe_list_one_round() -> void {
       cv.notify_all();
    }
 
-   writer.join();
-   writer2.join();
-   reader.join();
-   reader2.join();
+   for(size_t i = 0; i<number; i++) {
+      writer[i].join();
+   }
+
+   for(size_t i = 0; i<number; i++) {
+      reader[i].join();
+   }
 }
 
-auto double_end_list_test() -> void {
-   ankerl::nanobench::Bench().minEpochIterations(109).run("double-end-list", [] {
-      double_end_list_one_round();
+auto double_end_list_test(size_t number) -> void {
+   ankerl::nanobench::Bench().minEpochIterations(109).run("double-end-list", [=] {
+      double_end_list_one_round(number);
    });
 }
 
-auto thread_safe_list_test() -> void {
-   ankerl::nanobench::Bench().minEpochIterations(109).run("thread-safe-list", [] {
-      thread_safe_list_one_round();
+auto thread_safe_list_test(size_t number) -> void {
+   ankerl::nanobench::Bench().minEpochIterations(109).run("thread-safe-list", [=] {
+      thread_safe_list_one_round(number);
    });
 }
 
 int main() {
-   double_end_list_test();
-   thread_safe_list_test();
+   double_end_list_test(10);
+   thread_safe_list_test(10);
 }
