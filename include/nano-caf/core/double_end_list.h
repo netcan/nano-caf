@@ -49,6 +49,8 @@ private:
    std::unique_ptr<double_end_list_node> node;
 };
 
+// should try:
+// Michael & Scott algorithm
 struct
 alignas(CACHE_LINE_SIZE)
 double_end_list {
