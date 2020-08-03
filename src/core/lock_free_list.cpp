@@ -79,7 +79,6 @@ auto lock_free_list::pop_front() noexcept -> double_end_list_elem* {
             if(next != nullptr) {
                auto result = next->elem;
                if(head_.compare_exchange_strong(head, next)) {
-                  assert(result != nullptr);
                   result->put_node(head);
                   count_.fetch_sub(1);
                   return result;

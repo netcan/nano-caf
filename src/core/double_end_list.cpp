@@ -48,7 +48,6 @@ auto double_end_list::pop_front() noexcept -> double_end_list_elem* {
       if(next == nullptr) return nullptr;
 
       result = next->elem;
-      assert(result != nullptr);
       next->elem = nullptr;
       head_.store(next, std::memory_order_relaxed);
    }

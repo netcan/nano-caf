@@ -8,6 +8,7 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/cache_line_size.h>
 #include <memory>
+#include <atomic>
 
 NANO_CAF_NS_BEGIN
 
