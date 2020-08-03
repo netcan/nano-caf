@@ -43,7 +43,8 @@ auto double_end_list::pop_front() noexcept -> double_end_list_elem* {
       auto next = first->next.load();
       if(next == nullptr) return nullptr;
 
-      result = next->elem.release();
+      result = next->elem;
+      next->elem = nullptr;
       head_ = next;
    }
 

@@ -16,12 +16,12 @@ struct double_end_list_elem;
 
 struct double_end_list_node {
    std::atomic<double_end_list_node*> next{};
-   std::unique_ptr<double_end_list_elem> elem;
+   double_end_list_elem* elem;
 };
 
 struct double_end_list_elem {
    double_end_list_elem() : node(new double_end_list_node{}){
-      node->elem.reset(this);
+      node->elem = this;
    }
 
    virtual ~double_end_list_elem() {}
