@@ -7,12 +7,14 @@
 
 NANO_CAF_NS_BEGIN
 
+////////////////////////////////////////////////////////////////////////////////////
 double_end_list::double_end_list() {
    auto node = new double_end_list_node{};
    head_ = node;
    tail_ = node;
 }
 
+////////////////////////////////////////////////////////////////////////////////////
 double_end_list::~double_end_list() {
    double_end_list_elem* p = nullptr;
    while((p = pop_front())  != nullptr) {
@@ -20,8 +22,9 @@ double_end_list::~double_end_list() {
    }
 }
 
-auto double_end_list::enqueue(double_end_list_elem* elem) -> result {
-   if(elem == nullptr) return null_elem;
+////////////////////////////////////////////////////////////////////////////////////
+auto double_end_list::enqueue(double_end_list_elem* elem) -> enq_result {
+   if(elem == nullptr) return enq_result::null_msg;
    auto node = elem->get_node();
 
    {
@@ -30,9 +33,10 @@ auto double_end_list::enqueue(double_end_list_elem* elem) -> result {
       tail_.store(node, std::memory_order_relaxed);
    }
 
-   return ok;
+   return enq_result::ok;
 }
 
+////////////////////////////////////////////////////////////////////////////////////
 auto double_end_list::pop_front() noexcept -> double_end_list_elem* {
    double_end_list_node* first{};
    double_end_list_elem* result{};
@@ -55,6 +59,7 @@ auto double_end_list::pop_front() noexcept -> double_end_list_elem* {
    return result;
 }
 
+////////////////////////////////////////////////////////////////////////////////////
 auto double_end_list::empty() const noexcept -> bool {
    return head_.load() == tail_.load();
 }

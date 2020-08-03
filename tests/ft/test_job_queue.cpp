@@ -5,6 +5,9 @@
 #include <nano-caf/core/double_end_list.h>
 #include <iostream>
 #include <nanobench.h>
+#include <nano-caf/core/lock_free_list.h>
+#include <mutex>
+#include <condition_variable>
 
 using namespace NANO_CAF_NS;
 
@@ -88,6 +91,71 @@ auto double_end_list_one_round(size_t number) -> void {
    }
 }
 
+auto lock_free_list_one_round(size_t number) -> void {
+   lock_free_list list{};
+
+   bool started = false;
+   std::mutex mutex;
+   std::condition_variable cv;
+
+   auto l = [&](size_t id){
+      {
+         std::unique_lock lock{mutex};
+         cv.wait(lock, [&] { return started; });
+      }
+
+      int i = 0;
+      while (1) {
+         auto p = list.pop_front();
+         if(p != nullptr) {
+            delete p;
+            if(++i == total) return;
+         } else {
+            std::cout << id << ": pop nothing " << i << std::endl;
+         }
+      }
+   };
+
+   std::vector<std::thread> reader;
+
+   for(size_t i = 0; i<number; i++) {
+      reader.emplace_back(l, i);
+   }
+
+   auto w = [&]{
+      {
+         std::unique_lock lock{mutex};
+         cv.wait(lock, [&]{ return started; });
+      }
+
+      for(int i=0; i<total; i++) {
+         auto result = list.enqueue(new job{i});
+         if(result != enq_result::ok) {
+            exit(-1);
+         }
+      }
+   };
+
+   std::vector<std::thread> writer;
+   for(size_t i = 0; i<number; i++) {
+      writer.emplace_back(w);
+   }
+
+   {
+      std::unique_lock lock{mutex};
+      started = true;
+      cv.notify_all();
+   }
+
+   for(size_t i = 0; i<number; i++) {
+      writer[i].join();
+   }
+
+   for(size_t i = 0; i<number; i++) {
+      reader[i].join();
+   }
+}
+
 auto thread_safe_list_one_round(size_t number) -> void {
    thread_safe_list list{};
    bool started = false;
@@ -153,6 +221,13 @@ auto double_end_list_test(size_t number) -> void {
    });
 }
 
+
+auto lock_free_list_test(size_t number) -> void {
+   ankerl::nanobench::Bench().minEpochIterations(10).run("lock-free-list", [=] {
+      lock_free_list_one_round(number);
+   });
+}
+
 auto thread_safe_list_test(size_t number) -> void {
    ankerl::nanobench::Bench().minEpochIterations(109).run("thread-safe-list", [=] {
       thread_safe_list_one_round(number);
@@ -161,5 +236,6 @@ auto thread_safe_list_test(size_t number) -> void {
 
 int main() {
    double_end_list_test(10);
+   lock_free_list_test(10);
    thread_safe_list_test(10);
 }

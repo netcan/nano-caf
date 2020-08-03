@@ -3,7 +3,7 @@
 //
 
 #include <catch.hpp>
-#include <nano-caf/core/double_end_list.h>
+#include <nano-caf/core/lock_free_list.h>
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -17,8 +17,8 @@ namespace {
       }
    };
 
-   SCENARIO("double end queue") {
-      double_end_list list{};
+   SCENARIO("lock free list") {
+      lock_free_list list{};
 
       SECTION("an empty list should be empty") {
          REQUIRE(list.empty());

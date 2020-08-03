@@ -6,64 +6,24 @@
 #define NANO_CAF_DOUBLE_END_LIST_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <memory>
 #include <nano-caf/core/cache_line_size.h>
 #include <nano-caf/core/thread_safe_list.h>
+#include <nano-caf/core/double_end_list_elem.h>
+#include <nano-caf/core/actor/enq_result.h>
+#include <memory>
 
 NANO_CAF_NS_BEGIN
-
-struct double_end_list_elem;
-
-
-struct double_end_list_node {
-   std::atomic<double_end_list_node*> next{};
-   double_end_list_elem* elem;
-};
-
-struct double_end_list_elem {
-   double_end_list_elem() : node(new double_end_list_node{}){
-      node->elem = this;
-   }
-
-   virtual ~double_end_list_elem() {}
-
-   auto get_node() noexcept -> double_end_list_node* {
-      return node.release();
-   }
-
-   auto put_node(double_end_list_node* mem) noexcept -> void {
-      mem->next = nullptr;
-      mem->elem = this;
-      node.reset(mem);
-   }
-
-   template<typename T>
-   auto to_value() -> T* {
-      return reinterpret_cast<T*>(to_value_ptr());
-   }
-
-private:
-   virtual auto to_value_ptr() -> void* = 0;
-
-private:
-   std::unique_ptr<double_end_list_node> node;
-};
 
 // should try:
 // Michael & Scott algorithm
 struct
 alignas(CACHE_LINE_SIZE)
 double_end_list {
-   enum result : uint8_t {
-      ok,
-      null_elem,
-      alloc_fail
-   };
 
    double_end_list();
    ~double_end_list();
 
-   auto enqueue(double_end_list_elem* elem) -> result;
+   auto enqueue(double_end_list_elem* elem) -> enq_result;
 
    template<typename T>
    auto dequeue() noexcept -> T* {

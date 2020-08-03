@@ -66,7 +66,7 @@ add_library(nano_caf
         include/nano-caf/core/actor/drr_queue.h
         src/core/actor/drr_queue.cpp
         include/nano-caf/util/either.h
-        include/nano-caf/util/unit.h include/nano-caf/util/likely.h include/nano-caf/core/double_end_list.h src/core/double_end_list.cpp src/core/thread_safe_list.cpp)
+        include/nano-caf/util/unit.h include/nano-caf/util/likely.h include/nano-caf/core/double_end_list.h src/core/double_end_list.cpp src/core/thread_safe_list.cpp include/nano-caf/core/lock_free_list.h include/nano-caf/core/double_end_list_elem.h src/core/lock_free_list.cpp)
 
 add_executable(nano_caf-test
         third-party/catch.hpp
@@ -78,7 +78,7 @@ add_executable(nano_caf-test
         tests/ut/test_sched_actor.cpp
         tests/ut/test_actor_system.cpp
         tests/ut/test_msgs.h
-        tests/ut/test_behavior.cpp tests/ut/test_double_end_list.cpp)
+        tests/ut/test_behavior.cpp tests/ut/test_double_end_list.cpp tests/ut/test_lock_free_list.cpp)
 
 add_executable(test_actor_system
         tests/ft/test_actor_system.cpp)
