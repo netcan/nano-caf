@@ -34,8 +34,8 @@ auto double_end_list::enqueue(double_end_list_elem* elem) -> result {
 }
 
 auto double_end_list::pop_front() noexcept -> double_end_list_elem* {
-   double_end_list_node* first;
-   double_end_list_elem* result;
+   double_end_list_node* first{};
+   double_end_list_elem* result{};
    {
       spin_lock lock(head_lock_);
 
@@ -44,6 +44,7 @@ auto double_end_list::pop_front() noexcept -> double_end_list_elem* {
       if(next == nullptr) return nullptr;
 
       result = next->elem;
+      assert(result != nullptr);
       next->elem = nullptr;
       head_ = next;
    }

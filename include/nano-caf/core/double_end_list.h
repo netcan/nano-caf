@@ -32,8 +32,18 @@ struct double_end_list_elem {
 
    auto put_node(double_end_list_node* mem) noexcept -> void {
       mem->next = nullptr;
+      mem->elem = this;
       node.reset(mem);
    }
+
+   template<typename T>
+   auto to_value() -> T* {
+      return reinterpret_cast<T*>(to_value_ptr());
+   }
+
+private:
+   virtual auto to_value_ptr() -> void* = 0;
+
 private:
    std::unique_ptr<double_end_list_node> node;
 };
@@ -53,13 +63,16 @@ double_end_list {
    auto enqueue(double_end_list_elem* elem) -> result;
 
    template<typename T>
-   auto dequeue() noexcept -> std::unique_ptr<T> {
-      return std::unique_ptr<T>(reinterpret_cast<T*>(pop_front()));
+   auto dequeue() noexcept -> T* {
+      auto result = pop_front();
+      if(result == nullptr) return nullptr;
+      return result->to_value<T>();
    }
 
-   auto pop_front() noexcept -> double_end_list_elem*;
-
    auto empty() const noexcept -> bool;
+
+private:
+   auto pop_front() noexcept -> double_end_list_elem*;
 
 private:
    alignas(CACHE_LINE_SIZE) char __align_boundary_0[0];

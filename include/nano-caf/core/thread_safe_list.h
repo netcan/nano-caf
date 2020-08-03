@@ -21,13 +21,13 @@ struct thread_safe_list {
    }
 
    template<typename T>
-   auto pop_front() noexcept -> T* {
+   auto dequeue() noexcept -> T* {
       auto elem = pop_front_();
       if(elem == nullptr) return nullptr;
       return elem->to_value<T>();
    }
 
-   auto push_back(list_element* ptr) noexcept -> void {
+   auto enqueue(list_element* ptr) noexcept -> void {
       if(__unlikely(ptr == nullptr)) return;
       {
          spin_lock _{lock_};

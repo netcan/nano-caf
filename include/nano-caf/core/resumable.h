@@ -8,10 +8,11 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/thread_safe_list.h>
 #include <cstddef>
+#include "double_end_list.h"
 
 NANO_CAF_NS_BEGIN
 
-struct resumable : list_element {
+struct resumable : double_end_list_elem {
    enum class result {
       resume_later,
       awaiting_message,

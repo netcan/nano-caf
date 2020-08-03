@@ -11,6 +11,10 @@ namespace {
    struct job : double_end_list_elem {
       job(int value) : value{value} {}
       int value;
+
+      auto to_value_ptr() -> void* override {
+         return (void*)this;
+      }
    };
 
    SCENARIO("double end queue") {

@@ -12,13 +12,13 @@ NANO_CAF_NS_BEGIN
 
 //////////////////////////////////////////////////////////////////////
 auto worker::take_one() noexcept -> resumable* {
-   return job_queue_.pop_front<resumable>();
+   return job_queue_.dequeue<resumable>();
 }
 
 ////////////////////////////////////////////////////////////////////
 auto worker::external_enqueue(resumable* job) noexcept -> void {
    intrusive_ptr_add_ref(job);
-   job_queue_.push_back(job);
+   job_queue_.enqueue(job);
    wakeup_worker();
 }
 
@@ -41,7 +41,7 @@ auto worker::stop() noexcept -> void {
       }
    };
 
-   cmd_queue_.push_back(new shutdown{});
+      cmd_queue_.enqueue(new shutdown{});
    wakeup_worker();
 }
 
@@ -84,8 +84,8 @@ auto worker::wakeup_worker() noexcept -> void {
 
 ////////////////////////////////////////////////////////////////////
 auto worker::get_a_job() noexcept -> resumable* {
-   if(auto job = cmd_queue_.pop_front<resumable>(); __unlikely(job != nullptr)) return job;
-   if(auto job = job_queue_.pop_front<resumable>(); __likely(job != nullptr)) return job;
+   if(auto job = cmd_queue_.dequeue<resumable>(); __unlikely(job != nullptr)) return job;
+   if(auto job = job_queue_.dequeue<resumable>(); __likely(job != nullptr)) return job;
 
    if(__unlikely((tried_times_ % config[strategy_].intervals) == 0)) {
       return coordinator_.try_steal(id_);
@@ -112,7 +112,7 @@ auto worker::run() noexcept -> void {
 ////////////////////////////////////////////////////////////////////
 auto worker::cleanup() noexcept -> void {
    while (1) {
-      auto job = job_queue_.pop_front<resumable>();
+      auto job = job_queue_.dequeue<resumable>();
       if(job == nullptr) {
          break;
       } else {
@@ -125,7 +125,7 @@ auto worker::cleanup() noexcept -> void {
 auto worker::resume_job(resumable* job) noexcept -> bool {
    switch(job->resume()) {
       case resumable::result::resume_later:
-         job_queue_.push_back(job);
+         job_queue_.enqueue(job);
          break;
       case resumable::result::shutdown_execution_unit:
          intrusive_ptr_release(job);
