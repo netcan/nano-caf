@@ -12,12 +12,6 @@
 
 NANO_CAF_NS_BEGIN
 
-enum class task_result {
-   resume,
-   skip,
-   done
-};
-
 struct task_list {
    auto next(size_t& deficit) noexcept -> std::unique_ptr<message>;
    auto push_back(message* ptr) noexcept -> void;
