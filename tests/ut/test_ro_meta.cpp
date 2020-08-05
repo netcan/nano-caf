@@ -13,7 +13,8 @@ namespace {
          (int)      i_value,
          (int[1])   single_elem,
          (char[10]) c_array10,
-         (char[3])  c_array3
+         (char[3])  c_array3,
+         (int[5])   i_array5
       );
    };
 
@@ -26,6 +27,13 @@ namespace {
 
          char c[]={1,2};
          c_array3({c, 2});
+
+         i_array5([](auto array, auto& size){
+            array[0] = 10;
+            array[1] = 20;
+            array[2] = 30;
+            size = 3;
+         });
 
          return *this;
       }
@@ -58,6 +66,14 @@ namespace {
             REQUIRE(size == 2);
             REQUIRE(array[0] == 1);
             REQUIRE(array[1] == 2);
+         });
+      }
+      THEN("should be able to access lambda-constructed array by lambda") {
+         foo.i_array5([](auto array, auto size) {
+            REQUIRE(size == 3);
+            REQUIRE(array[0] == 10);
+            REQUIRE(array[1] == 20);
+            REQUIRE(array[2] == 30);
          });
       }
       THEN("should be able access array by get") {
