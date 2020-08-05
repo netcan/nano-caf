@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/5.
 //
 
-#ifndef NANO_CAF_MACRO_META_DATA_H
-#define NANO_CAF_MACRO_META_DATA_H
+#ifndef NANO_CAF_MACRO_RO_META_DATA_H
+#define NANO_CAF_MACRO_RO_META_DATA_H
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/util/macro_basic.h>
@@ -168,14 +168,14 @@ public:                                                                         
           f_none();                                                                   \
    }                                                                                  \
    inline constexpr auto __Meta_present_name(x)() const noexcept -> bool {            \
-       return __secrete_flags.flags_[__MeTa_byte(x)] & __MeTa_mask(x);                \
+       return __secrete_ro_flags.flags_[__MeTa_byte(x)] & __MeTa_mask(x);             \
    }                                                                                  \
 set_visibility:                                                                       \
    template<typename F,                                                               \
             typename = std::enable_if_t<__RO_MeTa(x)::template is_modifiable<F>>>     \
    inline auto __CUB_var_name(x)(F&& f) noexcept -> void {                            \
       __RO_MeTa(x)::modify(__MeTa_var(x), std::forward<F>(f));                        \
-      __secrete_flags.flags_[__MeTa_byte(x)] |= __MeTa_mask(x);                       \
+      __secrete_ro_flags.flags_[__MeTa_byte(x)] |= __MeTa_mask(x);                    \
    }                                                                                  \
    template<size_t SIZE> inline                                                       \
    auto __CUB_var_name(x)(const __RO_Meta_elem(x) (&p)[SIZE]) noexcept -> void {      \
@@ -183,7 +183,7 @@ set_visibility:                                                                 
    }                                                                                  \
    inline auto __CUB_var_name(x)(__RO_Meta_para(x) p) noexcept -> void {              \
       __RO_MeTa(x)::set(__MeTa_var(x), p);                                            \
-      __secrete_flags.flags_[__MeTa_byte(x)] |= __MeTa_mask(x);                       \
+      __secrete_ro_flags.flags_[__MeTa_byte(x)] |= __MeTa_mask(x);                    \
    }                                                                                  \
 private:                                                                              \
    __RO_Meta_value_type(x) __MeTa_var(x);
@@ -192,11 +192,11 @@ private:                                                                        
 #define __CUB_ro_field__(n, x) __CUB_no_lock_meta_field__(n, x, protected)
 
 ///////////////////////////////////////////////////////////////////////////////////////
-#define __CUB_ro_fields(...)                                                \
+#define __CUB_ro_meta_data(...)                                             \
 __CUB_all_fields__(__CUB_ro_field__, __VA_ARGS__)                           \
 private:                                                                    \
-   __Meta_ns::fo_meta_flags<__CUB_pp_size(__VA_ARGS__)> __secrete_flags
+   __Meta_ns::fo_meta_flags<__CUB_pp_size(__VA_ARGS__)> __secrete_ro_flags
 
 NANO_CAF_NS_END
 
-#endif //NANO_CAF_MACRO_META_DATA_H
+#endif //NANO_CAF_MACRO_RO_META_DATA_H

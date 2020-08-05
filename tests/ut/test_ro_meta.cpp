@@ -3,13 +3,13 @@
 //
 
 #include <catch.hpp>
-#include <nano-caf/util/macro_meta_data.h>
+#include <nano-caf/util/macro_ro_meta_data.h>
 
 namespace {
    using namespace NANO_CAF_NS;
 
    struct Foo {
-      __CUB_ro_fields(
+      __CUB_ro_meta_data(
          (int)      i_value,
          (int[1])   single_elem,
          (char[10]) c_array10,
