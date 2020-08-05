@@ -7,6 +7,7 @@
 
 #include <nano-caf/util/macro_basic.h>
 #include <nano-caf/util/macro_pp_size.h>
+#include <nano-caf/util/macro_struct.h>
 #include <nano-caf/util/macro_reflex_call.h>
 #include <nano-caf/util/type_list.h>
 #include <cstddef>
@@ -26,12 +27,6 @@ namespace detail {
 }
 
 NANO_CAF_NS_END
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-#define __CUB_keep__(...) __VA_ARGS__
-#define __CUB_eat__(...)
-#define __CUB_var_full(x) __CUB_keep__ x
-#define __CUB_var_name(x) __CUB_eat__  x
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_field_def__(n, x)                 \

@@ -12,4 +12,11 @@
 #define __CUB_stringify_(x) #x
 #define __CUB_stringify(x) __CUB_stringify_(x)
 
+#define __CUB_keep__(...) __VA_ARGS__
+#define __CUB_eat__(...)
+#define __CUB_split__(...) __VA_ARGS__ ,
+
+#define __CUB_1st__(a, ...) a
+#define __CUB_1st(...) __CUB_1st__(__VA_ARGS__)
+
 #endif //NANO_CAF_MACRO_BASIC_H
