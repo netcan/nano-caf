@@ -10,33 +10,20 @@
 #include <nano-caf/util/macro_pp_size.h>
 #include <nano-caf/util/macro_reflex_call.h>
 #include <nano-caf/util/macro_struct.h>
+#include <nano-caf/util/macro_meta_common.h>
 #include <type_traits>
 #include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 NANO_CAF_NS_BEGIN
 
-namespace meta_data {
-
-   template<typename T, typename = void>
-   struct parameter_type_trait {
-      using type = std::add_lvalue_reference_t<std::add_const_t<std::decay_t<T>>>;
-   };
-
-   template<typename T>
-   constexpr bool should_pass_by_value = !std::is_array_v<T> &&
-      (std::is_arithmetic_v<T> || std::is_pointer_v<T>) && sizeof(T) <= sizeof(void*);
-
-   template<typename T>
-   struct parameter_type_trait<T, std::enable_if_t<should_pass_by_value<std::decay_t<T>>>> {
-      using type = std::decay_t<T>;
-   };
+namespace ro_meta_data {
 
    template<typename T>
    struct ro_meta_type_trait {
       using type = T;
       using element_type = T;
-      using parameter_type = typename parameter_type_trait<T>::type;
+      using parameter_type = typename meta_data::parameter_type_trait<T>::type;
       using return_type = parameter_type;
       using value_type = T;
 
@@ -112,38 +99,24 @@ namespace meta_data {
    template<typename C>
    struct ro_meta_type_trait<C[1]> : ro_meta_type_trait<C> {};
 
-   template<typename F>
-   constexpr static bool is_none_invokable = std::is_invocable_r_v<void, F>;
 
    template<size_t N>
-   struct fo_meta_flags {
+   struct meta_flags {
       enum { num_of_bytes = (size_t)((N + 7) / 8) };
-      unsigned char flags_[num_of_bytes];
+      unsigned char flags_[num_of_bytes]{};
    };
-
-   static constexpr auto flag_byte(size_t n) -> size_t {
-      return size_t(n / 8);
-   }
-
-   static constexpr auto flag_mask(size_t n) -> uint8_t {
-      return uint8_t(n % 8);
-   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#define __RO_MeTa(x) meta_data::ro_meta_type_trait<__CUB_var_type(x)>
-#define __MeTa_var(x) __CUB_paste(__CUB_var_name(x), _)
-#define __MeTa_byte(x) __CUB_paste(__CUB_var_name(x), _byte)
-#define __MeTa_mask(x) __CUB_paste(__CUB_var_name(x), _mask)
+#define __RO_Meta_ns NANO_CAF_NS::ro_meta_data
+#define __RO_MeTa(x) __RO_Meta_ns::ro_meta_type_trait<__CUB_var_type(x)>
 #define __RO_Meta_value_type(x) typename __RO_MeTa(x)::value_type
 #define __RO_Meta_result(x) typename __RO_MeTa(x)::return_type
 #define __RO_Meta_para(x) typename __RO_MeTa(x)::parameter_type
-#define __Meta_present_name(x) __CUB_paste(__CUB_var_name(x), _present)
 #define __RO_Meta_elem(x) typename __RO_MeTa(x)::element_type
 
-#define __Meta_ns NANO_CAF_NS::meta_data
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#define __CUB_no_lock_meta_field__(n, x, set_visibility)                               \
+#define __CUB_no_lock_meta_field__(n, x, set_visibility)                              \
 private:                                                                              \
    constexpr static size_t  __MeTa_byte(x) = __Meta_ns::flag_byte(n);                 \
    constexpr static uint8_t __MeTa_mask(x) = __Meta_ns::flag_mask(n);                 \
@@ -192,10 +165,10 @@ private:                                                                        
 #define __CUB_ro_field__(n, x) __CUB_no_lock_meta_field__(n, x, protected)
 
 ///////////////////////////////////////////////////////////////////////////////////////
-#define __CUB_ro_meta_data(...)                                             \
-__CUB_all_fields__(__CUB_ro_field__, __VA_ARGS__)                           \
-private:                                                                    \
-   __Meta_ns::fo_meta_flags<__CUB_pp_size(__VA_ARGS__)> __secrete_ro_flags
+#define __CUB_ro_meta_data(...)                                                \
+__CUB_all_fields__(__CUB_ro_field__, __VA_ARGS__)                              \
+private:                                                                       \
+   __RO_Meta_ns::meta_flags<__CUB_pp_size(__VA_ARGS__)> __secrete_ro_flags
 
 NANO_CAF_NS_END
 
