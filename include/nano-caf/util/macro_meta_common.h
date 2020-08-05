@@ -43,6 +43,8 @@ namespace meta_data {
    constexpr static bool is_none_invokable = std::is_invocable_r_v<void, F>;
 }
 
+struct modify_meta{};
+
 NANO_CAF_NS_END
 
 #define __Meta_ns NANO_CAF_NS::meta_data
@@ -51,5 +53,6 @@ NANO_CAF_NS_END
 #define __MeTa_mask(x) __CUB_paste(__CUB_var_name(x), _mask)
 #define __MeTa_clear_mask(x) __CUB_paste(__CUB_var_name(x), _clear_mask)
 #define __Meta_present_name(x) __CUB_paste(__CUB_var_name(x), _present)
+#define __Meta_modify_name(x) __CUB_paste(__CUB_var_name(x), __modify)
 
 #endif //NANO_CAF_MACRO_META_COMMON_H

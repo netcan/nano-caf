@@ -70,7 +70,7 @@ namespace lock_meta_data {
       using value_type = std::atomic<T>;
 
       template<typename F>
-      constexpr static bool is_visitable = std::is_invocable_r_v<void, F, parameter_type>;
+      constexpr static bool is_visitable = std::is_invocable_r_v<void, F, T>;
 
       template<typename F>
       constexpr static bool is_modifiable = std::is_invocable_r_v<void, F, T&>;
@@ -84,12 +84,12 @@ namespace lock_meta_data {
       }
 
       template<typename F>
-      inline static auto visit(value_type& self, F&& f) -> void {
+      inline static auto visit(const value_type& self, F&& f) -> void {
          f(self.load(std::memory_order_relaxed));
       }
 
       template<typename F>
-      inline static auto modify(T& self, F&& f) -> void {
+      inline static auto modify(value_type& self, F&& f) -> void {
          auto value = self.load(std::memory_order_relaxed);
          f(value);
          self.store(value, std::memory_order_relaxed);
@@ -208,7 +208,7 @@ public:                                                                         
    }                                                                                        \
    template<typename F,                                                                     \
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_modifiable<F>>>         \
-   inline auto __CUB_var_name(x)(F&& f) noexcept -> void {                                  \
+   inline auto __Meta_modify_name(x)(F&& f) noexcept -> void {                              \
       __Lock_MeTa(x)::modify(__MeTa_var(x), std::forward<F>(f));                            \
       __Lock_Meta_set_flag(x)();                                                            \
    }                                                                                        \

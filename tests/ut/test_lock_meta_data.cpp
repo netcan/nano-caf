@@ -37,5 +37,20 @@ namespace {
       THEN("should be able to get its value") {
          REQUIRE(foo.i_value() == 10);
       }
+      THEN("should be able to get its value by visitor") {
+         foo.i_value([](auto value) {
+            REQUIRE(value == 10);
+         });
+      }
+      THEN("should be able to modify its value by visitor") {
+         foo.i_value__modify([](auto& value) {
+            REQUIRE(value == 10);
+            value = 100;
+         });
+
+         THEN("the value should been altered") {
+            REQUIRE(foo.i_value() == 100);
+         }
+      }
    }
 }
