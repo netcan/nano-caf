@@ -52,7 +52,7 @@ NANO_CAF_NS_END
 #define __MeTa_byte(x) __CUB_paste(__CUB_var_name(x), _byte)
 #define __MeTa_mask(x) __CUB_paste(__CUB_var_name(x), _mask)
 #define __MeTa_clear_mask(x) __CUB_paste(__CUB_var_name(x), _clear_mask)
-#define __Meta_present_name(x) __CUB_paste(__CUB_var_name(x), _present)
+#define __Meta_present_name(x) __CUB_paste(__CUB_var_name(x), __present)
 #define __Meta_modify_name(x) __CUB_paste(__CUB_var_name(x), __modify)
 
 #endif //NANO_CAF_MACRO_META_COMMON_H

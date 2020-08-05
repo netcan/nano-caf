@@ -70,7 +70,7 @@ namespace lock_meta_data {
       using value_type = std::atomic<T>;
 
       template<typename F>
-      constexpr static bool is_visitable = std::is_invocable_r_v<void, F, T>;
+      constexpr static bool is_visitable = std::is_invocable_r_v<void, F, const T>;
 
       template<typename F>
       constexpr static bool is_modifiable = std::is_invocable_r_v<void, F, T&>;
@@ -101,12 +101,14 @@ namespace lock_meta_data {
       using type = C[SIZE];
       using element_type = C;
       using parameter_type = std::pair<C const*, size_t>;
-      using return_type = parameter_type;
+      using return_type = std::pair<type, size_t>;
 
       using value_type = struct {
          mutable std::shared_mutex mutex_;
-         type data_;
-         size_t n_;
+         struct {
+            type data_;
+            size_t n_;
+         }v_;
       };
 
       template<typename F>
@@ -119,28 +121,34 @@ namespace lock_meta_data {
          std::unique_lock lock(self.mutex_);
          auto [p, size] = value;
          auto total = std::min(SIZE, size);
-         self.n_ = total;
+         self.v_.n_ = total;
          for(size_t i=0; i<total; i++) {
-            self.data_[i] = p[i];
+            self.v_.data_[i] = p[i];
          }
       }
 
       inline constexpr static auto get(const value_type& self) -> return_type {
          std::shared_lock lock(self.mutex_);
-         return {self.data_, self.n_};
+         return_type result;
+         auto size = self.v_.n_;
+         auto& data = self.v_.data_;
+         for(int i=0; i<size; i++)
+            result.first[i] = data[i];
+         result.second = size;
+         return result;
       }
 
       template<typename F>
       inline static auto visit(const value_type& self, F&& f) -> void {
          std::shared_lock lock(self.mutex_);
-         auto [p, size] = self;
+         auto [p, size] = self.v_;
          f(p, size);
       }
 
       template<typename F>
       inline static auto modify(value_type& self, F&& f) -> void {
          std::unique_lock lock(self.mutex_);
-         auto& [p, size] = self;
+         auto& [p, size] = self.v_;
          f(p, size);
       }
    };
