@@ -20,7 +20,7 @@ NANO_CAF_NS_BEGIN
 namespace ro_meta_data {
 
    template<typename T>
-   struct ro_meta_type_trait {
+   struct meta_type_trait {
       using type = T;
       using element_type = T;
       using parameter_type = typename meta_data::parameter_type_trait<T>::type;
@@ -59,7 +59,7 @@ namespace ro_meta_data {
    };
 
    template<typename C, size_t SIZE>
-   struct ro_meta_type_trait<C[SIZE]> {
+   struct meta_type_trait<C[SIZE]> {
       using type = C[SIZE];
       using element_type = C;
       using parameter_type = std::pair<C const*, size_t>;
@@ -109,7 +109,7 @@ namespace ro_meta_data {
    };
 
    template<typename C>
-   struct ro_meta_type_trait<C[1]> : ro_meta_type_trait<C> {};
+   struct meta_type_trait<C[1]> : meta_type_trait<C> {};
 
 
    template<size_t N>
@@ -121,13 +121,13 @@ namespace ro_meta_data {
    template<typename F_SOME, typename F_NONE>
    constexpr bool same_result =
       std::is_same_v<
-         typename ro_meta_type_trait<F_SOME>::template invoke_result_t<F_SOME>,
+         typename meta_type_trait<F_SOME>::template invoke_result_t<F_SOME>,
          meta_data::none_invoke_result_t<F_NONE>>;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __RO_Meta_ns NANO_CAF_NS::ro_meta_data
-#define __RO_MeTa(x) __RO_Meta_ns::ro_meta_type_trait<__CUB_var_type(x)>
+#define __RO_MeTa(x) __RO_Meta_ns::meta_type_trait<__CUB_var_type(x)>
 #define __RO_Meta_value_type(x) typename __RO_MeTa(x)::value_type
 #define __RO_Meta_result(x) typename __RO_MeTa(x)::return_type
 #define __RO_Meta_para(x) typename __RO_MeTa(x)::parameter_type

@@ -208,14 +208,22 @@ private:                                                                        
 private:                                                                                    \
    inline auto __Lock_Meta_set_flag(x)() noexcept -> void {                                 \
       auto flags = __secrete_lk_flags.v_[__MeTa_byte(x)].load(std::memory_order_relaxed);   \
-      flags |= __MeTa_mask(x);                                                              \
-      __secrete_lk_flags.v_[__MeTa_byte(x)].store(flags, std::memory_order_release);        \
+      uint8_t new_flags;                                                                    \
+      do {                                                                                  \
+         new_flags = flags | __MeTa_mask(x);                                                \
+      } while(!__secrete_lk_flags.v_[__MeTa_byte(x)]                                        \
+                  .compare_exchange_strong(flags, new_flags,                                \
+                              std::memory_order_release, std::memory_order_relaxed));       \
    }                                                                                        \
 public:                                                                                     \
    inline auto __Lock_Meta_clear(x)() noexcept -> void {                                    \
       auto flags = __secrete_lk_flags.v_[__MeTa_byte(x)].load(std::memory_order_relaxed);   \
-      flags &= __MeTa_clear_mask(x);                                                        \
-      __secrete_lk_flags.v_[__MeTa_byte(x)].store(std::memory_order_release);               \
+      uint8_t new_flags;                                                                    \
+      do {                                                                                  \
+         new_flags = flags & __MeTa_clear_mask(x);                                          \
+      } while(!__secrete_lk_flags.v_[__MeTa_byte(x)]                                        \
+                  .compare_exchange_strong(flags, new_flags,                                \
+                              std::memory_order_release, std::memory_order_relaxed));       \
    }                                                                                        \
    inline constexpr auto __CUB_var_name(x)() const noexcept -> __Lock_Meta_result(x) {      \
        return __Lock_MeTa(x)::get(__MeTa_var(x));                                           \
@@ -258,6 +266,7 @@ private:                                                                        
    __Lock_Meta_value_type(x) __MeTa_var(x);                                                 \
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_lock_meta_data(...)                                                \
 __CUB_all_fields__(__CUB_lock_meta_field__, __VA_ARGS__)                         \
 private:                                                                         \
