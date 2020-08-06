@@ -229,7 +229,7 @@ public:                                                                         
                   .compare_exchange_strong(flags, new_flags,                                \
                               std::memory_order_release, std::memory_order_relaxed));       \
    }                                                                                        \
-   inline constexpr auto __CUB_var_name(x)() const noexcept -> __Lock_Meta_result(x) {      \
+   inline auto __CUB_var_name(x)() const noexcept -> __Lock_Meta_result(x) {                \
        return __Lock_MeTa(x)::get(__MeTa_var(x));                                           \
    }                                                                                        \
    inline auto __Meta_present_name(x)() const noexcept -> bool {                            \
@@ -246,11 +246,11 @@ public:                                                                         
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_visitable<F_SOME>>,     \
             typename = std::enable_if_t<__Meta_ns::is_none_invokable<F_NONE>>,              \
             typename = std::enable_if_t<__Lock_Meta_ns::same_result<F_SOME, F_NONE>>>       \
-   inline auto __CUB_var_name(x)(F_SOME&& f_s, F_NONE&& f_n) const noexcept {               \
+   inline auto __CUB_var_name(x)(F_SOME&& f_some, F_NONE&& f_none) const noexcept {         \
        if(__Meta_present_name(x)())                                                         \
-          return __Lock_MeTa(x)::visit(__MeTa_var(x), std::forward<F_SOME>(f_s));           \
+          return __Lock_MeTa(x)::visit(__MeTa_var(x), std::forward<F_SOME>(f_some));        \
        else                                                                                 \
-          return f_n();                                                                     \
+          return f_none();                                                                  \
    }                                                                                        \
    template<typename F,                                                                     \
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_modifiable<F>>>         \
@@ -258,9 +258,9 @@ public:                                                                         
       __Lock_MeTa(x)::modify(__MeTa_var(x), std::forward<F>(f));                            \
       __Lock_Meta_set_flag(x)();                                                            \
    }                                                                                        \
-   template<size_t SIZE> inline                                                             \
-   auto __CUB_var_name(x)(const __Lock_Meta_elem(x) (&p)[SIZE]) noexcept -> void {          \
-      __CUB_var_name(x)({p, SIZE});                                                         \
+   template<size_t I>                                                                       \
+   inline auto __CUB_var_name(x)(const __Lock_Meta_elem(x) (&p)[I]) noexcept -> void {      \
+      __CUB_var_name(x)({p, I});                                                            \
    }                                                                                        \
    inline auto __CUB_var_name(x)(__Lock_Meta_para(x) p) noexcept -> void {                  \
       __Lock_MeTa(x)::set(__MeTa_var(x), p);                                                \
