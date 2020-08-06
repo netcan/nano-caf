@@ -230,7 +230,7 @@ public:                                                                         
    }                                                                                        \
    inline auto __Meta_present_name(x)() const noexcept -> bool {                            \
        return __MeTa_mask(x) &                                                              \
-          __secrete_lk_flags.v_[__MeTa_byte(x)].load(std::memory_order_acquire);            \
+          __secrete_lk_flags.v_[__MeTa_byte(x)].load(std::memory_order_consume);            \
    }                                                                                        \
    template<typename F,                                                                     \
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_void_visitable<F>>>     \
