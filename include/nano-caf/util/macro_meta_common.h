@@ -40,7 +40,10 @@ namespace meta_data {
    }
 
    template<typename F>
-   constexpr static bool is_none_invokable = std::is_invocable_r_v<void, F>;
+   constexpr static bool is_none_invokable = std::is_invocable_v<F>;
+
+   template<typename F>
+   using none_invoke_result = std::invoke_result<F>;
 }
 
 struct modify_meta{};

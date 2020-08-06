@@ -33,10 +33,13 @@ namespace lock_meta_data {
       };
 
       template<typename F>
-      constexpr static bool is_visitable = std::is_invocable_r_v<void, F, parameter_type>;
+      constexpr static bool is_visitable = std::is_invocable_v<F, parameter_type>;
 
       template<typename F>
-      constexpr static bool is_modifiable = std::is_invocable_r_v<void, F, T&>;
+      constexpr static bool is_void_visitable = std::is_invocable_r_v<void, F, parameter_type>;
+
+      template<typename F>
+      constexpr static bool is_modifiable = std::is_invocable_v<F, T&>;
 
       inline constexpr static auto set(value_type& self, parameter_type value) -> void {
          std::unique_lock lock(self.mutex_);
@@ -70,10 +73,13 @@ namespace lock_meta_data {
       using value_type = std::atomic<T>;
 
       template<typename F>
-      constexpr static bool is_visitable = std::is_invocable_r_v<void, F, const T>;
+      constexpr static bool is_visitable = std::is_invocable_v<F, const T>;
 
       template<typename F>
-      constexpr static bool is_modifiable = std::is_invocable_r_v<void, F, T&>;
+      constexpr static bool is_void_visitable = std::is_invocable_r_v<void, F, const T>;
+
+      template<typename F>
+      constexpr static bool is_modifiable = std::is_invocable_v<F, T&>;
 
       inline constexpr static auto set(value_type& self, parameter_type value) -> void {
          self.store(value, std::memory_order_relaxed);
@@ -112,7 +118,10 @@ namespace lock_meta_data {
       };
 
       template<typename F>
-      constexpr static bool is_visitable = std::is_invocable_r_v<void, F, const C*, size_t>;
+      constexpr static bool is_visitable = std::is_invocable_v<F, const C*, size_t>;
+
+      template<typename F>
+      constexpr static bool is_void_visitable = std::is_invocable_r_v<void, F, const C*, size_t>;
 
       template<typename F>
       constexpr static bool is_modifiable = std::is_invocable_r_v<void, F, C*&, size_t&>;
@@ -159,6 +168,12 @@ namespace lock_meta_data {
    template<typename F>
    constexpr static bool is_none_invokable = std::is_invocable_r_v<void, F>;
 
+   template<typename F_SOME, typename F_NONE>
+   constexpr bool same_result =
+      std::is_same_v<
+         meta_type_trait<F_SOME>::template invoke_result<F_SOME>,
+         meta_data::none_invoke_result<F_NONE>>;
+
    template<size_t N>
    struct meta_flags {
       enum { num_of_bytes = (size_t)((N + 7) / 8) };
@@ -166,6 +181,7 @@ namespace lock_meta_data {
    };
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
 #define __Lock_Meta_ns NANO_CAF_NS::lock_meta_data
 #define __Lock_MeTa(x) __Lock_Meta_ns::meta_type_trait<__CUB_var_type(x)>
 #define __Lock_Meta_value_type(x) typename __Lock_MeTa(x)::value_type
@@ -200,19 +216,20 @@ public:                                                                         
           __secrete_lk_flags.v_[__MeTa_byte(x)].load(std::memory_order_acquire);            \
    }                                                                                        \
    template<typename F,                                                                     \
-            typename = std::enable_if_t<__Lock_MeTa(x)::template is_visitable<F>>>          \
+            typename = std::enable_if_t<__Lock_MeTa(x)::template is_void_visitable<F>>>     \
    inline auto __CUB_var_name(x)(F&& f) const noexcept -> void {                            \
        if(__Meta_present_name(x)())                                                         \
           __Lock_MeTa(x)::visit(__MeTa_var(x), std::forward<F>(f));                         \
    }                                                                                        \
    template<typename F_SOME, typename F_NONE,                                               \
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_visitable<F_SOME>>,     \
-            typename = std::enable_if_t<__Meta_ns::is_none_invokable<F_NONE>>>              \
-   inline auto __CUB_var_name(x)(F_SOME&& f_s, F_NONE&& f_n) const noexcept -> void {       \
+            typename = std::enable_if_t<__Meta_ns::is_none_invokable<F_NONE>>,              \
+            typename = std::enable_if_t<__Lock_Meta_ns::same_result<F_SOME, F_NONE>>>       \
+   inline auto __CUB_var_name(x)(F_SOME&& f_s, F_NONE&& f_n) const noexcept {               \
        if(__Meta_present_name(x)())                                                         \
-          __Lock_MeTa(x)::visit(__MeTa_var(x), std::forward<F_SOME>(f_s));                  \
+          return __Lock_MeTa(x)::visit(__MeTa_var(x), std::forward<F_SOME>(f_s));           \
        else                                                                                 \
-          f_n();                                                                            \
+          return f_n();                                                                     \
    }                                                                                        \
    template<typename F,                                                                     \
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_modifiable<F>>>         \

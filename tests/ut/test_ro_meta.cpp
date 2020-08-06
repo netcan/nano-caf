@@ -28,7 +28,7 @@ namespace {
          char c[]={1,2};
          c_array3({c, 2});
 
-         i_array5([](auto array, auto& size){
+         i_array5__modify([](auto array, auto& size){
             array[0] = 10;
             array[1] = 20;
             array[2] = 30;

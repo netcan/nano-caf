@@ -28,10 +28,16 @@ namespace ro_meta_data {
       using value_type = T;
 
       template<typename F>
-      constexpr static bool is_visitable = std::is_invocable_r_v<void, F, value_type>;
+      constexpr static bool is_visitable = std::is_invocable_v<F, value_type>;
 
       template<typename F>
-      constexpr static bool is_modifiable = std::is_invocable_r_v<void, F, value_type&>;
+      constexpr static bool is_void_visitable = std::is_invocable_r_v<void, F, value_type>;
+
+      template<typename F>
+      using invoke_result = std::invoke_result<F, value_type>;
+
+      template<typename F>
+      constexpr static bool is_modifiable = std::is_invocable_v<F, value_type&>;
 
       inline constexpr static auto set(value_type& self, parameter_type value) -> void {
          self = value;
@@ -65,10 +71,16 @@ namespace ro_meta_data {
       };
 
       template<typename F>
-      constexpr static bool is_visitable = std::is_invocable_r_v<void, F, const C*, size_t>;
+      constexpr static bool is_visitable = std::is_invocable_v<F, const C*, size_t>;
 
       template<typename F>
-      constexpr static bool is_modifiable = std::is_invocable_r_v<void, F, C*&, size_t&>;
+      constexpr static bool is_void_visitable = std::is_invocable_r_v<void, F, const C*, size_t>;
+
+      template<typename F>
+      using invoke_result = std::invoke_result<F, const C*, size_t>;
+
+      template<typename F>
+      constexpr static bool is_modifiable = std::is_invocable_v<F, C*&, size_t&>;
 
       inline constexpr static auto set(value_type& self, parameter_type value) -> void {
          auto [p, size] = value;
@@ -105,6 +117,12 @@ namespace ro_meta_data {
       enum { num_of_bytes = (size_t)((N + 7) / 8) };
       unsigned char flags_[num_of_bytes]{};
    };
+
+   template<typename F_SOME, typename F_NONE>
+   constexpr bool same_result =
+      std::is_same_v<
+         ro_meta_type_trait<F_SOME>::template invoke_result<F_SOME>,
+         meta_data::none_invoke_result<F_NONE>>;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,20 +143,21 @@ public:                                                                         
        return __RO_MeTa(x)::get(__MeTa_var(x));                                       \
    }                                                                                  \
    template<typename F,                                                               \
-            typename = std::enable_if_t<__RO_MeTa(x)::template is_visitable<F>>>      \
+            typename = std::enable_if_t<__RO_MeTa(x)::template is_void_visitable<F>>> \
    inline constexpr auto __CUB_var_name(x)(F&& f) const noexcept -> void {            \
        if(__Meta_present_name(x)())                                                   \
           __RO_MeTa(x)::visit(__MeTa_var(x), std::forward<F>(f));                     \
    }                                                                                  \
    template<typename F_SOME, typename F_NONE,                                         \
             typename = std::enable_if_t<__RO_MeTa(x)::template is_visitable<F_SOME>>, \
-            typename = std::enable_if_t<__Meta_ns::is_none_invokable<F_NONE>>>        \
+            typename = std::enable_if_t<__Meta_ns::is_none_invokable<F_NONE>>,        \
+            typename = std::enable_if_t<__RO_Meta_ns::same_result<F_SOME, F_NONE>>>   \
    inline constexpr                                                                   \
-   auto __CUB_var_name(x)(F_SOME&& f_some, F_NONE&& f_none) const noexcept -> void {  \
+   auto __CUB_var_name(x)(F_SOME&& f_some, F_NONE&& f_none) const noexcept {          \
        if(__Meta_present_name(x)())                                                   \
-          __RO_MeTa(x)::visit(__MeTa_var(x), std::forward<F_SOME>(f_some));           \
+          return __RO_MeTa(x)::visit(__MeTa_var(x), std::forward<F_SOME>(f_some));    \
        else                                                                           \
-          f_none();                                                                   \
+          return f_none();                                                            \
    }                                                                                  \
    inline constexpr auto __Meta_present_name(x)() const noexcept -> bool {            \
        return __secrete_ro_flags.flags_[__MeTa_byte(x)] & __MeTa_mask(x);             \
@@ -146,7 +165,7 @@ public:                                                                         
 set_visibility:                                                                       \
    template<typename F,                                                               \
             typename = std::enable_if_t<__RO_MeTa(x)::template is_modifiable<F>>>     \
-   inline auto __CUB_var_name(x)(F&& f) noexcept -> void {                            \
+   inline auto __Meta_modify_name(x)(F&& f) noexcept -> void {                        \
       __RO_MeTa(x)::modify(__MeTa_var(x), std::forward<F>(f));                        \
       __secrete_ro_flags.flags_[__MeTa_byte(x)] |= __MeTa_mask(x);                    \
    }                                                                                  \
