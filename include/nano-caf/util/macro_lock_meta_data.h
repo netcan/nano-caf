@@ -36,6 +36,9 @@ namespace lock_meta_data {
       constexpr static bool is_visitable = std::is_invocable_v<F, parameter_type>;
 
       template<typename F>
+      using invoke_result_t = std::invoke_result_t<F, parameter_type>;
+
+      template<typename F>
       constexpr static bool is_void_visitable = std::is_invocable_r_v<void, F, parameter_type>;
 
       template<typename F>
@@ -74,6 +77,9 @@ namespace lock_meta_data {
 
       template<typename F>
       constexpr static bool is_visitable = std::is_invocable_v<F, const T>;
+
+      template<typename F>
+      using invoke_result_t = std::invoke_result_t<F, const T>;
 
       template<typename F>
       constexpr static bool is_void_visitable = std::is_invocable_r_v<void, F, const T>;
@@ -119,6 +125,9 @@ namespace lock_meta_data {
 
       template<typename F>
       constexpr static bool is_visitable = std::is_invocable_v<F, const C*, size_t>;
+
+      template<typename F>
+      using invoke_result_t = std::invoke_result_t<F, const C*, size_t>;
 
       template<typename F>
       constexpr static bool is_void_visitable = std::is_invocable_r_v<void, F, const C*, size_t>;
@@ -171,8 +180,8 @@ namespace lock_meta_data {
    template<typename F_SOME, typename F_NONE>
    constexpr bool same_result =
       std::is_same_v<
-         meta_type_trait<F_SOME>::template invoke_result<F_SOME>,
-         meta_data::none_invoke_result<F_NONE>>;
+         meta_type_trait<F_SOME>::template invoke_result_t<F_SOME>,
+         meta_data::none_invoke_result_t<F_NONE>>;
 
    template<size_t N>
    struct meta_flags {

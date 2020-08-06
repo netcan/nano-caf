@@ -34,7 +34,7 @@ namespace ro_meta_data {
       constexpr static bool is_void_visitable = std::is_invocable_r_v<void, F, value_type>;
 
       template<typename F>
-      using invoke_result = std::invoke_result<F, value_type>;
+      using invoke_result_t = std::invoke_result_t<F, value_type>;
 
       template<typename F>
       constexpr static bool is_modifiable = std::is_invocable_v<F, value_type&>;
@@ -48,8 +48,8 @@ namespace ro_meta_data {
       }
 
       template<typename F>
-      inline constexpr static auto visit(parameter_type self, F&& f) -> void {
-         f(self);
+      inline constexpr static auto visit(parameter_type self, F&& f) {
+         return f(self);
       }
 
       template<typename F>
@@ -77,7 +77,7 @@ namespace ro_meta_data {
       constexpr static bool is_void_visitable = std::is_invocable_r_v<void, F, const C*, size_t>;
 
       template<typename F>
-      using invoke_result = std::invoke_result<F, const C*, size_t>;
+      using invoke_result_t = std::invoke_result_t<F, const C*, size_t>;
 
       template<typename F>
       constexpr static bool is_modifiable = std::is_invocable_v<F, C*&, size_t&>;
@@ -96,9 +96,9 @@ namespace ro_meta_data {
       }
 
       template<typename F>
-      inline constexpr static auto visit(const value_type& self, F&& f) -> void {
+      inline constexpr static auto visit(const value_type& self, F&& f)  {
          auto [p, size] = self;
-         f(p, size);
+         return f(p, size);
       }
 
       template<typename F>
@@ -121,8 +121,8 @@ namespace ro_meta_data {
    template<typename F_SOME, typename F_NONE>
    constexpr bool same_result =
       std::is_same_v<
-         ro_meta_type_trait<F_SOME>::template invoke_result<F_SOME>,
-         meta_data::none_invoke_result<F_NONE>>;
+         typename ro_meta_type_trait<F_SOME>::template invoke_result_t<F_SOME>,
+         meta_data::none_invoke_result_t<F_NONE>>;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

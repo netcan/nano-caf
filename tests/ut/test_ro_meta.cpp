@@ -14,7 +14,8 @@ namespace {
          (int[1])   single_elem,
          (char[10]) c_array10,
          (char[3])  c_array3,
-         (int[5])   i_array5
+         (int[5])   i_array5,
+         (char)     c_value
       );
    };
 
@@ -94,6 +95,18 @@ namespace {
          REQUIRE(size == 2);
          REQUIRE(array[0] == 1);
          REQUIRE(array[1] == 2);
+      }
+      WHEN("access a non-present value with lambda") {
+         auto result = foo.c_value(
+            [](auto value) {
+               return true;
+            },
+            [](){
+               return false;
+            });
+         THEN("should return false") {
+            REQUIRE_FALSE(result);
+         }
       }
    }
 }
