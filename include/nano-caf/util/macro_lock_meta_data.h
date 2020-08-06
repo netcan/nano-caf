@@ -11,10 +11,12 @@
 #include <nano-caf/util/macro_reflex_call.h>
 #include <nano-caf/util/macro_struct.h>
 #include <nano-caf/util/macro_meta_common.h>
+#include <nano-caf/util/likely.h>
 #include <type_traits>
 #include <algorithm>
 #include <mutex>
 #include <shared_mutex>
+#include <atomic>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 NANO_CAF_NS_BEGIN
@@ -210,16 +212,18 @@ private:                                                                        
       auto flags = __secrete_lk_flags.v_[__MeTa_byte(x)].load(std::memory_order_relaxed);   \
       uint8_t new_flags;                                                                    \
       do {                                                                                  \
+         if(__unlikely(flags & __MeTa_mask(x))) break;                                      \
          new_flags = flags | __MeTa_mask(x);                                                \
       } while(!__secrete_lk_flags.v_[__MeTa_byte(x)]                                        \
                   .compare_exchange_strong(flags, new_flags,                                \
-                              std::memory_order_release, std::memory_order_relaxed));       \
+                      std::memory_order_release, std::memory_order_relaxed));               \
    }                                                                                        \
 public:                                                                                     \
    inline auto __Lock_Meta_clear(x)() noexcept -> void {                                    \
       auto flags = __secrete_lk_flags.v_[__MeTa_byte(x)].load(std::memory_order_relaxed);   \
       uint8_t new_flags;                                                                    \
       do {                                                                                  \
+         if(__unlikely((flags | __MeTa_mask(x)) == 0)) break;                               \
          new_flags = flags & __MeTa_clear_mask(x);                                          \
       } while(!__secrete_lk_flags.v_[__MeTa_byte(x)]                                        \
                   .compare_exchange_strong(flags, new_flags,                                \

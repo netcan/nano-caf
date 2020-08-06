@@ -185,9 +185,26 @@ private:                                                                        
 
 ///////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_ro_meta_data(...)                                                \
-__CUB_all_fields__(__CUB_ro_field__, __VA_ARGS__)                              \
+   __CUB_all_fields__(__CUB_ro_field__, __VA_ARGS__)                           \
 private:                                                                       \
    __RO_Meta_ns::meta_flags<__CUB_pp_size(__VA_ARGS__)> __secrete_ro_flags
+
+////////////////////////////////////////////////////////////////////////
+#define __CUB_export_meta_w__(n, x)                 \
+using __secrete_parent__::__Meta_modify_name(x);  \
+using __secrete_parent__::__CUB_var_name(x);
+
+////////////////////////////////////////////////////////////////////////
+#define __CUB_2_stage_meta_table(rw_stage, ro_stage, ...)    \
+struct ro_stage {                                            \
+  __CUB_ro_meta_data(__VA_ARGS__);                           \
+};                                                           \
+struct rw_stage : ro_stage {                                 \
+private:                                                     \
+  using __secrete_parent__ = ro_stage;                       \
+public:                                                      \
+  __CUB_all_fields__(__CUB_export_meta_w__, __VA_ARGS__);    \
+}
 
 NANO_CAF_NS_END
 

@@ -8,42 +8,33 @@
 namespace {
    using namespace NANO_CAF_NS;
 
-   struct Foo {
-      __CUB_ro_meta_data(
-         (int)      i_value,
-         (int[1])   single_elem,
-         (char[10]) c_array10,
-         (char[3])  c_array3,
-         (int[5])   i_array5,
-         (char)     c_value
-      );
-   };
+   __CUB_2_stage_meta_table(Foo_RW, Foo,
+       (int)      i_value,
+       (int[1])   single_elem,
+       (char[10]) c_array10,
+       (char[3])  c_array3,
+       (int[5])   i_array5,
+       (char)     c_value);
 
-   struct Foo_Initializer : Foo {
-      auto init() -> Foo const& {
-         i_value(100);
-         single_elem(150);
-
-         c_array10({8, 9});
-
-         char c[]={1,2};
-         c_array3({c, 2});
-
-         i_array5__modify([](auto array, auto& size){
-            array[0] = 10;
-            array[1] = 20;
-            array[2] = 30;
-            size = 3;
-         });
-
-         return *this;
-      }
-   };
-
-   template<typename T> struct S;
    TEST_CASE("should be able to get value of simple-type") {
-      Foo_Initializer initializer;
-      auto& foo = initializer.init();
+      Foo_RW foo_rw;
+
+      foo_rw.i_value(100);
+      foo_rw.single_elem(150);
+
+      foo_rw.c_array10({8, 9});
+
+      char c[]={1,2};
+      foo_rw.c_array3({c, 2});
+
+      foo_rw.i_array5__modify([](auto array, auto& size){
+         array[0] = 10;
+         array[1] = 20;
+         array[2] = 30;
+         size = 3;
+      });
+
+      const Foo& foo = foo_rw;
 
       THEN("should be able to access simple type by lambda") {
          foo.i_value([](auto value) {
