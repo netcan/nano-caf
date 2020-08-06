@@ -55,9 +55,9 @@ namespace lock_meta_data {
       }
 
       template<typename F>
-      inline static auto visit(parameter_type self, F&& f) -> void {
+      inline static auto visit(parameter_type self, F&& f) {
          std::shared_lock lock(self.mutex_);
-         f(self);
+         return f(self);
       }
 
       template<typename F>
@@ -96,8 +96,8 @@ namespace lock_meta_data {
       }
 
       template<typename F>
-      inline static auto visit(const value_type& self, F&& f) -> void {
-         f(self.load(std::memory_order_relaxed));
+      inline static auto visit(const value_type& self, F&& f) {
+         return f(self.load(std::memory_order_relaxed));
       }
 
       template<typename F>
@@ -157,10 +157,10 @@ namespace lock_meta_data {
       }
 
       template<typename F>
-      inline static auto visit(const value_type& self, F&& f) -> void {
+      inline static auto visit(const value_type& self, F&& f) {
          std::shared_lock lock(self.mutex_);
          auto [p, size] = self.v_;
-         f(p, size);
+         return f(p, size);
       }
 
       template<typename F>
@@ -180,7 +180,7 @@ namespace lock_meta_data {
    template<typename F_SOME, typename F_NONE>
    constexpr bool same_result =
       std::is_same_v<
-         meta_type_trait<F_SOME>::template invoke_result_t<F_SOME>,
+         typename meta_type_trait<F_SOME>::template invoke_result_t<F_SOME>,
          meta_data::none_invoke_result_t<F_NONE>>;
 
    template<size_t N>
