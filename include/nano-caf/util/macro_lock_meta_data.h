@@ -208,6 +208,8 @@ private:                                                                        
    constexpr static uint8_t __MeTa_mask(x)       = __Meta_ns::flag_mask(n);                 \
    constexpr static uint8_t __MeTa_clear_mask(x) = __Meta_ns::clear_flag_mask(n);           \
 private:                                                                                    \
+   __Lock_Meta_value_type(x) __MeTa_var(x);                                                 \
+private:                                                                                    \
    inline auto __Lock_Meta_set_flag(x)() noexcept -> void {                                 \
       auto flags = __secrete_lk_flags.v_[__MeTa_byte(x)].load(std::memory_order_relaxed);   \
       uint8_t new_flags;                                                                    \
@@ -265,14 +267,12 @@ public:                                                                         
    inline auto __CUB_var_name(x)(__Lock_Meta_para(x) pair) noexcept -> void {               \
       __Lock_MeTa(x)::set(__MeTa_var(x), pair);                                             \
       __Lock_Meta_set_flag(x)();                                                            \
-   }                                                                                        \
-private:                                                                                    \
-   __Lock_Meta_value_type(x) __MeTa_var(x);                                                 \
+   }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_lock_meta_data(...)                                                \
-__CUB_all_fields__(__CUB_lock_meta_field__, __VA_ARGS__)                         \
+   __CUB_all_fields__(__CUB_lock_meta_field__, __VA_ARGS__)                      \
 private:                                                                         \
    __Lock_Meta_ns::meta_flags<__CUB_pp_size(__VA_ARGS__)> __secrete_lk_flags
 
