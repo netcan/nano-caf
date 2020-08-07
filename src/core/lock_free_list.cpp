@@ -9,10 +9,9 @@
 NANO_CAF_NS_BEGIN
 
 lock_free_list::lock_free_list() {
-   auto node = new double_end_list_node{};
-   count_.store(0);
-   head_.store(node, std::memory_order_relaxed);
-   tail_.store(node, std::memory_order_relaxed);
+   auto node = new detail::lock_free_list_node{};
+   head_.store({node, 0}, std::memory_order_relaxed);
+   tail_.store({node, 0}, std::memory_order_relaxed);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -27,7 +26,7 @@ lock_free_list::~lock_free_list() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-auto lock_free_list::enqueue(double_end_list_elem* elem) -> enq_result {
+auto lock_free_list::enqueue(lock_free_list_elem* elem) -> enq_result {
    if(elem == nullptr) return enq_result::null_msg;
    auto node = elem->get_node();
    if(node == nullptr) {
@@ -35,52 +34,48 @@ auto lock_free_list::enqueue(double_end_list_elem* elem) -> enq_result {
    }
 
    while(1) {
-      auto tail = tail_.load(std::memory_order_acquire);
-      auto next = tail->next.load(std::memory_order_acquire);
-      if(__likely(tail == tail_.load(std::memory_order_acquire))) {
-         if(next == nullptr) {
-            if(tail->next.compare_exchange_strong(next, node)) {
-               tail_.compare_exchange_strong(tail, node);
-               count_.fetch_add(1);
+      auto tail = tail_.load(std::memory_order_relaxed);
+      auto next = tail.p_->next.load(std::memory_order_relaxed); // the order is promised by dependency
+      // make sure the consistent of tail & next by second read.
+      if(__likely(tail == tail_.load(std::memory_order_seq_cst))) {
+         if(next.p_ == nullptr) {
+            if(tail.p_->next.compare_exchange_strong(next, {node, next.count_+1})) {
+               tail_.compare_exchange_strong(tail, {node, tail.count_+1});
                return enq_result::ok;
             }
          }
          else {
-            tail_.compare_exchange_strong(tail, next);
+            tail_.compare_exchange_strong(tail, {next.p_, tail.count_ + 1});
          }
       }
    }
 }
 
-////////////////////////////////////////////////////////////////////////////
-auto lock_free_list::empty() const noexcept -> bool {
-   auto head = head_.load();
-   return (head == tail_.load()) && (head->next.load() == nullptr);
-}
+//////////////////////////////////////////////////////////////////////////////
+//auto lock_free_list::empty() const noexcept -> bool {
+//   auto head = head_.load();
+//   return (head == tail_.load()) && (head->next.load() == nullptr);
+//}
 
 ////////////////////////////////////////////////////////////////////////////
-auto lock_free_list::pop_front() noexcept -> double_end_list_elem* {
+auto lock_free_list::pop_front() noexcept -> lock_free_list_elem* {
    while (1) {
-      //std::cout << "pop_front" << std::endl;
-      auto head = head_.load(std::memory_order_acquire);
-      auto* tail = tail_.load(std::memory_order_acquire);
-      auto next = head->next.load(std::memory_order_acquire);
-      if(__likely(head == head_.load(std::memory_order_acquire))) {
-         if(head == tail) {
-            if(next == nullptr) {
-               auto count = count_.load();
-               std::cout << count << std::endl;
+      auto head = head_.load(std::memory_order_relaxed);
+      auto tail = tail_.load(std::memory_order_relaxed);
+      auto next = head.p_->next.load(std::memory_order_relaxed);
+      if(__likely(head == head_.load(std::memory_order_seq_cst))) { // head & next are consistent.
+         if(head.p_ == tail.p_) {
+            if(next.p_ == nullptr) {
                return nullptr;
             } else {
-               tail_.compare_exchange_strong(tail, next);
+               tail_.compare_exchange_strong(tail, {next.p_, tail.count_ + 1});
             }
          }
          else {
-            if(next != nullptr) {
-               auto result = next->elem;
-               if(head_.compare_exchange_strong(head, next)) {
-                  result->put_node(head);
-                  count_.fetch_sub(1);
+            if(next.p_ != nullptr) {
+               auto result = next.p_->elem;
+               if(head_.compare_exchange_strong(head, {next.p_, head.count_ + 1})) {
+                  result->put_node(head.p_);
                   return result;
                }
             }

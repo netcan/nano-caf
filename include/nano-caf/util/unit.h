@@ -9,11 +9,14 @@
 
 NANO_CAF_NS_BEGIN
 
-struct unit {
-   unit() = default;
-   auto operator==(const unit&) const -> bool { return true; }
-   auto operator!=(const unit&) const -> bool { return false; }
+struct unit_t {
+   struct __secret_tag { inline __secret_tag() = default; };
+   constexpr unit_t(__secret_tag, __secret_tag){}
+   auto operator==(const unit_t&) const -> bool { return true; }
+   auto operator!=(const unit_t&) const -> bool { return false; }
 };
+
+inline constexpr unit_t unit{unit_t::__secret_tag{}, unit_t::__secret_tag{}};
 
 NANO_CAF_NS_END
 
