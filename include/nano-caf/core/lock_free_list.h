@@ -81,7 +81,7 @@ struct lock_free_list {
       return result->to_value<T>();
    }
 
-//   auto empty() const noexcept -> bool;
+   auto empty() const noexcept -> bool;
 
    auto pop_front() noexcept -> lock_free_list_elem*;
 
