@@ -8,12 +8,17 @@
 namespace {
    using namespace NANO_CAF_NS;
 
+   struct S {
+      int a;
+      int b;
+   };
    __CUB_2_stage_meta_table(Foo_RW, Foo,
        (int)      i_value,
        (int[1])   single_elem,
        (char[10]) c_array10,
        (char[3])  c_array3,
        (int[5])   i_array5,
+       (S)        s,
        (char)     c_value);
 
    TEST_CASE("should be able to get value of simple-type") {
@@ -82,6 +87,7 @@ namespace {
          REQUIRE(150 == foo.single_elem());
       }
       THEN("should be able to access pair-constructed array by get") {
+         REQUIRE(foo.c_array3__present());
          auto [array, size] = foo.c_array3();
          REQUIRE(size == 2);
          REQUIRE(array[0] == 1);
@@ -92,7 +98,7 @@ namespace {
             [](auto value) {
                return true;
             },
-            [](){
+            [] {
                return false;
             });
          THEN("should return false") {

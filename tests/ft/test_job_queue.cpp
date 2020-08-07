@@ -119,8 +119,6 @@ auto lock_free_list_one_round(size_t number) -> void {
          if(p != nullptr) {
             delete p;
             if(++i == total) return;
-         } else {
-            //std::cout << id << ": pop nothing " << i << std::endl;
          }
       }
    };

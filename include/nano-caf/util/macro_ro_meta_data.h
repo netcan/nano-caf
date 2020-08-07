@@ -138,15 +138,17 @@ namespace ro_meta_data {
 private:                                                                              \
    constexpr static size_t  __MeTa_byte(x) = __Meta_ns::flag_byte(n);                 \
    constexpr static uint8_t __MeTa_mask(x) = __Meta_ns::flag_mask(n);                 \
+private:                                                                              \
+   __RO_Meta_value_type(x) __MeTa_var(x);                                             \
 public:                                                                               \
    inline constexpr auto __CUB_var_name(x)() const noexcept -> __RO_Meta_result(x) {  \
        return __RO_MeTa(x)::get(__MeTa_var(x));                                       \
    }                                                                                  \
    template<typename F,                                                               \
             typename = std::enable_if_t<__RO_MeTa(x)::template is_void_visitable<F>>> \
-   inline constexpr auto __CUB_var_name(x)(F&& f) const noexcept -> void {            \
+   inline constexpr auto __CUB_var_name(x)(F&& f_some) const noexcept -> void {       \
        if(__Meta_present_name(x)())                                                   \
-          __RO_MeTa(x)::visit(__MeTa_var(x), std::forward<F>(f));                     \
+          __RO_MeTa(x)::visit(__MeTa_var(x), std::forward<F>(f_some));                \
    }                                                                                  \
    template<typename F_SOME, typename F_NONE,                                         \
             typename = std::enable_if_t<__RO_MeTa(x)::template is_visitable<F_SOME>>, \
@@ -165,20 +167,18 @@ public:                                                                         
 set_visibility:                                                                       \
    template<typename F,                                                               \
             typename = std::enable_if_t<__RO_MeTa(x)::template is_modifiable<F>>>     \
-   inline auto __Meta_modify_name(x)(F&& f) noexcept -> void {                        \
-      __RO_MeTa(x)::modify(__MeTa_var(x), std::forward<F>(f));                        \
+   inline auto __Meta_modify_name(x)(F&& modifier) noexcept -> void {                 \
+      __RO_MeTa(x)::modify(__MeTa_var(x), std::forward<F>(modifier));                 \
       __secrete_ro_flags.flags_[__MeTa_byte(x)] |= __MeTa_mask(x);                    \
    }                                                                                  \
    template<size_t SIZE> inline                                                       \
-   auto __CUB_var_name(x)(const __RO_Meta_elem(x) (&p)[SIZE]) noexcept -> void {      \
-      __CUB_var_name(x)({p, SIZE});                                                   \
+   auto __CUB_var_name(x)(const __RO_Meta_elem(x) (&array)[SIZE]) noexcept -> void {  \
+      __CUB_var_name(x)({array, SIZE});                                               \
    }                                                                                  \
-   inline auto __CUB_var_name(x)(__RO_Meta_para(x) p) noexcept -> void {              \
-      __RO_MeTa(x)::set(__MeTa_var(x), p);                                            \
+   inline auto __CUB_var_name(x)(__RO_Meta_para(x) pair) noexcept -> void {           \
+      __RO_MeTa(x)::set(__MeTa_var(x), pair);                                         \
       __secrete_ro_flags.flags_[__MeTa_byte(x)] |= __MeTa_mask(x);                    \
-   }                                                                                  \
-private:                                                                              \
-   __RO_Meta_value_type(x) __MeTa_var(x);
+   }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_ro_field__(n, x) __CUB_no_lock_meta_field__(n, x, protected)

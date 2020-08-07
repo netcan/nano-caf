@@ -238,9 +238,9 @@ public:                                                                         
    }                                                                                        \
    template<typename F,                                                                     \
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_void_visitable<F>>>     \
-   inline auto __CUB_var_name(x)(F&& f) const noexcept -> void {                            \
+   inline auto __CUB_var_name(x)(F&& f_some) const noexcept -> void {                       \
        if(__Meta_present_name(x)())                                                         \
-          __Lock_MeTa(x)::visit(__MeTa_var(x), std::forward<F>(f));                         \
+          __Lock_MeTa(x)::visit(__MeTa_var(x), std::forward<F>(f_some));                    \
    }                                                                                        \
    template<typename F_SOME, typename F_NONE,                                               \
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_visitable<F_SOME>>,     \
@@ -254,16 +254,16 @@ public:                                                                         
    }                                                                                        \
    template<typename F,                                                                     \
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_modifiable<F>>>         \
-   inline auto __Meta_modify_name(x)(F&& f) noexcept -> void {                              \
-      __Lock_MeTa(x)::modify(__MeTa_var(x), std::forward<F>(f));                            \
+   inline auto __Meta_modify_name(x)(F&& f_modifier) noexcept -> void {                     \
+      __Lock_MeTa(x)::modify(__MeTa_var(x), std::forward<F>(f_modifier));                   \
       __Lock_Meta_set_flag(x)();                                                            \
    }                                                                                        \
    template<size_t I>                                                                       \
-   inline auto __CUB_var_name(x)(const __Lock_Meta_elem(x) (&p)[I]) noexcept -> void {      \
-      __CUB_var_name(x)({p, I});                                                            \
+   inline auto __CUB_var_name(x)(const __Lock_Meta_elem(x) (&array)[I]) noexcept -> void {  \
+      __CUB_var_name(x)({array, I});                                                        \
    }                                                                                        \
-   inline auto __CUB_var_name(x)(__Lock_Meta_para(x) p) noexcept -> void {                  \
-      __Lock_MeTa(x)::set(__MeTa_var(x), p);                                                \
+   inline auto __CUB_var_name(x)(__Lock_Meta_para(x) pair) noexcept -> void {               \
+      __Lock_MeTa(x)::set(__MeTa_var(x), pair);                                             \
       __Lock_Meta_set_flag(x)();                                                            \
    }                                                                                        \
 private:                                                                                    \
