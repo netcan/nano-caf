@@ -232,7 +232,7 @@ auto double_end_list_test(size_t number) -> void {
 
 
 auto lock_free_list_test(size_t number) -> void {
-   ankerl::nanobench::Bench().minEpochIterations(10).run("lock-free-list", [=] {
+   ankerl::nanobench::Bench().minEpochIterations(109).run("lock-free-list", [=] {
       lock_free_list_one_round(number);
    });
 }
@@ -244,7 +244,7 @@ auto lock_free_list_test(size_t number) -> void {
 //}
 
 int main() {
-   double_end_list_test(10);
-   lock_free_list_test(10);
+   double_end_list_test(20);
+   lock_free_list_test(20);
    //thread_safe_list_test(10);
 }

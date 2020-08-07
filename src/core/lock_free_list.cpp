@@ -39,13 +39,13 @@ auto lock_free_list::enqueue(lock_free_list_elem* elem) -> enq_result {
       // make sure the consistent of tail & next by second read.
       if(__likely(tail == tail_.load(std::memory_order_seq_cst))) {
          if(next.p_ == nullptr) {
-            if(tail.p_->next.compare_exchange_strong(next, {node, next.count_+1})) {
-               tail_.compare_exchange_strong(tail, {node, tail.count_+1});
+            if(tail.p_->next.compare_exchange_strong(next, {node, next.count_+1}, std::memory_order_relaxed, std::memory_order_relaxed)) {
+               tail_.compare_exchange_strong(tail, {node, tail.count_+1}, std::memory_order_release, std::memory_order_relaxed);
                return enq_result::ok;
             }
          }
          else {
-            tail_.compare_exchange_strong(tail, {next.p_, tail.count_ + 1});
+            tail_.compare_exchange_strong(tail, {next.p_, tail.count_ + 1}, std::memory_order_relaxed, std::memory_order_relaxed);
          }
       }
    }
@@ -68,13 +68,17 @@ auto lock_free_list::pop_front() noexcept -> lock_free_list_elem* {
             if(next.p_ == nullptr) {
                return nullptr;
             } else {
-               tail_.compare_exchange_strong(tail, {next.p_, tail.count_ + 1});
+               tail_.compare_exchange_weak(tail, {next.p_, tail.count_ + 1},
+                  std::memory_order_relaxed,
+                  std::memory_order_relaxed);
             }
          }
          else {
             if(next.p_ != nullptr) {
                auto result = next.p_->elem;
-               if(head_.compare_exchange_strong(head, {next.p_, head.count_ + 1})) {
+               if(head_.compare_exchange_strong(head, {next.p_, head.count_ + 1},
+                                    std::memory_order_relaxed,
+                                    std::memory_order_relaxed)) {
                   result->put_node(head.p_);
                   return result;
                }
