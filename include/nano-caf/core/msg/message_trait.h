@@ -6,25 +6,15 @@
 #define NANO_CAF_MESSAGE_TRAIT_H
 
 #include <nano-caf/nano-caf-ns.h>
+#include <nano-caf/core/msg/atom.h>
 #include <nano-caf/util/macro_reflex.h>
-#include <cstdint>
 
 NANO_CAF_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-using msg_id_t = uint64_t;
-
-namespace detail {
-   struct __atom_signature {};
-}
-
-template<typename T>
-constexpr bool is_msg_atom = std::is_base_of_v<detail::__atom_signature, T>;
-
-///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CAF_def_message(name, ...) \
 struct name; \
-struct name##_atom : NANO_CAF_NS::detail::__atom_signature { \
+struct name##_atom : NANO_CAF_NS::atom_signature { \
     using msg_type = name; \
 }; \
 struct name { \

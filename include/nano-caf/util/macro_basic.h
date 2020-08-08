@@ -19,4 +19,10 @@
 #define __CUB_1st__(a, ...) a
 #define __CUB_1st(...) __CUB_1st__(__VA_ARGS__)
 
+#define __CUB_rest__(a, ...) __VA_ARGS__
+#define __CUB_rest(...) __CUB_rest__(__VA_ARGS__)
+
+#define __CUB_merge_2_(x, y) x y
+#define __CUB_swap_(x, y)    y x
+
 #endif //NANO_CAF_MACRO_BASIC_H

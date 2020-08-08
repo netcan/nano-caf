@@ -13,13 +13,12 @@ namespace {
       int b;
    };
    __CUB_2_stage_meta_table(Foo_RW, Foo,
-       (int)      i_value,
-       (int[1])   single_elem,
-       (char[10]) c_array10,
-       (char[3])  c_array3,
-       (int[5])   i_array5,
-       (S)        s,
-       (char)     c_value);
+       (i_value,     int),
+       (single_elem, int[1]),
+       (c_array10,   char[10]),
+       (c_array3,    char[3]),
+       (i_array5,    int[5]),
+       (c_value,     char));
 
    TEST_CASE("should be able to get value of simple-type") {
       Foo_RW foo_rw;

@@ -12,7 +12,7 @@
 
 NANO_CAF_NS_BEGIN
 
-CAF_def_message(exit_msg, (exit_reason) reason);
+CAF_def_message(exit_msg, (reason, exit_reason));
 CAF_def_message(future_done);
 
 NANO_CAF_NS_END

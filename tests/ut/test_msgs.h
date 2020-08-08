@@ -17,13 +17,13 @@ struct big_msg {
 };
 
 CAF_def_message(my_message,
-   (int) amount,
-   (double) currency);
+   (amount,   int),
+   (currency, double));
 
 CAF_def_message(test_message,
-   (int) value);
+   (value,   int));
 
 CAF_def_message(shared_buf_msg,
-   (std::shared_ptr<big_msg>) obj);
+   (obj,     std::shared_ptr<big_msg>));
 
 #endif //NANO_CAF_TEST_MSGS_H
