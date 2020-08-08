@@ -63,12 +63,13 @@ namespace detail {
    struct msg_type_trait<T, std::enable_if_t<std::is_aggregate_v<T>>> : aggregate_trait<T> {};
 
    template <typename T>
-   struct msg_type_trait<T, std::enable_if_t<is_tuple<T>::value>>  {
+   struct msg_type_trait<T, std::enable_if_t<is_tuple<typename T::tuple_parent>::value>>  {
       using fields_types = decltype(deduce_tuple_types(std::declval<T>()));
 
       template <typename F>
       static auto call(const T& obj, F&& f) {
-         return detail::aggregate_fields_type<fields_types::size, T>::call(obj, std::forward<F>(f));
+         return detail::aggregate_fields_type<fields_types::size, typename T::tuple_parent>::call(
+            static_cast<const typename T::tuple_parent&>(obj), std::forward<F>(f));
       }
    };
 

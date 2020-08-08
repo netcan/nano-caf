@@ -16,6 +16,8 @@
 NANO_CAF_NS_BEGIN
 
 namespace detail {
+   struct request_signature{};
+
    template<typename ATOM, typename SIGNATURE>
    struct request_type {
       request_type() = delete;
@@ -44,7 +46,10 @@ template <typename T> struct __SeCrEtE_method<n, T>               \
 }; \
 struct __CUB_atom_type(x) : atom_signature { \
    using type = __SeCrEtE_method<n, __SeCrEtE_tHiS_tYpe>; \
-   using msg_type = type::msg_type; \
+   struct msg_type : type::msg_type { \
+      using tuple_parent = type::msg_type;  \
+      using tuple_parent::tuple_parent; \
+   }; \
 }; \
 constexpr static __CUB_atom_type(x) __CUB_method_name(x);
 
