@@ -86,8 +86,11 @@ struct lock_free_list {
    auto pop_front() noexcept -> lock_free_list_elem*;
 
 private:
+   alignas(CACHE_LINE_SIZE)
    std::atomic<detail::lock_free_node_handle> head_{};
+   alignas(CACHE_LINE_SIZE)
    std::atomic<detail::lock_free_node_handle> tail_{};
+   alignas(CACHE_LINE_SIZE) char __cache_line_alignment[0];
 };
 
 NANO_CAF_NS_END
