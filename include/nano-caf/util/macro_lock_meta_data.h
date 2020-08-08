@@ -276,6 +276,10 @@ public:                                                                         
 private:                                                                         \
    __Lock_Meta_ns::meta_flags<__CUB_pp_size(__VA_ARGS__)> __secrete_lk_flags
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+#define __CUB_lock_meta_table(name, ...)       \
+struct name { __CUB_lock_meta_data(__VA_ARGS__); }
+
 NANO_CAF_NS_END
 
 #endif //NANO_CAF_MACRO_LOCK_META_DATA_H

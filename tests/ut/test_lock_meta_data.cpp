@@ -8,16 +8,14 @@
 namespace {
    using namespace NANO_CAF_NS;
 
-   struct Foo {
-      __CUB_lock_meta_data(
-         (i_value,     int),
-         (single_elem, int[1]),
-         (c_array10,   char[10]),
-         (c_array3,    char[3]),
-         (i_array5,    int[5]),
-         (c_value,     char)
-      );
-   };
+   __CUB_lock_meta_table(Foo,
+       (i_value,     int),
+       (single_elem, int [1]),
+       (c_array10,   char[10]),
+       (c_array3,    char[3]),
+       (i_array5,    int [5]),
+       (c_value,     char)
+   );
 
    TEST_CASE("before set value, all fields are not present") {
       Foo foo;
