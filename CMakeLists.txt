@@ -78,7 +78,7 @@ add_executable(nano_caf-test
         tests/ut/test_sched_actor.cpp
         tests/ut/test_actor_system.cpp
         tests/ut/test_msgs.h
-        tests/ut/test_behavior.cpp tests/ut/test_double_end_list.cpp tests/ut/test_lock_free_list.cpp tests/ut/test_ro_meta.cpp tests/ut/test_lock_meta_data.cpp)
+        tests/ut/test_behavior.cpp tests/ut/test_double_end_list.cpp tests/ut/test_lock_free_list.cpp tests/ut/test_ro_meta.cpp tests/ut/test_lock_meta_data.cpp tests/ut/test_request.cpp)
 
 add_executable(test_actor_system
         tests/ft/test_actor_system.cpp)
