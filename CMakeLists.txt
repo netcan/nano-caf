@@ -66,7 +66,7 @@ add_library(nano_caf
         include/nano-caf/core/actor/drr_queue.h
         src/core/actor/drr_queue.cpp
         include/nano-caf/util/either.h
-        include/nano-caf/util/unit.h include/nano-caf/util/likely.h include/nano-caf/core/double_end_list.h src/core/double_end_list.cpp src/core/thread_safe_list.cpp include/nano-caf/core/lock_free_list.h include/nano-caf/core/double_end_list_elem.h src/core/lock_free_list.cpp include/nano-caf/core/actor/task_stack.h include/nano-caf/core/actor/task_result.h src/core/actor/task_stack.cpp include/nano-caf/util/macro_ro_meta_data.h include/nano-caf/util/macro_struct.h include/nano-caf/util/macro_lock_meta_data.h include/nano-caf/util/macro_meta_common.h include/nano-caf/util/maybe.h include/nano-caf/core/msg/request.h include/nano-caf/util/type_id_t.h include/nano-caf/core/msg/atom.h)
+        include/nano-caf/util/unit.h include/nano-caf/util/likely.h include/nano-caf/core/double_end_list.h src/core/double_end_list.cpp src/core/thread_safe_list.cpp include/nano-caf/core/lock_free_list.h include/nano-caf/core/double_end_list_elem.h src/core/lock_free_list.cpp include/nano-caf/core/actor/task_stack.h include/nano-caf/core/actor/task_result.h src/core/actor/task_stack.cpp include/nano-caf/util/macro_ro_meta_data.h include/nano-caf/util/macro_struct.h include/nano-caf/util/macro_lock_meta_data.h include/nano-caf/util/macro_meta_common.h include/nano-caf/util/maybe.h include/nano-caf/core/msg/request.h include/nano-caf/util/type_id_t.h include/nano-caf/core/msg/atom.h include/nano-caf/core/actor/type_actor_handle.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp

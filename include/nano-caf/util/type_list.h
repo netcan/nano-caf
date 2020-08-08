@@ -61,7 +61,8 @@ namespace detail {
 }
 
 template<typename T, typename TL>
-constexpr bool type_list_exists = TL::template prepend_type<T>::template export_to<detail::type_list_exists>::value;
+constexpr bool type_exists = \
+   TL::template prepend_type<T>::template export_to<detail::type_list_exists>::value;
 
 NANO_CAF_NS_END
 
