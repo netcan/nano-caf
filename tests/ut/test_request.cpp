@@ -13,7 +13,7 @@ namespace {
 
    __CAF_actor_interface(media_session,
        (open,  (const long&) -> long),
-       (close, (int) -> void)
+       (close, (const long&) -> void)
    );
 
    struct not_atom {};
@@ -27,11 +27,13 @@ namespace {
       auto get_behavior() -> behavior override {
          return {
             [&](media_session::open_atom, long value) {
-               std::cout << "message received: " << value << std::endl;
-               exit(exit_reason::normal);
+               std::cout << "open received: " << value << std::endl;
+            },
+            [&](media_session::close_atom, long value) {
+               std::cout << "close received: " << value << std::endl;
             },
             [&](exit_msg_atom, exit_reason reason) {
-               std::cout << "value" << std::endl;
+               std::cout << "exit received" << std::endl;
             },
          };
       }
@@ -50,6 +52,8 @@ namespace {
 
       type_actor_handle<media_session> me = system.spawn_type<media_session, media_session_actor>();
       REQUIRE(enq_result::ok == me.send(media_session::open, (long)10));
+      REQUIRE(enq_result::ok == me.send(media_session::close, (long)20));
+      REQUIRE(enq_result::ok == me.exit());
 
       me.wait_for_exit();
       me.release();

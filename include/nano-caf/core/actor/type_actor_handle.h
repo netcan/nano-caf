@@ -48,6 +48,7 @@ struct type_actor_handle : private actor_handle {
 
    using actor_handle::wait_for_exit;
    using actor_handle::release;
+   using actor_handle::exit;
 
    template<typename METHOD_ATOM, typename ... Args,
       typename = std::enable_if_t<detail::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>

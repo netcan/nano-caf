@@ -10,6 +10,7 @@
 #include <nano-caf/core/actor/enq_result.h>
 #include <nano-caf/core/msg/make_message.h>
 #include <nano-caf/core/actor/wait_result.h>
+#include <nano-caf/core/msg/predefined-msgs.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -21,6 +22,11 @@ struct actor_handle {
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    auto send(Args&& ... args) noexcept {
       return send_(make_message<T, CATEGORY>(std::forward<Args>(args)...));
+   }
+
+   template<message::category CATEGORY = message::normal>
+   auto exit(exit_reason reason = (CATEGORY == message::urgent ? exit_reason::kill : exit_reason::normal)) noexcept {
+      return send_(make_message<exit_msg, CATEGORY>(reason));
    }
 
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
