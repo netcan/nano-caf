@@ -16,6 +16,7 @@ struct actor_system
    auto power_off() noexcept -> void;
 
    using actor_context::spawn;
+   using actor_context::spawn_type;
    using actor_context::get_num_of_actors;
    using actor_context::sched_jobs;
 };

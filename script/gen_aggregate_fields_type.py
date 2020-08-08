@@ -12,11 +12,11 @@ head = '''
 NANO_CAF_NS_BEGIN
 
 namespace detail {
-template<size_t N, typename T, typename = void>
+template<size_t N, typename T>
 struct aggregate_fields_type;
 
 template<typename T>
-struct aggregate_fields_type<0, T, std::enable_if_t<std::is_aggregate_v<T>>> {
+struct aggregate_fields_type<0, T> {
    using type = type_list<>;
 };
 
@@ -32,7 +32,7 @@ NANO_CAF_NS_END
 
 name = '''
 template<typename T>
-class aggregate_fields_type<{0}, T, std::enable_if_t<std::is_aggregate_v<T>>> {{ 
+class aggregate_fields_type<{0}, T> {{ 
     constexpr static auto deduce_type() {{
         auto [{1}] = T{{}};
         return type_list<{2}>{{}};

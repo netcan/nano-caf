@@ -27,6 +27,7 @@ namespace detail {
       using return_type  = typename callable_trait<SIGNATURE>::return_type;
       using args_type    = typename callable_trait<SIGNATURE>::decayed_args_type;
       using pattern_type = typename callable_trait<SIGNATURE>::decayed_args_type::template prepend_type<ATOM>;
+      using msg_type     = typename args_type::template export_to<typename std::tuple>;
    };
 }
 
@@ -43,6 +44,7 @@ template <typename T> struct __SeCrEtE_method<n, T>               \
 }; \
 struct __CUB_atom_type(x) : atom_signature { \
    using type = __SeCrEtE_method<n, __SeCrEtE_tHiS_tYpe>; \
+   using msg_type = type::msg_type; \
 }; \
 constexpr static __CUB_atom_type(x) __CUB_method_name(x);
 

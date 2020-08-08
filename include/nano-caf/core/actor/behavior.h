@@ -12,6 +12,7 @@
 #include <nano-caf/core/actor/task_result.h>
 #include <nano-caf/util/aggregate_reflex.h>
 #include <tuple>
+#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
@@ -49,6 +50,28 @@ namespace detail {
    template<typename F, typename = void>
    struct behavior_trait;
 
+   template <typename> struct is_tuple: std::false_type {};
+   template <typename ...T> struct is_tuple<std::tuple<T...>>: std::true_type {};
+
+   template <typename ... Ts>
+   auto deduce_tuple_types(std::tuple<Ts...>) -> type_list<Ts...>;
+
+   template <typename T, typename = void>
+   struct msg_type_trait;
+
+   template <typename T>
+   struct msg_type_trait<T, std::enable_if_t<std::is_aggregate_v<T>>> : aggregate_trait<T> {};
+
+   template <typename T>
+   struct msg_type_trait<T, std::enable_if_t<is_tuple<T>::value>>  {
+      using fields_types = decltype(deduce_tuple_types(std::declval<T>()));
+
+      template <typename F>
+      static auto call(const T& obj, F&& f) {
+         return detail::aggregate_fields_type<fields_types::size, T>::call(obj, std::forward<F>(f));
+      }
+   };
+
    template<typename F>
    struct behavior_trait<F, std::enable_if_t<is_atom<F>>> {
       static_assert(!is_non_const_lref<first_arg_t<F>>, "the atom type cannot be non-const-lvalue-ref");
@@ -57,7 +80,7 @@ namespace detail {
       using args_type = typename callable_trait<F>::args_type::tail;
       using atom_type = std::decay_t<first_arg_t<F>>;
       using message_type = typename atom_type::msg_type;
-      using fields_types = typename aggregate_trait<message_type>::fields_type;
+      using fields_types = typename msg_type_trait<message_type>::fields_types;
       using decayed_field_types = typename fields_types::template transform<std::decay_t>;
 
       static_assert(std::is_same_v<decayed_field_types, decayed_args>, "parameters & message don't match");
@@ -68,7 +91,7 @@ namespace detail {
          using base::base;
          auto operator()(message &msg) {
             return base::handle_msg(msg, [](const message_type& msg, F& f) {
-               aggregate_trait<message_type>::call(msg, [&](auto &&... args) {
+               msg_type_trait<message_type>::call(msg, [&](auto &&... args) {
                   f(atom_type{}, std::forward<decltype(args)>(args)...);
                });
             });

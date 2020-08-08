@@ -5,6 +5,7 @@
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_context.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
+#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
@@ -58,7 +59,7 @@ auto sched_actor::resume() noexcept  -> resumable::result {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto sched_actor::handle_message_internal(message& msg) noexcept -> task_result {
-   user_defined_handle_msg(msg);
+   auto result = user_defined_handle_msg(msg);
    if(reinterpret_cast<type_id_t>(msg.msg_type_id_) == type_id<exit_msg>) {
       exit_(msg.body<exit_msg>()->reason);
    }
@@ -68,7 +69,7 @@ auto sched_actor::handle_message_internal(message& msg) noexcept -> task_result 
       return task_result::done;
    }
 
-   return task_result::resume;
+   return result;
 }
 
 

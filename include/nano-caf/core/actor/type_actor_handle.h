@@ -13,6 +13,7 @@
 #include <nano-caf/util/callable_trait.h>
 #include <nano-caf/util/type_list.h>
 #include <utility>
+#include "actor_handle.h"
 
 NANO_CAF_NS_BEGIN
 
@@ -42,10 +43,16 @@ namespace detail {
 }
 
 template<typename ACTOR_INTERFACE>
-struct type_actor_handle {
+struct type_actor_handle : private actor_handle {
+   type_actor_handle(intrusive_actor_ptr ptr) : actor_handle{ptr} {}
+
+   using actor_handle::wait_for_exit;
+   using actor_handle::release;
+
    template<typename METHOD_ATOM, typename ... Args,
       typename = std::enable_if_t<detail::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
    auto send(METHOD_ATOM atom, Args&& ... args) {
+      return actor_handle::send<typename METHOD_ATOM::msg_type>(std::forward<Args>(args)...);
    }
 };
 

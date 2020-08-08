@@ -9,17 +9,17 @@
 NANO_CAF_NS_BEGIN
 
 namespace detail {
-template<size_t N, typename T, typename = void>
+template<size_t N, typename T>
 struct aggregate_fields_type;
 
 template<typename T>
-struct aggregate_fields_type<0, T, std::enable_if_t<std::is_aggregate_v<T>>> {
+struct aggregate_fields_type<0, T> {
    using type = type_list<>;
 };
 
 
 template<typename T>
-class aggregate_fields_type<1, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<1, T> { 
     constexpr static auto deduce_type() {
         auto [a1] = T{};
         return type_list<decltype(a1)>{};
@@ -35,7 +35,7 @@ public:
 };
 
 template<typename T>
-class aggregate_fields_type<2, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<2, T> { 
     constexpr static auto deduce_type() {
         auto [a1,a2] = T{};
         return type_list<decltype(a1),decltype(a2)>{};
@@ -51,7 +51,7 @@ public:
 };
 
 template<typename T>
-class aggregate_fields_type<3, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<3, T> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3)>{};
@@ -67,7 +67,7 @@ public:
 };
 
 template<typename T>
-class aggregate_fields_type<4, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<4, T> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4)>{};
@@ -83,7 +83,7 @@ public:
 };
 
 template<typename T>
-class aggregate_fields_type<5, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<5, T> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4),decltype(a5)
@@ -100,7 +100,7 @@ public:
 };
 
 template<typename T>
-class aggregate_fields_type<6, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<6, T> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4),decltype(a5),
@@ -117,7 +117,7 @@ public:
 };
 
 template<typename T>
-class aggregate_fields_type<7, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<7, T> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4),decltype(a5),
@@ -134,7 +134,7 @@ public:
 };
 
 template<typename T>
-class aggregate_fields_type<8, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<8, T> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4),decltype(a5),
@@ -151,7 +151,7 @@ public:
 };
 
 template<typename T>
-class aggregate_fields_type<9, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<9, T> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9] = T{};
         return type_list<decltype(a1),decltype(a2),decltype(a3),decltype(a4),decltype(a5),
@@ -168,7 +168,7 @@ public:
 };
 
 template<typename T>
-class aggregate_fields_type<10, T, std::enable_if_t<std::is_aggregate_v<T>>> { 
+class aggregate_fields_type<10, T> { 
     constexpr static auto deduce_type() {
         auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
               ] = T{};

@@ -9,6 +9,7 @@
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/util/disable_copy.h>
 #include <nano-caf/core/coordinator.h>
+#include <nano-caf/core/actor/type_actor_handle.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -17,6 +18,11 @@ struct actor_context
    , private disable_copy {
    template<typename T, typename ... Ts>
    auto spawn(Ts&& ... args) noexcept -> actor_handle {
+      return make_actor<T>(*this, std::forward<Ts>(args)...);
+   }
+
+   template<typename A, typename T, typename ... Ts>
+   auto spawn_type(Ts&& ... args) noexcept -> type_actor_handle<A> {
       return make_actor<T>(*this, std::forward<Ts>(args)...);
    }
 
