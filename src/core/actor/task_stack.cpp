@@ -14,10 +14,10 @@ auto task_stack::pop(size_t& deficit) noexcept -> std::unique_ptr<message> {
 
    if(__likely(top_ != nullptr)) {
       auto elem = top_;
-      top_ = top_->next;
+      top_ = top_->next_;
       total_task_size_--;
       deficit--;
-      elem->next = nullptr;
+      elem->next_ = nullptr;
       return std::unique_ptr<message>(elem);
    }
 
@@ -29,7 +29,7 @@ auto task_stack::pop(size_t& deficit) noexcept -> std::unique_ptr<message> {
 auto task_stack::push(message* ptr) noexcept -> bool {
    if(__unlikely(ptr == nullptr)) return false;
 
-   ptr->next = top_;
+   ptr->next_ = top_;
    top_ = ptr;
 
    total_task_size_++;
@@ -41,7 +41,7 @@ auto task_stack::push(message* ptr) noexcept -> bool {
 task_stack::~task_stack() noexcept {
    while(top_ != nullptr) {
       auto ptr = top_;
-      top_ = top_->next;
+      top_ = top_->next_;
       delete ptr;
    }
 }

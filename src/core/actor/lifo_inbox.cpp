@@ -21,7 +21,7 @@ auto lifo_inbox::enqueue(message* msg) noexcept -> enq_result {
    auto eof = close_tag();
 
    while(e != eof) {
-      msg->next = e == block_tag() ? nullptr : e;
+      msg->next_ = e == block_tag() ? nullptr : e;
       // if success, it's not possible e == eof.
       if(stack_.compare_exchange_weak(e, msg,
          std::memory_order_release,
@@ -85,7 +85,7 @@ lifo_inbox::~lifo_inbox() noexcept {
 auto lifo_inbox::destroy(message* result) noexcept -> void {
    while(result != nullptr) {
       auto p = result;
-      result = result->next;
+      result = result->next_;
       delete p;
    }
 }

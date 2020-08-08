@@ -25,9 +25,6 @@ namespace detail {
    template<typename F>
    constexpr bool is_atom = is_msg_atom<std::decay_t<first_arg_t<F>>>;
 
-   template<typename F>
-   constexpr bool is_msg_or_atom = std::is_same_v<const msg_id_t, decltype(std::decay_t<first_arg_t<F>>::msg_id)>;
-
    template<typename T>
    struct is_non_rvalue_ref {
       constexpr static bool value = !std::is_rvalue_reference_v<T>;
@@ -53,7 +50,7 @@ namespace detail {
    struct behavior_trait;
 
    template<typename F>
-   struct behavior_trait<F, std::enable_if_t<is_msg_or_atom<F> && is_atom<F>>> {
+   struct behavior_trait<F, std::enable_if_t<is_atom<F>>> {
       static_assert(!is_non_const_lref<first_arg_t<F>>, "the atom type cannot be non-const-lvalue-ref");
 
       using decayed_args = typename callable_trait<F>::decayed_args_type::tail;
@@ -80,7 +77,7 @@ namespace detail {
    };
 
    template<typename F>
-   struct behavior_trait<F, std::enable_if_t<is_msg_or_atom<F> && !is_atom<F>>> {
+   struct behavior_trait<F, std::enable_if_t<!is_atom<F>>> {
       static_assert((callable_trait<F>::num_of_args == 1), "only message argument is allowed");
       using message_type = std::decay_t<first_arg_t<F>>;
       static_assert(!std::is_pointer_v<message_type>, "don't use pointer, use reference instead");

@@ -8,38 +8,52 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/msg/message_id.h>
 #include <nano-caf/util/intrusive_ptr.h>
+#include <nano-caf/util/type_id_t.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
 #include <utility>
 
 NANO_CAF_NS_BEGIN
 
-struct message {
-   message(const message_id& id) : msg_id{id} {}
-   message(intrusive_actor_ptr sender, const message_id& id)
-      : sender{sender}
-      , msg_id{id}
+class message {
+   enum : uint64_t {
+      normal_mask = uint64_t(1) << 0,
+      urgent_mask = uint64_t(1) << 1,
+      future_mask = uint64_t(1) << 2,
+   };
+
+   enum : uint64_t {
+      future = future_mask | normal_mask
+   };
+
+public:
+   enum category : uint64_t {
+      normal = normal_mask,
+      urgent = urgent_mask,
+   };
+
+   message(type_id_t type_id,  category cat = normal)
+      : msg_type_id_(type_id)
+      , category_(cat)
    {}
 
-   message(uint32_t id, message_id::category category = message_id::normal)
-      : msg_id(id, category)
+   message(intrusive_actor_ptr sender, type_id_t type_id, category cat = normal)
+      : sender_{sender}
+      , category_(cat)
+      , msg_type_id_(type_id)
    {}
 
    auto is_urgent() const noexcept -> bool {
-      return msg_id.is_category(message_id::urgent);
+      return (category_ & urgent_mask);
    }
 
    auto is_future_response() const noexcept -> bool {
-      return msg_id.test_flag(message_id::future_mask);
+      return (category_ & future_mask);
    }
 
    template<typename T>
    auto body() const noexcept -> const T* {
-      if(T::msg_id != get_id()) return nullptr;
+      if(type_id<T> != msg_type_id_) return nullptr;
       return reinterpret_cast<const T*>(body_ptr());
-   }
-
-   auto get_id() const -> msg_id_t {
-      return msg_id.get_id();
    }
 
    virtual ~message() = default;
@@ -47,10 +61,17 @@ struct message {
 private:
    virtual auto body_ptr() const noexcept -> const void* = 0;
 
+   template <typename F, typename R>
+   friend struct async_object;
+
 public:
-   message* next {};
-   intrusive_actor_ptr sender{};
-   message_id msg_id;
+   message* next_ {};
+
+public:
+   intrusive_actor_ptr sender_{};
+   category category_;
+
+   const type_id_t msg_type_id_;
 };
 
 NANO_CAF_NS_END

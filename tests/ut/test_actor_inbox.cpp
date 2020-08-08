@@ -50,9 +50,9 @@ namespace {
 
    SCENARIO("consume a non-empty inbox full of urgent") {
       actor_inbox inbox{};
-      inbox.enqueue(make_message<test_message, message_id::urgent>(1));
-      inbox.enqueue(make_message<test_message, message_id::urgent>(2));
-      inbox.enqueue(make_message<test_message, message_id::urgent>(3));
+      inbox.enqueue(make_message<test_message, message::urgent>(1));
+      inbox.enqueue(make_message<test_message, message::urgent>(2));
+      inbox.enqueue(make_message<test_message, message::urgent>(3));
       WHEN("consume elements") {
          uint32_t times = 0;
          auto result = inbox.new_round(100, [&](const message& elem) noexcept  {
@@ -67,9 +67,9 @@ namespace {
 
    SCENARIO("consume a non-empty inbox mixed urgent with normal") {
       actor_inbox inbox{};
-      inbox.enqueue(make_message<test_message, message_id::normal>(1));
-      inbox.enqueue(make_message<test_message, message_id::urgent>(2));
-      inbox.enqueue(make_message<test_message, message_id::urgent>(3));
+      inbox.enqueue(make_message<test_message, message::normal>(1));
+      inbox.enqueue(make_message<test_message, message::urgent>(2));
+      inbox.enqueue(make_message<test_message, message::urgent>(3));
       WHEN("consume 1 element") {
          auto value = 0;
          bool urgent = false;

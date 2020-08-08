@@ -9,22 +9,18 @@
 
 NANO_CAF_NS_BEGIN
 
-template<typename T, message_id::category CATEGORY>
-class message_base {
-   constexpr static auto id = message_id{T::msg_id, CATEGORY};
-
-public:
-   struct type : message {
-      type() : message(id) {}
-      type(intrusive_actor_ptr sender) : message(sender, id) {}
-   };
+template<typename T, message::category CATEGORY>
+struct message_base : message {
+   message_base() : message(type_id<T>, CATEGORY) {}
+   message_base(intrusive_actor_ptr sender)
+         : message(sender, type_id<T>, CATEGORY) {}
 };
 
-template<typename T, message_id::category CATEGORY, typename = void>
-struct message_entity : message_base<T, CATEGORY>::type {
+template<typename T, message::category CATEGORY, typename = void>
+struct message_entity : message_base<T, CATEGORY> {
    template<typename ... Args>
    message_entity(intrusive_actor_ptr sender, Args&&...args)
-      : message_base<T, CATEGORY>::type{sender}
+      : message_base<T, CATEGORY>{sender}
       , value{std::forward<Args>(args)...}{}
 
    template<typename ... Args>
@@ -38,13 +34,13 @@ struct message_entity : message_base<T, CATEGORY>::type {
    T value;
 };
 
-template<typename T, message_id::category CATEGORY>
+template<typename T, message::category CATEGORY>
 struct message_entity<T, CATEGORY, std::enable_if_t<std::is_class_v<T>>>
-   : message_base<T, CATEGORY>::type, T {
+   : message_base<T, CATEGORY>, T {
 
    template<typename ... Args>
    message_entity(intrusive_actor_ptr sender, Args&&...args)
-      : message_base<T, CATEGORY>::type{sender}
+      : message_base<T, CATEGORY>{sender}
       , T{std::forward<Args>(args)...}{}
 
    template<typename ... Args>
@@ -56,12 +52,12 @@ struct message_entity<T, CATEGORY, std::enable_if_t<std::is_class_v<T>>>
    }
 };
 
-template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
+template<typename T, message::category CATEGORY = message::normal, typename ... Args>
 inline auto make_message(Args&&...args) -> message* {
    return new message_entity<T, CATEGORY>(std::forward<Args>(args)...);
 }
 
-template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
+template<typename T, message::category CATEGORY = message::normal, typename ... Args>
 inline auto make_message(intrusive_actor_ptr sender, Args&&...args) -> message* {
    return new message_entity<T, CATEGORY>(sender, std::forward<Args>(args)...);
 }

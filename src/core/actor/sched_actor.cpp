@@ -59,7 +59,7 @@ auto sched_actor::resume() noexcept  -> resumable::result {
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto sched_actor::handle_message_internal(message& msg) noexcept -> task_result {
    user_defined_handle_msg(msg);
-   if(msg.get_id() == exit_msg::msg_id) {
+   if(reinterpret_cast<type_id_t>(msg.msg_type_id_) == type_id<exit_msg>) {
       exit_(msg.body<exit_msg>()->reason);
    }
 

@@ -34,7 +34,7 @@ auto actor_inbox::reload() noexcept -> void {
    task_list urgent, normal;
    while (message != nullptr) {
       auto ptr = message;
-      message = message->next;
+      message = message->next_;
 
       if(__unlikely(ptr->is_urgent())) {
          urgent.push_front(ptr);

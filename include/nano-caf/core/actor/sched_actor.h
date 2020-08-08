@@ -60,7 +60,7 @@ protected:
 
    auto get_current_sender() const noexcept -> actor_handle {
       if(current_message_ == nullptr) return intrusive_actor_ptr{};
-      return current_message_->sender;
+      return current_message_->sender_;
    }
 
 private:

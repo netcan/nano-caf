@@ -14,11 +14,11 @@ auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message> {
 
    if(__likely(head_ != nullptr)) {
       auto elem = head_;
-      head_ = head_->next;
+      head_ = head_->next_;
       if (head_ == nullptr) tail_ = nullptr;
       total_task_size_--;
       deficit--;
-      elem->next = nullptr;
+      elem->next_ = nullptr;
       return std::unique_ptr<message>(elem);
    }
 
@@ -28,11 +28,11 @@ auto task_list::next(size_t& deficit) noexcept -> std::unique_ptr<message> {
 
 ///////////////////////////////////////////////////////////
 auto task_list::push_back(message* ptr) noexcept -> void {
-   if(__likely(tail_ != nullptr)) tail_->next = ptr;
+   if(__likely(tail_ != nullptr)) tail_->next_ = ptr;
    else head_ = ptr;
 
    tail_ = ptr;
-   ptr->next = nullptr;
+   ptr->next_ = nullptr;
 
    total_task_size_++;
 }
@@ -41,7 +41,7 @@ auto task_list::push_back(message* ptr) noexcept -> void {
 auto task_list::push_front(message* ptr) noexcept -> void {
    if(__unlikely(tail_ == nullptr)) tail_ = ptr;
 
-   ptr->next = head_;
+   ptr->next_ = head_;
    head_ = ptr;
 
    total_task_size_++;
@@ -51,7 +51,7 @@ auto task_list::append_list(task_list& list) noexcept -> void{
    if(__unlikely(list.empty())) return;
 
    if(__likely(tail_ != nullptr)) {
-      tail_->next = list.head_;
+      tail_->next_ = list.head_;
    } else {
       head_ = list.head_;
    }
@@ -69,7 +69,7 @@ auto task_list::prepend_list(task_list& list) noexcept -> void {
    if(tail_ == nullptr) {
       tail_ = list.tail_;
    } else {
-      list.tail_->next = head_;
+      list.tail_->next_ = head_;
    }
 
    head_ = list.head_;
@@ -90,7 +90,7 @@ auto task_list::reset() noexcept -> void {
 task_list::~task_list() noexcept {
    while(head_ != nullptr) {
       auto ptr = head_;
-      head_ = head_->next;
+      head_ = head_->next_;
       delete ptr;
    }
 }

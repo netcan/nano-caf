@@ -22,14 +22,14 @@ namespace {
                   REQUIRE(msg != nullptr);
                }
                THEN("should get only 2 message") {
-                  REQUIRE(msg->next != nullptr);
-                  REQUIRE(msg->next->next == nullptr);
+                  REQUIRE(msg->next_ != nullptr);
+                  REQUIRE(msg->next_->next_ == nullptr);
                }
                THEN("the messages should be the ones we eninboxd") {
                   REQUIRE(msg->body<test_message>()->value == 2);
-                  REQUIRE(msg->next->body<test_message>()->value == 1);
+                  REQUIRE(msg->next_->body<test_message>()->value == 1);
                }
-               delete msg->next;
+               delete msg->next_;
                delete msg;
             }
             WHEN("check a non-closed inbox, should return false") {
@@ -60,7 +60,7 @@ namespace {
                REQUIRE(msg != nullptr);
             }
             THEN("should get only 1 message") {
-               REQUIRE(msg->next == nullptr);
+               REQUIRE(msg->next_ == nullptr);
             }
             THEN("the message should be the one we eninboxd") {
                REQUIRE(msg->body<test_message>()->value == 1);
@@ -92,15 +92,15 @@ namespace {
       REQUIRE(msg != nullptr);
 
       auto ptr = std::unique_ptr<message>(msg);
-      msg = msg->next;
+      msg = msg->next_;
       REQUIRE(msg != nullptr);
 
       ptr.reset(msg);
-      msg = msg->next;
+      msg = msg->next_;
       REQUIRE(msg != nullptr);
 
       ptr.reset(msg);
-      msg = msg->next;
+      msg = msg->next_;
       REQUIRE(msg == nullptr);
    }
 
@@ -128,7 +128,7 @@ namespace {
                THEN("should be able to get the message") {
                   REQUIRE(msg != nullptr);
                   while(msg != nullptr) {
-                      msg.reset(msg->next);
+                      msg.reset(msg->next_);
                   }
                   THEN("the inbox should be empty") {
                      REQUIRE(inbox.empty());

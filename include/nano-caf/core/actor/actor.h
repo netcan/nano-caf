@@ -23,12 +23,12 @@ private:
    using async_future_type = std::optional<std::shared_future<typename callable_trait<std::decay_t<F>>::return_type>>;
 
 protected:
-   template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
+   template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    inline auto send(actor_handle& to, Args&& ... args) noexcept {
       return to.send<T, CATEGORY>(self_handle(), std::forward<Args>(args)...);
    }
 
-   template<typename T, message_id::category CATEGORY = message_id::normal, typename ... Args>
+   template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    inline auto reply(Args&& ... args) noexcept {
       auto sender = current_sender();
       if(!sender.exists()) return enq_result::null_sender;

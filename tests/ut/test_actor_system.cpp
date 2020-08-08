@@ -49,14 +49,13 @@ namespace {
    int pong_times = 0;
    struct pong_actor : actor {
       auto handle_message(message& msg) noexcept -> task_result override {
-         switch(msg.get_id()) {
-            case test_message::msg_id:
-               reply<test_message>(msg.body<test_message>()->value);
-               pong_times++;
-               break;
-            case exit_msg::msg_id:
-               return task_result::done;
+         if(msg.msg_type_id_ == type_id<test_message>) {
+            reply<test_message>(msg.body<test_message>()->value);
+            pong_times++;
          }
+         else if(msg.msg_type_id_ == type_id<exit_msg>) {
+         }
+
          return task_result::resume;
       }
    };
@@ -72,18 +71,12 @@ namespace {
       }
 
       auto handle_message(message& msg) noexcept -> task_result override {
-         switch(msg.get_id()) {
-            case test_message::msg_id:
-               times++;
-               send<test_message>(pong, msg.body<test_message>()->value + 1);
-               break;
-            case exit_msg::msg_id:
-               send<exit_msg>(pong, msg.body<exit_msg>()->reason);
-               break;
-            default:
-               return task_result::skip;
+         if(msg.msg_type_id_ == type_id<test_message>) {
+            times++;
+            send<test_message>(pong, msg.body<test_message>()->value + 1);
+         } else if(msg.msg_type_id_ == type_id<exit_msg>) {
+            send<exit_msg>(pong, msg.body<exit_msg>()->reason);
          }
-
          return task_result::resume;
       }
    };
