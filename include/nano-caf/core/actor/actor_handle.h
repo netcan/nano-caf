@@ -63,7 +63,7 @@ struct actor_handle {
        ptr_.release();
    }
 private:
-   auto send_(message*) noexcept -> enq_result;
+   auto send_(message*) noexcept -> status_t;
 
 private:
    intrusive_actor_ptr ptr_{};

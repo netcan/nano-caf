@@ -135,8 +135,8 @@ private:
          auto handler = promised_request_handler<result_type>{};
          auto future = handler.promise_.get_future();
 
-         if(base::f_(handler) != enq_result::ok) {
-            return status_t::failed;
+         if(auto status = base::f_(handler); status != status_t::ok) {
+            return status;
          }
 
          auto status = f_wait(future);
@@ -168,10 +168,10 @@ private:
 
       template<typename H_SUCC, typename H_FAIL>
       auto then(H_SUCC&& h_succ, H_FAIL&& h_fail) {
-         if(base::f_(
+         if(auto status = base::f_(
             delegate_request_handler<result_type, H_SUCC>
-               { std::forward<H_SUCC>(h_succ) }) != enq_result::ok) {
-            h_fail(status_t::failed);
+               { std::forward<H_SUCC>(h_succ) }); status != status_t::ok) {
+            h_fail(status);
          }
       }
    };
@@ -201,8 +201,8 @@ public:
          from,
          promise,
          std::forward<Args>(args)...);
-      if(result != enq_result::ok) {
-         return status_t::failed;
+      if(result != status_t::ok) {
+         return result;
       }
 
       return future;

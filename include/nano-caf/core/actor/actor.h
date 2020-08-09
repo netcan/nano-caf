@@ -32,7 +32,7 @@ protected:
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    inline auto reply(Args&& ... args) noexcept {
       auto sender = current_sender();
-      if(!sender.exists()) return enq_result::null_sender;
+      if(!sender.exists()) return status_t::null_sender;
       return sender.send<T, CATEGORY>(self_handle(), std::forward<Args>(args)...);
    }
 

@@ -9,17 +9,21 @@
 
 NANO_CAF_NS_BEGIN
 
-auto actor_handle::send_(message* msg) noexcept -> enq_result {
-   if(msg == nullptr) return enq_result::null_msg;
-
+auto actor_handle::send_(message* msg) noexcept -> status_t {
    auto actor = ptr_->get();
    auto result = actor->enqueue(msg);
    switch(result) {
+      case enq_result::ok:
+         return status_t::ok;
       case enq_result::blocked:
          ptr_->context().schedule_job(*actor);
-         return enq_result::ok;
-      default:
-         return result;
+         return status_t::ok;
+      case enq_result::closed:
+         return status_t::msg_queue_closed;
+      case enq_result::null_msg:
+         return status_t::null_msg;
+      case enq_result::null_sender:
+         return status_t::null_sender;
    }
 }
 

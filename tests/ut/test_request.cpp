@@ -72,7 +72,7 @@ namespace {
 
       auto me = system.spawn<ctrl_actor>();
 
-      REQUIRE(me.send<test_message>(12) == enq_result::ok);
+      REQUIRE(me.send<test_message>(12) == status_t::ok);
 
       me.wait_for_exit();
       me.release();
@@ -109,9 +109,9 @@ namespace {
          [](auto result) { REQUIRE(result == unit);  },
          [](auto status) { REQUIRE(false); });
 
-      REQUIRE(enq_result::ok == me.send(media_session::open, (long)10));
-      REQUIRE(enq_result::ok == me.send(media_session::close, (long)20));
-      REQUIRE(enq_result::ok == me.exit());
+      REQUIRE(status_t::ok == me.send(media_session::open, (long)10));
+      REQUIRE(status_t::ok == me.send(media_session::close, (long)20));
+      REQUIRE(status_t::ok == me.exit());
 
       me.wait_for_exit();
       me.release();
