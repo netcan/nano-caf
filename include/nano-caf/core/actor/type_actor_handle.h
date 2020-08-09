@@ -17,6 +17,7 @@
 #include <utility>
 #include <nano-caf/util/either.h>
 #include <nano-caf/util/status_t.h>
+#include <nano-caf/util/result_trait.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -106,7 +107,7 @@ private:
    struct wait_rsp : protected request_rsp_base<METHOD_ATOM, F> {
    protected:
       using base = request_rsp_base<METHOD_ATOM, F>;
-      using result_type = typename METHOD_ATOM::type::result_type;
+      using result_type = result_t<typename METHOD_ATOM::type::result_type>;
 
    public:
       using base::base;

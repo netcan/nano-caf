@@ -56,6 +56,10 @@ namespace {
          [](auto status) { REQUIRE(false); },
          [](auto result) { REQUIRE(result == 109); });
 
+      me.request(media_session::close, (long)10).wait().match(
+         [](auto status) { REQUIRE(false); },
+         [](auto result) { REQUIRE(true);  });
+
       REQUIRE(enq_result::ok == me.send(media_session::open, (long)10));
       REQUIRE(enq_result::ok == me.send(media_session::close, (long)20));
       REQUIRE(enq_result::ok == me.exit());
