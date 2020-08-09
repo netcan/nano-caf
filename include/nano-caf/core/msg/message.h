@@ -11,12 +11,14 @@
 #include <nano-caf/util/type_id_t.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
 #include <utility>
+#include <nano-caf/util/status_t.h>
+#include <nano-caf/util/either.h>
 
 NANO_CAF_NS_BEGIN
 
 template<typename T>
 struct request_result_handler {
-   virtual auto handle(const T&) -> bool = 0;
+   virtual auto handle(const either<T, status_t>&) -> void = 0;
    virtual ~request_result_handler() = default;
 };
 

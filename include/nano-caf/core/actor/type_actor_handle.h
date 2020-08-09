@@ -63,10 +63,9 @@ struct type_actor_handle : private actor_handle {
 private:
    template<typename T>
    struct promised_request_handler : request_result_handler<T> {
-      auto handle(const T& value) -> bool override {
+      auto handle(const either<T, status_t>& value) -> void override {
          promise_.set_value(value);
          value_set = true;
-         return true;
       }
 
       promised_request_handler() = default;
@@ -84,16 +83,22 @@ private:
       bool value_set{false};
    };
 
-   template<typename T, typename HANDLER>
+   template<typename T, typename H_SUCC, typename H_FAIL>
    struct delegate_request_handler : request_result_handler<T> {
-      delegate_request_handler(HANDLER&& handler) : handler_{handler} {}
+      delegate_request_handler(H_SUCC&& h_succ, H_FAIL&& h_fail)
+         : h_succ_{std::move(h_succ)}
+         , h_fail_{std::move(h_fail)}
+      {}
 
-      auto handle(const T& value) -> bool override {
-         handler(value);
-         return true;
+      static_assert(std::is_invocable_r_v<void, H_SUCC, T>, "T function signature mismatch");
+      static_assert(std::is_invocable_r_v<void, H_FAIL, status_t>, "status function signature mismatch");
+
+      auto handle(const either<T, status_t>& value) -> void override {
+         value.match(h_succ_, h_fail_);
       }
 
-      HANDLER handler_;
+      H_SUCC h_succ_;
+      H_FAIL h_fail_;
    };
 
    template<typename METHOD_ATOM, typename F>
@@ -118,6 +123,7 @@ private:
       auto wait_(F_WAIT&& f_wait) -> wait_result_t {
          auto handler = promised_request_handler<result_type>{};
          auto future = handler.promise_.get_future();
+
          if(base::f_(handler) != enq_result::ok) {
             return status_t::failed;
          }
@@ -144,12 +150,19 @@ private:
    struct then_rsp : wait_rsp<METHOD_ATOM, F> {
    private:
       using base = wait_rsp<METHOD_ATOM, F>;
+      using result_type = result_t<typename METHOD_ATOM::type::result_type>;
+
    public:
       using base::base;
 
-      template<typename HANDLER>
-      auto then(HANDLER&& handler) {
-         base::f_(delegate_request_handler{handler});
+      template<typename H_SUCC, typename H_FAIL>
+      auto then(H_SUCC&& h_succ, H_FAIL&& h_fail) {
+         if(base::f_(
+            delegate_request_handler<result_type, H_SUCC, H_FAIL>
+               { std::forward<H_SUCC>(h_succ),
+                 std::forward<H_FAIL>(h_fail)}) != enq_result::ok) {
+            h_fail(status_t::failed);
+         }
       }
    };
 

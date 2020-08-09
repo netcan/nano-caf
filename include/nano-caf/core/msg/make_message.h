@@ -58,6 +58,7 @@ struct message_entity<T, CATEGORY, std::enable_if_t<std::is_class_v<T>>>
 template<typename T, typename HANDLER, message::category CATEGORY>
 struct request_entity : message_entity<T, CATEGORY> {
    using parent = message_entity<T, CATEGORY>;
+   using real_handler_t = std::decay_t<HANDLER>;
 
    template<typename ... Args>
    request_entity(intrusive_actor_ptr sender, HANDLER&& handler, Args&&...args)
@@ -71,16 +72,16 @@ struct request_entity : message_entity<T, CATEGORY> {
    {}
 
    auto handler_ptr() const noexcept -> void* override {
-      return reinterpret_cast<void*>(const_cast<HANDLER*>(&handler_));
+      return reinterpret_cast<void*>(const_cast<real_handler_t*>(&handler_));
    }
 
    using result_type = result_t<typename T::result_type>;
-   static_assert(std::is_base_of_v<request_result_handler<result_type>, HANDLER>);
-   HANDLER handler_;
+   static_assert(std::is_base_of_v<request_result_handler<result_type>, real_handler_t>);
+   real_handler_t handler_;
 };
 
 template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
-inline auto make_request(HANDLER& handler, Args&&...args) -> message* {
+inline auto make_request(HANDLER&& handler, Args&&...args) -> message* {
    return new request_entity<T, HANDLER, (message::category)((uint64_t)CATEGORY | message::request_mask)>
       (std::forward<HANDLER>(handler), std::forward<Args>(args)...);
 }

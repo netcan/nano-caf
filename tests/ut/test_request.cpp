@@ -30,7 +30,6 @@ namespace {
                return value + 1;
             },
             [&](media_session::close_atom, long value) {
-               std::cout << "close received: " << value << std::endl;
             },
             [&](exit_msg_atom, exit_reason reason) {
                std::cout << "exit received" << std::endl;
@@ -61,9 +60,9 @@ namespace {
          [](auto result) { REQUIRE(false); },
          [](auto status) { REQUIRE(status == status_t::timeout); });
 
-//      me.request(media_session::open, (long)20).then().match(
-//         [](auto status) { REQUIRE(status == status_t::timeout); },
-//         [](auto result) { REQUIRE(false); });
+      me.request(media_session::open, (long)30).then(
+         [](auto result) { REQUIRE(result == 31); },
+         [](auto status) {});
 
       me.request(media_session::close, (long)10).wait().match(
          [](auto result) { REQUIRE(result == unit);  },
