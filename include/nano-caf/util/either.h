@@ -10,38 +10,43 @@
 
 NANO_CAF_NS_BEGIN
 
-template<typename U, typename V>
+template<typename L, typename R>
 struct either {
-   either(U&& u) : state{U_ACTIVE} {
-      new (holder) U{std::move(u)};
+private:
+   enum class state : uint8_t {
+      l_active,
+      r_active
+   };
+
+public:
+   either(L&& l) : state_{state::l_active} {
+      new (holder) L{std::move(l)};
    }
-   either(V&& v) : state{V_ACTIVE} {
-      new (holder) V{std::move(v)};
+   either(R&& r) : state_{state::r_active} {
+      new (holder) R{std::move(r)};
    }
-   either(const U& u) : state{U_ACTIVE} {
-      new (holder) U{u};
+   either(const L& l) : state_{state::l_active} {
+      new (holder) L{l};
    }
-   either(const V& v) : state{V_ACTIVE} {
-      new (holder) V{v};
+   either(const R& r) : state_{state::r_active} {
+      new (holder) R{r};
    }
 
-   either(const either& rhs) : state{rhs.state} {
-      switch(state) {
-         case U_ACTIVE:
-            new (holder) U(rhs.left()); break;
-         case V_ACTIVE:
-            new (&holder.v) V(rhs.right()); break;
-         default: break;
+   either(const either& rhs) : state_{rhs.state_} {
+      switch(state_) {
+         case state::l_active:
+            new (holder) L(rhs.left()); break;
+         case state::r_active:
+            new (holder) R(rhs.right()); break;
       }
    }
 
-   either(either&& rhs) : state{rhs.state} {
-      switch(state) {
-         case U_ACTIVE: new (holder) U(std::move(rhs.left())); break;
-         case V_ACTIVE: new (holder) V(std::move(rhs.right())); break;
+   either(either&& rhs) : state_{rhs.state_} {
+      switch(state_) {
+         case state::l_active: new (holder) L(std::move(rhs.left())); break;
+         case state::r_active: new (holder) R(std::move(rhs.right())); break;
          default: break;
       }
-      rhs.state = INIT;
    }
 
    either& operator=(either rhs) {
@@ -50,60 +55,50 @@ struct either {
    }
 
    auto left_set() const -> bool {
-      return state == U_ACTIVE;
+      return state_ == state::l_active;
    }
 
    auto right_set() const -> bool {
-      return state == V_ACTIVE;
+      return state_ == state::r_active;
    }
 
-   auto left() -> U& {
-      return *reinterpret_cast<U*>(holder);
+   auto left() -> L& {
+      return *reinterpret_cast<L*>(holder);
    }
-   auto right() -> V& {
-      return *reinterpret_cast<V*>(holder);
-   }
-
-   auto left() const -> const U& {
-      return *reinterpret_cast<const U*>(holder);
-   }
-   auto right() const -> const V& {
-      return *reinterpret_cast<const V*>(holder);
+   auto right() -> R& {
+      return *reinterpret_cast<R*>(holder);
    }
 
-   template<typename L, typename R>
-   auto match(L&& f_l, R&& f_r) const {
-      static_assert(std::is_invocable_v<L, U&>, "f_left type mismatch");
-      static_assert(std::is_invocable_v<R, V&>, "f_right type mismatch");
-      static_assert(std::is_same_v<std::invoke_result_t<L, U&>, std::invoke_result_t<R, V&>>, "result type mismatch");
-      switch (state) {
-         case U_ACTIVE: return f_l(left());
-         case V_ACTIVE: return f_r(right());
-         default: {
-            // error
-            return f_r(right());
-         }
+   auto left() const -> const L& {
+      return *reinterpret_cast<const L*>(holder);
+   }
+   auto right() const -> const R& {
+      return *reinterpret_cast<const R*>(holder);
+   }
+
+   template<typename F_L, typename F_R>
+   auto match(F_L&& f_l, F_R&& f_r) const {
+      static_assert(std::is_invocable_v<F_L, L&>, "f_left type mismatch");
+      static_assert(std::is_invocable_v<F_R, R&>, "f_right type mismatch");
+      static_assert(std::is_same_v<std::invoke_result_t<F_L, L&>, std::invoke_result_t<F_R, R&>>, "result type mismatch");
+      switch (state_) {
+         case state::l_active: return f_l(left());
+         case state::r_active: return f_r(right());
       }
    }
 
    ~either() {
-      switch(state) {
-         case U_ACTIVE: left().~U();; break;
-         case V_ACTIVE: right().~V();; break;
-         default: break;
+      switch(state_) {
+         case state::l_active: left().~L();; break;
+         case state::r_active: right().~R();; break;
       }
    };
 
 private:
-   constexpr static size_t size = std::max(sizeof(U), sizeof(V));
-   constexpr static size_t align = std::max(alignof(U), alignof(V));
+   constexpr static size_t size = std::max(sizeof(L), sizeof(R));
+   constexpr static size_t align = std::max(alignof(L), alignof(R));
    alignas(align) char holder[size];
-
-   enum {
-     INIT,
-     U_ACTIVE,
-     V_ACTIVE
-   } state{INIT};
+   state state_;
 };
 
 NANO_CAF_NS_END

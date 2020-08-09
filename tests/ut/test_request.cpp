@@ -51,10 +51,10 @@ namespace {
             [&, this](test_message_atom, const int &amount) {
                request(session_actor, media_session::open, (long)amount)
                .then(
-                   [this](auto result) {
-                        std::cout << "success = " << result << std::endl;
-                        exit(exit_reason::normal);
-                     },
+                  [this](auto result) {
+                     std::cout << "success = " << result << std::endl;
+                     exit(exit_reason::normal);
+                  },
                   [](auto failure) {
                      std::cout << "failed = " << failure << std::endl;
                   });
