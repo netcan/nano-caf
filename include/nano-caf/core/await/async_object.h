@@ -44,7 +44,7 @@ class async_func {
    std::tuple<F, Args...> f_;
 
 public:
-   using result_type = typename std::invoke_result<F, Args...>::type;
+   using result_type = std::invoke_result_t<F, Args...>;
 
    explicit async_func(F&& f, Args&&... args)
       : f_(std::move(f), std::move(args)...) {}

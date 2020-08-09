@@ -20,7 +20,7 @@ struct actor {
 
 private:
    template<typename F>
-   using async_future_type = std::optional<std::shared_future<typename callable_trait<std::decay_t<F>>::return_type>>;
+   using async_future_type = std::optional<std::shared_future<typename callable_trait<std::decay_t<F>>::result_type>>;
 
 protected:
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>

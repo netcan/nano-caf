@@ -79,7 +79,7 @@ struct with_futures {
    template<typename F>
    auto operator()(F&& f) -> bool {
       using trait = callable_trait<std::decay_t<F>>;
-      static_assert(std::is_same_v<typename trait::return_type, void>);
+      static_assert(std::is_same_v<typename trait::result_type, void>);
       using args_type = typename trait::args_type;
       using deduced_args_type = type_list<typename optional_future_trait<std::decay_t<Args>>::type...>;
       static_assert(std::is_same_v<args_type, deduced_args_type>);

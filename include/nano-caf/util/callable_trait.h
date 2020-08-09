@@ -16,7 +16,7 @@ struct function_trait;
 
 template<typename R, typename ... Args>
 struct __function_trait {
-   using return_type = R;
+   using result_type = R;
    using args_type = type_list<Args...>;
    using decayed_args_type = type_list<std::decay_t<Args>...>;
    constexpr static size_t num_of_args = sizeof...(Args);

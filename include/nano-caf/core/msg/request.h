@@ -26,7 +26,7 @@ namespace detail {
 
       static_assert(!callable_trait<SIGNATURE>::is_variadic, "request does not support variadic arguments");
       using method_type  = ATOM;
-      using return_type  = typename callable_trait<SIGNATURE>::return_type;
+      using result_type  = typename callable_trait<SIGNATURE>::result_type;
       using args_type    = typename callable_trait<SIGNATURE>::decayed_args_type;
       using pattern_type = typename callable_trait<SIGNATURE>::decayed_args_type::template prepend_type<ATOM>;
       using msg_type     = typename args_type::template export_to<typename std::tuple>;

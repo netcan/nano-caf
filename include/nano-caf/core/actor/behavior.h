@@ -39,7 +39,9 @@ namespace detail {
       behavior_base(F &&f) : f_(std::move(f)) {}
       F f_;
 
-      auto handle_msg(message &msg, void (*handler)(const MSG_TYPE& msg, F& f)) -> bool {
+      using result_type = typename callable_trait<F>::result_type;
+
+      auto handle_msg(message &msg, auto (*handler)(const MSG_TYPE& msg, F& f) -> result_type) -> bool {
          auto *body = msg.body<MSG_TYPE>();
          if (body == nullptr) return false;
          handler(*body, f_);
@@ -92,8 +94,8 @@ namespace detail {
          using base::base;
          auto operator()(message &msg) {
             return base::handle_msg(msg, [](const message_type& msg, F& f) {
-               msg_type_trait<message_type>::call(msg, [&](auto &&... args) {
-                  f(atom_type{}, std::forward<decltype(args)>(args)...);
+               return msg_type_trait<message_type>::call(msg, [&](auto &&... args) {
+                  return f(atom_type{}, std::forward<decltype(args)>(args)...);
                });
             });
          }
@@ -110,7 +112,7 @@ namespace detail {
       struct type : base {
          using base::base;
          auto operator()(message &msg) -> bool {
-            return base::handle_msg(msg, [](const message_type& msg, F& f) { f(msg); });
+            return base::handle_msg(msg, [](const message_type& msg, F& f) { return f(msg); });
          }
       };
    };
