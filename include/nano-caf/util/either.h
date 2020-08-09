@@ -34,10 +34,8 @@ public:
 
    either(const either& rhs) : state_{rhs.state_} {
       switch(state_) {
-         case state::l_active:
-            new (holder) L(rhs.left()); break;
-         case state::r_active:
-            new (holder) R(rhs.right()); break;
+         case state::l_active: new (holder) L(rhs.left()); break;
+         case state::r_active: new (holder) R(rhs.right()); break;
       }
    }
 
@@ -54,11 +52,11 @@ public:
       return *this;
    }
 
-   auto left_set() const -> bool {
+   auto left_present() const -> bool {
       return state_ == state::l_active;
    }
 
-   auto right_set() const -> bool {
+   auto right_present() const -> bool {
       return state_ == state::r_active;
    }
 
