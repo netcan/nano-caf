@@ -13,7 +13,9 @@ NANO_CAF_NS_BEGIN
 enum status_t : std::uint_fast64_t {
    ok,
    failed,
-   timeout
+   timeout,
+   null_ptr,
+   out_of_mem
 };
 
 NANO_CAF_NS_END

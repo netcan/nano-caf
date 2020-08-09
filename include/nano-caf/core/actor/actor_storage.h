@@ -87,10 +87,10 @@ private:
          return get_current_sender();
       }
 
-      auto register_future_callback(future_callback* future) noexcept -> bool override {
-         if(future == nullptr) return false;
+      auto register_future_callback(future_callback* future) noexcept -> status_t override {
+         if(future == nullptr) return status_t::null_ptr;
          futures_.push_back(future);
-         return true;
+         return status_t::ok;
       }
 
       ~internal_actor() {

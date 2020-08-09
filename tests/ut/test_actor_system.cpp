@@ -158,7 +158,7 @@ namespace {
             }
          });
 
-         if(!result3) {
+         if(result3 != status_t::ok) {
             exit(exit_reason::unhandled_exception);
          }
       }

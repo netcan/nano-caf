@@ -8,6 +8,7 @@
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/core/actor/exit_reason.h>
+#include <nano-caf/core/actor/typed_actor_handle.h>
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/await/async_object.h>
 #include <nano-caf/core/await/future_callback.h>
@@ -21,6 +22,24 @@ struct actor {
 private:
    template<typename F>
    using async_future_type = std::optional<std::shared_future<typename callable_trait<std::decay_t<F>>::result_type>>;
+
+private:
+   template<typename F, typename ... Args>
+   auto wait_futures(F&& f, Args&& ...args) -> status_t {
+      static_assert(std::is_invocable_r_v<void, F, decltype(std::declval<Args>().get())...>);
+      using seq_type = std::make_index_sequence<sizeof...(Args)>;
+      future_set<std::decay_t<Args>...> futures{args...};
+      if(futures.invoke(std::forward<F>(f), seq_type{})) return status_t::ok;
+
+      auto callback = new generic_future_callback(
+         [=, futures = std::move(futures)]() mutable -> bool {
+            return futures.invoke(std::move(f));
+         });
+      if(callback == nullptr) {
+         return status_t::out_of_mem;
+      }
+      return register_future_callback(callback);
+   }
 
 protected:
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
@@ -52,11 +71,19 @@ protected:
       return result;
    }
 
+   template<typename A, typename METHOD, typename ... Args>
+   inline auto request(typed_actor_handle<A>& to, METHOD method, Args&&...args)  {
+      to.request(self_handle(), method, std::forward<Args>(args)...);
+   }
+
    template<typename ... Args>
-   inline auto with(Args ... args) {
-      return with_futures([this](future_callback* callback) -> bool {
-            return register_future_callback(callback);
-         }, args...);
+   inline auto with(Args&& ... args) {
+      return [&](auto&& callback) {
+         if(((!args.has_value()) || ...) ) {
+            return status_t::failed;
+         }
+         return wait_futures(std::forward<decltype(callback)>(callback), *args...);
+      };
    }
 
    virtual auto exit(exit_reason) noexcept -> void = 0;
@@ -69,7 +96,7 @@ private:
 private:
    virtual auto self() const noexcept -> actor_control_block& = 0;
    virtual auto current_sender() const noexcept -> actor_handle = 0;
-   virtual auto register_future_callback(future_callback*) noexcept -> bool = 0;
+   virtual auto register_future_callback(future_callback*) noexcept -> status_t = 0;
 
 protected:
    virtual auto on_init() -> void {}

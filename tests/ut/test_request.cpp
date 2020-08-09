@@ -4,7 +4,7 @@
 
 #include <catch.hpp>
 #include <nano-caf/core/msg/request.h>
-#include <nano-caf/core/actor/type_actor_handle.h>
+#include <nano-caf/core/actor/typed_actor_handle.h>
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include <iostream>
 
@@ -51,7 +51,7 @@ namespace {
 
       using namespace std::chrono_literals;
 
-      type_actor_handle<media_session> me = system.spawn_type<media_session, media_session_actor>();
+      typed_actor_handle<media_session> me = system.spawn_type<media_session, media_session_actor>();
       me.request(media_session::open, (long)10).wait().match(
          [](auto result) { REQUIRE(result == 11); },
          [](auto status) { REQUIRE(false); });

@@ -11,6 +11,8 @@
 #include <functional>
 #include <future>
 #include <nano-caf/core/msg/predefined-msgs.h>
+#include <nano-caf/core/actor/intrusive_actor_ptr.h>
+#include <nano-caf/core/actor/actor_handle.h>
 
 NANO_CAF_NS_BEGIN
 

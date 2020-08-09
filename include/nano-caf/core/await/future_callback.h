@@ -31,22 +31,9 @@ private:
    F f;
 };
 
-template<typename T>
-struct optional_future_trait;
-
-template<typename T>
-struct optional_future_trait<std::optional<std::shared_future<T>>> {
-   using type = T;
-};
-
 template<typename ... Args>
 struct future_set {
    future_set(Args& ... args) : futures_{std::move(args)...} {}
-
-   template<size_t ... I>
-   auto valid(std::index_sequence<I...>) const -> bool {
-      return ((std::get<I>(futures_) != std::nullopt) && ...);
-   }
 
    template<typename Tp>
    static constexpr auto is_future_done(const std::shared_future<Tp>& future) noexcept -> bool {
@@ -55,14 +42,19 @@ struct future_set {
 
    template<size_t ... I>
    auto done(std::index_sequence<I...>) const -> bool {
-      return (is_future_done(*std::get<I>(futures_)) && ...);
+      return (is_future_done(std::get<I>(futures_)) && ...);
    }
 
    template<size_t ... I, typename F>
    auto invoke(F&& f, std::index_sequence<I...> is) const -> bool {
       if(!done(is)) return false;
-      f((*std::get<I>(futures_)).get()...);
+      f(std::get<I>(futures_).get()...);
       return true;
+   }
+
+   template<typename F>
+   auto invoke(F&& f) const -> bool {
+      return invoke(std::forward<F>(f), std::make_index_sequence<sizeof...(Args)>{});
    }
 
 private:
@@ -71,26 +63,16 @@ private:
 
 template<typename T, typename ... Args>
 struct with_futures {
-   with_futures(T registry, Args&...args)
-      : registry_{std::move(registry)}
-      , futures_{args...}
-   {}
-
    template<typename F>
    auto operator()(F&& f) -> bool {
-      using trait = callable_trait<std::decay_t<F>>;
-      static_assert(std::is_same_v<typename trait::result_type, void>);
-      using args_type = typename trait::args_type;
-      using deduced_args_type = type_list<typename optional_future_trait<std::decay_t<Args>>::type...>;
-      static_assert(std::is_same_v<args_type, deduced_args_type>);
+      static_assert(std::is_invocable_r_v<void, F, Args...>);
       using seq_type = std::make_index_sequence<sizeof...(Args)>;
 
-      if(!futures_.valid(seq_type{})) return false;
       if(futures_.invoke(std::forward<F>(f), seq_type{})) return true;
 
       return registry_(new generic_future_callback(
          [=, futures = std::move(futures_)]() mutable -> bool {
-            return futures.invoke(std::move(f), seq_type{});
+            return futures.invoke(std::move(f));
          }));
    }
 

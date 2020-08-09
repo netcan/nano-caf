@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/8.
 //
 
-#ifndef NANO_CAF_TYPE_ACTOR_HANDLE_H
-#define NANO_CAF_TYPE_ACTOR_HANDLE_H
+#ifndef NANO_CAF_TYPED_ACTOR_HANDLE_H
+#define NANO_CAF_TYPED_ACTOR_HANDLE_H
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/msg/atom.h>
@@ -47,8 +47,8 @@ namespace detail {
 }
 
 template<typename ACTOR_INTERFACE>
-struct type_actor_handle : private actor_handle {
-   type_actor_handle(intrusive_actor_ptr ptr) : actor_handle{ptr} {}
+struct typed_actor_handle : private actor_handle {
+   typed_actor_handle(intrusive_actor_ptr ptr) : actor_handle{ptr} {}
 
    using actor_handle::wait_for_exit;
    using actor_handle::release;
@@ -65,22 +65,36 @@ private:
    struct promised_request_handler : request_result_handler<T> {
       auto handle(const either<T, status_t>& value) -> void override {
          promise_.set_value(value);
-         value_set = true;
+         value_set_ = true;
       }
 
       promised_request_handler() = default;
       promised_request_handler(promised_request_handler&& handler)
          : promise_{std::move(handler.promise_)}
-         , value_set{handler.value_set} {
-         handler.value_set = true;
+         , value_set_{handler.value_set_} {
+         handler.value_set_ = true;
       }
 
       ~promised_request_handler() {
-         if(!value_set) promise_.set_value(status_t::failed);
+         if(!value_set_) promise_.set_value(status_t::failed);
       }
 
       std::promise<either<T, status_t>> promise_{};
-      bool value_set{false};
+      bool value_set_{false};
+   };
+
+   template<typename T>
+   struct inter_actor_promise_handler : promised_request_handler<T> {
+      inter_actor_promise_handler(intrusive_actor_ptr sender)
+         : sender_{sender}
+      {}
+
+      auto handle(const either<T, status_t>& value) -> void override {
+         promised_request_handler<T>::handle(value);
+         sender_.send<future_done, (message::category)message::future>();
+      }
+
+      actor_handle sender_;
    };
 
    template<typename T, typename H_SUCC, typename H_FAIL>
@@ -108,7 +122,7 @@ private:
       F f_;
    };
 
-   template<typename METHOD_ATOM, typename F, typename = void>
+   template<typename METHOD_ATOM, typename F>
    struct wait_rsp : protected request_rsp_base<METHOD_ATOM, F> {
    protected:
       using base = request_rsp_base<METHOD_ATOM, F>;
@@ -177,8 +191,26 @@ public:
       };
       return then_rsp<METHOD_ATOM, decltype(l)>(std::move(l));
    }
+
+   template<typename METHOD_ATOM, typename ... Args,
+      typename = std::enable_if_t<detail::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
+   auto request(intrusive_actor_ptr from, METHOD_ATOM atom, Args&& ... args)
+      -> either<std::future<result_t<typename METHOD_ATOM::type::result_type>>, status_t> {
+      using result_type = result_t<typename METHOD_ATOM::type::result_type>;
+      inter_actor_promise_handler<result_type> promise{ from };
+      auto future = promise.promise_.get_future();
+      auto result = actor_handle::request<typename METHOD_ATOM::msg_type>(
+         from,
+         promise,
+         std::forward<Args>(args)...);
+      if(result != enq_result::ok) {
+         return status_t::failed;
+      }
+
+      return future;
+   }
 };
 
 NANO_CAF_NS_END
 
-#endif //NANO_CAF_TYPE_ACTOR_HANDLE_H
+#endif //NANO_CAF_TYPED_ACTOR_HANDLE_H
