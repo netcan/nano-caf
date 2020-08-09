@@ -14,6 +14,12 @@
 
 NANO_CAF_NS_BEGIN
 
+template<typename T>
+struct request_result_handler {
+   virtual auto handle(const T&) -> bool = 0;
+   virtual ~request_result_handler() = default;
+};
+
 class message {
    enum : uint64_t {
       normal_mask = uint64_t(1) << 0,
@@ -63,6 +69,8 @@ private:
 
    template <typename F, typename R>
    friend struct async_object;
+
+public:
 
 public:
    message* next_ {};

@@ -24,6 +24,11 @@ struct actor_handle {
       return send_(make_message<T, CATEGORY>(std::forward<Args>(args)...));
    }
 
+   template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
+   auto request(HANDLER&& handler, Args&& ... args) noexcept {
+      return send_(make_request<T, CATEGORY>(std::forward<HANDLER>(handler), std::forward<Args>(args)...));
+   }
+
    template<message::category CATEGORY = message::normal>
    auto exit(exit_reason reason = (CATEGORY == message::urgent ? exit_reason::kill : exit_reason::normal)) noexcept {
       return send_(make_message<exit_msg, CATEGORY>(reason));
@@ -32,6 +37,11 @@ struct actor_handle {
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    auto send(intrusive_actor_ptr from, Args&& ... args) noexcept {
       return send_(make_message<T, CATEGORY>(from, std::forward<Args>(args)...));
+   }
+
+   template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
+   auto request(intrusive_actor_ptr from, HANDLER&& handler, Args&& ... args) noexcept {
+      return send_(make_request<T, CATEGORY>(from, std::forward<HANDLER>(handler), std::forward<Args>(args)...));
    }
 
    auto exists() const {

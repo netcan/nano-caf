@@ -6,6 +6,7 @@
 #define NANO_CAF_MAKE_MESSAGE_H
 
 #include <nano-caf/core/msg/message.h>
+#include <future>
 
 NANO_CAF_NS_BEGIN
 
@@ -51,6 +52,36 @@ struct message_entity<T, CATEGORY, std::enable_if_t<std::is_class_v<T>>>
       return reinterpret_cast<const void*>(static_cast<const T*>(this));
    }
 };
+
+template<typename T, typename HANDLER, message::category CATEGORY>
+struct request_entity : message_entity<T, CATEGORY> {
+   using parent = message_entity<T, CATEGORY>;
+
+   template<typename ... Args>
+   request_entity(intrusive_actor_ptr sender, HANDLER&& handler, Args&&...args)
+      : parent{sender, std::forward<Args>(args)...}
+      , handler_{std::move(handler)} {}
+
+   template<typename ... Args>
+   request_entity(HANDLER&& handler, Args&&...args)
+   : parent{std::forward<Args>(args)...}
+   , handler_{std::move(handler)}
+   {}
+
+   using result_type = typename T::result_type;
+   static_assert(std::is_base_of_v<request_result_handler<result_type>, HANDLER>);
+   HANDLER handler_;
+};
+
+template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
+inline auto make_request(HANDLER& handler, Args&&...args) -> message* {
+   return new request_entity<T, HANDLER, CATEGORY>(std::forward<HANDLER>(handler), std::forward<Args>(args)...);
+}
+
+template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
+inline auto make_request(intrusive_actor_ptr sender, HANDLER&& handler, Args&&...args) -> message* {
+   return new request_entity<T, HANDLER, CATEGORY>(sender, std::forward<HANDLER>(handler), std::forward<Args>(args)...);
+}
 
 template<typename T, message::category CATEGORY = message::normal, typename ... Args>
 inline auto make_message(Args&&...args) -> message* {
