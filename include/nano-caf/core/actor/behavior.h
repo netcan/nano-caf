@@ -13,6 +13,7 @@
 #include <nano-caf/util/aggregate_reflex.h>
 #include <tuple>
 #include <iostream>
+#include <nano-caf/util/unit.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -44,7 +45,20 @@ namespace detail {
       auto handle_msg(message &msg, auto (*handler)(const MSG_TYPE& msg, F& f) -> result_type) -> bool {
          auto *body = msg.body<MSG_TYPE>();
          if (body == nullptr) return false;
-         handler(*body, f_);
+         if constexpr(std::is_same_v<void, result_type>) {
+            handler(*body, f_);
+            auto callback = msg.get_request_result_handler<unit_t>();
+            if(callback != nullptr) {
+               callback->handle(unit);
+            }
+         } else {
+            auto result = handler(*body, f_);
+            auto callback = msg.get_request_result_handler<result_type>();
+            if(callback != nullptr) {
+               callback->handle(result);
+            }
+         }
+
          return true;
       }
    };

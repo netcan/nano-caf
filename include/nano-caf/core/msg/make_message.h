@@ -15,6 +15,7 @@ struct message_base : message {
    message_base() : message(type_id<T>, CATEGORY) {}
    message_base(intrusive_actor_ptr sender)
          : message(sender, type_id<T>, CATEGORY) {}
+
 };
 
 template<typename T, message::category CATEGORY, typename = void>
@@ -68,6 +69,10 @@ struct request_entity : message_entity<T, CATEGORY> {
    , handler_{std::move(handler)}
    {}
 
+   auto handler_ptr() const noexcept -> void* override {
+      return reinterpret_cast<void*>(const_cast<HANDLER*>(&handler_));
+   }
+
    using result_type = typename T::result_type;
    static_assert(std::is_base_of_v<request_result_handler<result_type>, HANDLER>);
    HANDLER handler_;
@@ -75,12 +80,14 @@ struct request_entity : message_entity<T, CATEGORY> {
 
 template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
 inline auto make_request(HANDLER& handler, Args&&...args) -> message* {
-   return new request_entity<T, HANDLER, CATEGORY>(std::forward<HANDLER>(handler), std::forward<Args>(args)...);
+   return new request_entity<T, HANDLER, (message::category)((uint64_t)CATEGORY | message::request_mask)>
+      (std::forward<HANDLER>(handler), std::forward<Args>(args)...);
 }
 
 template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
 inline auto make_request(intrusive_actor_ptr sender, HANDLER&& handler, Args&&...args) -> message* {
-   return new request_entity<T, HANDLER, CATEGORY>(sender, std::forward<HANDLER>(handler), std::forward<Args>(args)...);
+   return new request_entity<T, HANDLER, (message::category)((uint64_t)CATEGORY | message::request_mask)>
+         (sender, std::forward<HANDLER>(handler), std::forward<Args>(args)...);
 }
 
 template<typename T, message::category CATEGORY = message::normal, typename ... Args>

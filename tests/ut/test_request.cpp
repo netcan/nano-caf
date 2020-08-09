@@ -28,7 +28,7 @@ namespace {
          return {
             [&](media_session::open_atom, long value) -> long {
                std::cout << "open received: " << value << std::endl;
-               return 0;
+               return 109;
             },
             [&](media_session::close_atom, long value) {
                std::cout << "close received: " << value << std::endl;
@@ -53,8 +53,8 @@ namespace {
 
       type_actor_handle<media_session> me = system.spawn_type<media_session, media_session_actor>();
       me.request(media_session::open, (long)10).wait().match(
-         [](auto status) { REQUIRE(status == status_t::failed); },
-         [](auto result) { REQUIRE(false); });
+         [](auto status) { REQUIRE(false); },
+         [](auto result) { REQUIRE(result == 109); });
 
       REQUIRE(enq_result::ok == me.send(media_session::open, (long)10));
       REQUIRE(enq_result::ok == me.send(media_session::close, (long)20));

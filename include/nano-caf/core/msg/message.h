@@ -20,18 +20,18 @@ struct request_result_handler {
    virtual ~request_result_handler() = default;
 };
 
-class message {
+struct message {
    enum : uint64_t {
-      normal_mask = uint64_t(1) << 0,
-      urgent_mask = uint64_t(1) << 1,
-      future_mask = uint64_t(1) << 2,
+      normal_mask  = uint64_t(1) << 0,
+      urgent_mask  = uint64_t(1) << 1,
+      future_mask  = uint64_t(1) << 2,
+      request_mask = uint64_t(1) << 3,
    };
 
    enum : uint64_t {
       future = future_mask | normal_mask
    };
 
-public:
    enum category : uint64_t {
       normal = normal_mask,
       urgent = urgent_mask,
@@ -56,16 +56,29 @@ public:
       return (category_ & future_mask);
    }
 
+   auto is_request() const noexcept -> bool {
+      return (category_ & request_mask);
+   }
+
    template<typename T>
    auto body() const noexcept -> const T* {
       if(type_id<T> != msg_type_id_) return nullptr;
       return reinterpret_cast<const T*>(body_ptr());
    }
 
+   template<typename T>
+   auto get_request_result_handler() -> request_result_handler<T>* {
+      if(!is_request()) return nullptr;
+      return reinterpret_cast<request_result_handler<T>*>(handler_ptr());
+   }
+
    virtual ~message() = default;
 
 private:
    virtual auto body_ptr() const noexcept -> const void* = 0;
+   virtual auto handler_ptr() const noexcept -> void* {
+      return nullptr;
+   }
 
    template <typename F, typename R>
    friend struct async_object;
