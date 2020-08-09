@@ -52,7 +52,10 @@ namespace {
       REQUIRE(system.get_num_of_actors() == 0);
 
       type_actor_handle<media_session> me = system.spawn_type<media_session, media_session_actor>();
-      me.request(media_session::open, (long)10).wait();
+      me.request(media_session::open, (long)10).wait().match(
+         [](auto status) { REQUIRE(status == status_t::failed); },
+         [](auto result) { REQUIRE(false); });
+
       REQUIRE(enq_result::ok == me.send(media_session::open, (long)10));
       REQUIRE(enq_result::ok == me.send(media_session::close, (long)20));
       REQUIRE(enq_result::ok == me.exit());
