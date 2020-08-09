@@ -23,24 +23,6 @@ private:
    template<typename F>
    using async_future_type = std::optional<std::shared_future<typename callable_trait<std::decay_t<F>>::result_type>>;
 
-private:
-   template<typename F, typename ... Args>
-   auto wait_futures(F&& f, Args&& ...args) -> status_t {
-      static_assert(std::is_invocable_r_v<void, F, decltype(std::declval<Args>().get())...>);
-      using seq_type = std::make_index_sequence<sizeof...(Args)>;
-      future_set<std::decay_t<Args>...> futures{args...};
-      if(futures.invoke(std::forward<F>(f), seq_type{})) return status_t::ok;
-
-      auto callback = new generic_future_callback(
-         [=, futures = std::move(futures)]() mutable -> bool {
-            return futures.invoke(std::move(f));
-         });
-      if(callback == nullptr) {
-         return status_t::out_of_mem;
-      }
-      return register_future_callback(callback);
-   }
-
 protected:
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    inline auto send(actor_handle& to, Args&& ... args) noexcept {
@@ -73,7 +55,9 @@ protected:
 
    template<typename A, typename METHOD, typename ... Args>
    inline auto request(typed_actor_handle<A>& to, METHOD method, Args&&...args)  {
-      to.request(self_handle(), method, std::forward<Args>(args)...);
+      auto result = to.request(self_handle(), method, std::forward<Args>(args)...);
+      auto l = [this](auto future_cb) { return register_future_callback(future_cb); };
+      return detail::request_then<decltype(l), decltype(result)>(l, result);
    }
 
    template<typename ... Args>
@@ -82,7 +66,9 @@ protected:
          if(((!args.has_value()) || ...) ) {
             return status_t::failed;
          }
-         return wait_futures(std::forward<decltype(callback)>(callback), *args...);
+         return detail::with_futures(std::forward<decltype(callback)>(callback), *args...).match(
+            [this](auto future_cb) { return register_future_callback(future_cb); },
+            [](auto failure) { return failure; });
       };
    }
 

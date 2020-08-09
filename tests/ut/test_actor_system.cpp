@@ -148,7 +148,7 @@ namespace {
 //            exit(exit_reason::unhandled_exception);
 //         }
 
-         auto result3 = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
+         auto result3 = with(future1, future2)([this](auto r1, auto r2) {
             //std::cout << "async done" << std::endl;
             final_result = r1 + r2;
             if(final_result == 115000000) {
