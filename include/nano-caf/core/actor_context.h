@@ -22,7 +22,7 @@ struct actor_context
    }
 
    template<typename A, typename T, typename ... Ts>
-   auto spawn_type(Ts&& ... args) noexcept -> typed_actor_handle<A> {
+   auto spawn_typed_actor(Ts&& ... args) noexcept -> typed_actor_handle<A> {
       return make_actor<T>(*this, std::forward<Ts>(args)...);
    }
 

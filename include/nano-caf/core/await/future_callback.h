@@ -36,7 +36,7 @@ struct future_set {
    future_set(Args& ... args) : futures_{std::move(args)...} {}
 
    template<typename Tp>
-   static constexpr auto is_future_done(const std::shared_future<Tp>& future) noexcept -> bool {
+   static constexpr auto is_future_done(const Tp& future) noexcept -> bool {
       return future.wait_for(std::chrono::nanoseconds{0}) == std::future_status::ready;
    }
 
@@ -64,7 +64,7 @@ private:
 namespace detail {
    template<typename F, typename ... Args>
    auto with_futures(F&& f, Args&& ...args) -> either<future_callback*, status_t> {
-      static_assert(std::is_invocable_r_v<void, F, decltype(std::declval<Args>().get())...>);
+      static_assert(std::is_invocable_r_v<void, F, decltype(std::declval<std::decay_t<Args>>().get())...>);
       using seq_type = std::make_index_sequence<sizeof...(Args)>;
       future_set<std::decay_t<Args>...> futures{args...};
       if(futures.invoke(std::forward<F>(f), seq_type{})) return status_t::ok;
@@ -83,7 +83,7 @@ namespace detail {
 namespace detail {
    template<typename T, typename FUTURE>
    struct request_then {
-      request_then(T&& registry, FUTURE& future)
+      request_then(T& registry, FUTURE& future)
          : registry_{std::move(registry)}
          , future_{std::move(future)} {}
 
@@ -91,7 +91,10 @@ namespace detail {
       auto then(F_SUCC&& f_succ, F_FAIL&& f_fail) -> status_t {
          return future_.match(
             [&](auto& future) {
-               return with_futures(std::forward<F_SUCC>(f_succ), std::forward<decltype(future)>(future)).match(
+               auto l = [succ = std::move(f_succ), fail = std::move(f_fail)](auto result) {
+                  result.match(succ, fail);
+               };
+               return with_futures(std::move(l), future).match(
                   [&](auto future_cb) { return registry_(future_cb); },
                   [&](auto failure) { f_fail(failure); return failure; }
                );

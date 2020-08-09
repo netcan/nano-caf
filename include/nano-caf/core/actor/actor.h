@@ -41,6 +41,10 @@ protected:
       return self().context().spawn<T>(std::forward<Ts>(args)...);
    }
 
+   template<typename A, typename T, typename ... Ts>
+   auto spawn_typed_actor(Ts&& ... args) noexcept -> typed_actor_handle<A> {
+      return self().context().spawn_typed_actor<A, T>(std::forward<Ts>(args)...);
+   }
 
    template<typename F, typename ... Args>
    inline auto async(F&& f, Args&&...args) -> async_future_type<F> {
@@ -57,7 +61,7 @@ protected:
    inline auto request(typed_actor_handle<A>& to, METHOD method, Args&&...args)  {
       auto result = to.request(self_handle(), method, std::forward<Args>(args)...);
       auto l = [this](auto future_cb) { return register_future_callback(future_cb); };
-      return detail::request_then<decltype(l), decltype(result)>(l, result);
+      return detail::request_then<decltype(l), decltype(result)>{l, result};
    }
 
    template<typename ... Args>

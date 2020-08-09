@@ -12,25 +12,36 @@ NANO_CAF_NS_BEGIN
 
 template<typename U, typename V>
 struct either {
-   either(U&& u) : holder{std::move(u)}, choice_u{true} {}
-   either(V&& v) : holder{std::move(v)}, choice_u{false} {}
-   either(const U& u) : holder{u}, choice_u{true} {}
-   either(const V& v) : holder{v}, choice_u{false} {}
+   either(U&& u) : state{U_ACTIVE} {
+      new (holder) U{std::move(u)};
+   }
+   either(V&& v) : state{V_ACTIVE} {
+      new (holder) V{std::move(v)};
+   }
+   either(const U& u) : state{U_ACTIVE} {
+      new (holder) U{u};
+   }
+   either(const V& v) : state{V_ACTIVE} {
+      new (holder) V{v};
+   }
 
-   either(const either& rhs) : choice_u{rhs.choice_u} {
-      if(rhs.choice_u) {
-         holder.u = rhs.holder.u;
-      } else {
-         holder.v = rhs.holder.v;
+   either(const either& rhs) : state{rhs.state} {
+      switch(state) {
+         case U_ACTIVE:
+            new (holder) U(rhs.left()); break;
+         case V_ACTIVE:
+            new (&holder.v) V(rhs.right()); break;
+         default: break;
       }
    }
 
-   either(either&& rhs) : choice_u{rhs.choice_u} {
-      if(rhs.choice_u) {
-         holder.u = std::move(rhs.holder.u);
-      } else {
-         holder.v = std::move(rhs.holder.v);
+   either(either&& rhs) : state{rhs.state} {
+      switch(state) {
+         case U_ACTIVE: new (holder) U(std::move(rhs.left())); break;
+         case V_ACTIVE: new (holder) V(std::move(rhs.right())); break;
+         default: break;
       }
+      rhs.state = INIT;
    }
 
    either& operator=(either rhs) {
@@ -39,50 +50,60 @@ struct either {
    }
 
    auto left_set() const -> bool {
-      return choice_u;
+      return state == U_ACTIVE;
    }
 
    auto right_set() const -> bool {
-      return !choice_u;
+      return state == V_ACTIVE;
    }
 
-   auto left() const -> U& {
-      return holder.u;
+   auto left() -> U& {
+      return *reinterpret_cast<U*>(holder);
+   }
+   auto right() -> V& {
+      return *reinterpret_cast<V*>(holder);
    }
 
-   auto right() const -> V& {
-      return holder.v;
+   auto left() const -> const U& {
+      return *reinterpret_cast<const U*>(holder);
+   }
+   auto right() const -> const V& {
+      return *reinterpret_cast<const V*>(holder);
    }
 
    template<typename L, typename R>
-   auto match(L&& f_l, R&& f_r) const {
-      static_assert(std::is_invocable_v<L, U> && std::is_invocable_v<R, V>, "type mismatch");
-      static_assert(std::is_same_v<std::invoke_result_t<L, U>, std::invoke_result_t<R, V>>, "result type mismatch");
-      return choice_u ? f_l(holder.u) : f_r(holder.v);
+   auto match(L&& f_l, R&& f_r) {
+      static_assert(std::is_invocable_v<L, U&>, "f_left type mismatch");
+      static_assert(std::is_invocable_v<R, V&>, "f_right type mismatch");
+      static_assert(std::is_same_v<std::invoke_result_t<L, U&>, std::invoke_result_t<R, V&>>, "result type mismatch");
+      switch (state) {
+         case U_ACTIVE: return f_l(left());
+         case V_ACTIVE: return f_r(right());
+         default: {
+            // error
+            return f_r(right());
+         }
+      }
    }
 
    ~either() {
-      if(choice_u) {
-         holder.u.~U();
-      } else {
-         holder.v.~V();
+      switch(state) {
+         case U_ACTIVE: left().~U();; break;
+         case V_ACTIVE: right().~V();; break;
+         default: break;
       }
    };
 
 private:
-   union either_holder {
-      either_holder() = default;
-      either_holder(U&& u) : u{std::move(u)} {}
-      either_holder(V&& v) : v{std::move(v)} {}
-      either_holder(const U& u) : u{u} {}
-      either_holder(const V& v) : v{v} {}
+   constexpr static size_t size = std::max(sizeof(U), sizeof(V));
+   constexpr static size_t align = std::max(alignof(U), alignof(V));
+   alignas(align) char holder[size];
 
-      U u;
-      V v;
-   };
-
-   either_holder holder;
-   bool choice_u{};
+   enum {
+     INIT,
+     U_ACTIVE,
+     V_ACTIVE
+   } state{INIT};
 };
 
 NANO_CAF_NS_END

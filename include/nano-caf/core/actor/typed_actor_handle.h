@@ -48,7 +48,7 @@ namespace detail {
 
 template<typename ACTOR_INTERFACE>
 struct typed_actor_handle : private actor_handle {
-   typed_actor_handle(intrusive_actor_ptr ptr) : actor_handle{ptr} {}
+   typed_actor_handle(intrusive_actor_ptr ptr = nullptr) : actor_handle{ptr} {}
 
    using actor_handle::wait_for_exit;
    using actor_handle::release;
@@ -63,7 +63,7 @@ struct typed_actor_handle : private actor_handle {
 private:
    template<typename T>
    struct promised_request_handler : request_result_handler<T> {
-      auto handle(const either<T, status_t>& value) -> void override {
+      auto handle(const T& value) -> void override {
          promise_.set_value(value);
          value_set_ = true;
       }
@@ -89,7 +89,7 @@ private:
          : sender_{sender}
       {}
 
-      auto handle(const either<T, status_t>& value) -> void override {
+      auto handle(const T& value) -> void override {
          promised_request_handler<T>::handle(value);
          sender_.send<future_done, (message::category)message::future>();
       }
@@ -97,22 +97,19 @@ private:
       actor_handle sender_;
    };
 
-   template<typename T, typename H_SUCC, typename H_FAIL>
+   template<typename T, typename H_SUCC>
    struct delegate_request_handler : request_result_handler<T> {
-      delegate_request_handler(H_SUCC&& h_succ, H_FAIL&& h_fail)
+      delegate_request_handler(H_SUCC&& h_succ)
          : h_succ_{std::move(h_succ)}
-         , h_fail_{std::move(h_fail)}
       {}
 
       static_assert(std::is_invocable_r_v<void, H_SUCC, T>, "T function signature mismatch");
-      static_assert(std::is_invocable_r_v<void, H_FAIL, status_t>, "status function signature mismatch");
 
-      auto handle(const either<T, status_t>& value) -> void override {
-         value.match(h_succ_, h_fail_);
+      auto handle(const T& value) -> void override {
+         h_succ_(value);
       }
 
       H_SUCC h_succ_;
-      H_FAIL h_fail_;
    };
 
    template<typename METHOD_ATOM, typename F>
@@ -172,9 +169,8 @@ private:
       template<typename H_SUCC, typename H_FAIL>
       auto then(H_SUCC&& h_succ, H_FAIL&& h_fail) {
          if(base::f_(
-            delegate_request_handler<result_type, H_SUCC, H_FAIL>
-               { std::forward<H_SUCC>(h_succ),
-                 std::forward<H_FAIL>(h_fail)}) != enq_result::ok) {
+            delegate_request_handler<result_type, H_SUCC>
+               { std::forward<H_SUCC>(h_succ) }) != enq_result::ok) {
             h_fail(status_t::failed);
          }
       }
@@ -191,11 +187,13 @@ public:
       };
       return then_rsp<METHOD_ATOM, decltype(l)>(std::move(l));
    }
+   template<typename METHOD_ATOM>
+   using future_type = std::future<either<result_t<typename METHOD_ATOM::type::result_type>, status_t>>;
 
    template<typename METHOD_ATOM, typename ... Args,
       typename = std::enable_if_t<detail::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
    auto request(intrusive_actor_ptr from, METHOD_ATOM atom, Args&& ... args)
-      -> either<std::future<result_t<typename METHOD_ATOM::type::result_type>>, status_t> {
+      -> either<future_type<METHOD_ATOM>, status_t> {
       using result_type = result_t<typename METHOD_ATOM::type::result_type>;
       inter_actor_promise_handler<result_type> promise{ from };
       auto future = promise.promise_.get_future();

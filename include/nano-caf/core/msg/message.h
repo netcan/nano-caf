@@ -18,7 +18,7 @@ NANO_CAF_NS_BEGIN
 
 template<typename T>
 struct request_result_handler {
-   virtual auto handle(const either<T, status_t>&) -> void = 0;
+   virtual auto handle(const T&) -> void = 0;
    virtual ~request_result_handler() = default;
 };
 

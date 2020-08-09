@@ -7,6 +7,7 @@
 #include <nano-caf/core/actor/typed_actor_handle.h>
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include <iostream>
+#include "test_msgs.h"
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -38,6 +39,46 @@ namespace {
       }
    };
 
+
+   struct ctrl_actor : behavior_based_actor {
+      typed_actor_handle<media_session> session_actor;
+      auto on_init() -> void override {
+         session_actor = spawn_typed_actor<media_session, media_session_actor>();
+      }
+
+      auto get_behavior() -> behavior override {
+         return {
+            [&, this](test_message_atom, const int &amount) {
+               request(session_actor, media_session::open, (long)amount)
+               .then(
+                   [this](auto result) {
+                        std::cout << "success = " << result << std::endl;
+                        exit(exit_reason::normal);
+                     },
+                  [](auto failure) {
+                     std::cout << "failed = " << failure << std::endl;
+                  });
+            },
+            [&](exit_msg_atom, exit_reason reason) {
+               std::cout << "exit received" << std::endl;
+            },
+         };
+      }
+   };
+
+   TEST_CASE("inter-actor request") {
+      actor_system system;
+      system.start(1);
+
+      auto me = system.spawn<ctrl_actor>();
+
+      REQUIRE(me.send<test_message>(12) == enq_result::ok);
+
+      me.wait_for_exit();
+      me.release();
+      system.shutdown();
+   }
+
    TEST_CASE("actor interface") {
       REQUIRE(2 == media_session::total_methods);
       REQUIRE(std::is_same_v<type_list<media_session::open_atom, long>,
@@ -51,7 +92,7 @@ namespace {
 
       using namespace std::chrono_literals;
 
-      typed_actor_handle<media_session> me = system.spawn_type<media_session, media_session_actor>();
+      typed_actor_handle<media_session> me = system.spawn_typed_actor<media_session, media_session_actor>();
       me.request(media_session::open, (long)10).wait().match(
          [](auto result) { REQUIRE(result == 11); },
          [](auto status) { REQUIRE(false); });
