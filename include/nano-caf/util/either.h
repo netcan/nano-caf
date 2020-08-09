@@ -17,6 +17,22 @@ struct either {
    either(const U& u) : holder{u}, choice_u{true} {}
    either(const V& v) : holder{v}, choice_u{false} {}
 
+   either(const either& rhs) : choice_u{rhs.choice_u} {
+      if(rhs.choice_u) {
+         holder.u = rhs.holder.u;
+      } else {
+         holder.v = rhs.holder.v;
+      }
+   }
+
+   either(either&& rhs) : choice_u{rhs.choice_u} {
+      if(rhs.choice_u) {
+         holder.u = std::move(rhs.holder.u);
+      } else {
+         holder.v = std::move(rhs.holder.v);
+      }
+   }
+
    either& operator=(either rhs) {
       std::swap(rhs, this);
       return *this;
@@ -48,6 +64,7 @@ struct either {
 
 private:
    union either_holder {
+      either_holder() = default;
       either_holder(U&& u) : u{std::move(u)} {}
       either_holder(V&& v) : v{std::move(v)} {}
       either_holder(const U& u) : u{u} {}

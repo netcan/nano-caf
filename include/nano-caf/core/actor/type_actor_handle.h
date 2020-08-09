@@ -64,10 +64,23 @@ private:
    struct promised_request_handler : request_result_handler<T> {
       auto handle(const T& value) -> bool override {
          promise_.set_value(value);
+         value_set = true;
          return true;
       }
 
-      std::promise<T> promise_;
+      promised_request_handler() = default;
+      promised_request_handler(promised_request_handler&& handler)
+         : promise_{std::move(handler.promise_)}
+         , value_set{handler.value_set} {
+         handler.value_set = true;
+      }
+
+      ~promised_request_handler() {
+         if(!value_set) promise_.set_value(status_t::failed);
+      }
+
+      std::promise<either<status_t, T>> promise_{};
+      bool value_set{false};
    };
 
    template<typename T, typename HANDLER>
