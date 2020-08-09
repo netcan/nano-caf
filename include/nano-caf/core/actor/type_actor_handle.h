@@ -80,7 +80,7 @@ private:
          if(!value_set) promise_.set_value(status_t::failed);
       }
 
-      std::promise<either<status_t, T>> promise_{};
+      std::promise<either<T, status_t>> promise_{};
       bool value_set{false};
    };
 
@@ -112,9 +112,10 @@ private:
    public:
       using base::base;
 
+      using wait_result_t = either<result_type, status_t>;
    private:
       template<typename F_WAIT>
-      auto wait_(F_WAIT&& f_wait) -> either<status_t, result_type>{
+      auto wait_(F_WAIT&& f_wait) -> wait_result_t {
          auto handler = promised_request_handler<result_type>{};
          auto future = handler.promise_.get_future();
          if(base::f_(handler) != enq_result::ok) {
@@ -130,11 +131,11 @@ private:
       }
 
    public:
-      auto wait(const std::chrono::microseconds& duration) -> either<status_t, result_type>{
+      auto wait(const std::chrono::microseconds& duration) -> wait_result_t {
          return wait_([&](auto& future){ return future.wait_for(duration); });
       }
 
-      auto wait() -> either<status_t, result_type>{
+      auto wait() -> wait_result_t {
          return wait_([&](auto& future){ return std::future_status::ready; });
       }
    };

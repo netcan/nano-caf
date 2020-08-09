@@ -54,16 +54,20 @@ namespace {
 
       type_actor_handle<media_session> me = system.spawn_type<media_session, media_session_actor>();
       me.request(media_session::open, (long)10).wait().match(
-         [](auto status) { REQUIRE(false); },
-         [](auto result) { REQUIRE(result == 11); });
+         [](auto result) { REQUIRE(result == 11); },
+         [](auto status) { REQUIRE(false); });
 
       me.request(media_session::open, (long)20).wait(0us).match(
-         [](auto status) { REQUIRE(status == status_t::timeout); },
-         [](auto result) { REQUIRE(false); });
+         [](auto result) { REQUIRE(false); },
+         [](auto status) { REQUIRE(status == status_t::timeout); });
+
+//      me.request(media_session::open, (long)20).then().match(
+//         [](auto status) { REQUIRE(status == status_t::timeout); },
+//         [](auto result) { REQUIRE(false); });
 
       me.request(media_session::close, (long)10).wait().match(
-         [](auto status) { REQUIRE(false); },
-         [](auto result) { REQUIRE(result == unit);  });
+         [](auto result) { REQUIRE(result == unit);  },
+         [](auto status) { REQUIRE(false); });
 
       REQUIRE(enq_result::ok == me.send(media_session::open, (long)10));
       REQUIRE(enq_result::ok == me.send(media_session::close, (long)20));
