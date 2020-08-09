@@ -111,14 +111,17 @@ private:
 
    public:
       using base::base;
-      auto wait(const std::chrono::microseconds& duration) -> either<status_t, result_type>{
-         auto handler = promised_request_handler{};
+
+   private:
+      template<typename F_WAIT>
+      auto wait_(F_WAIT&& f_wait) -> either<status_t, result_type>{
+         auto handler = promised_request_handler<result_type>{};
          auto future = handler.promise_.get_future();
-         if(!base::f_(handler)) {
+         if(base::f_(handler) != enq_result::ok) {
             return status_t::failed;
          }
 
-         auto status = future.wait_for(duration);
+         auto status = f_wait(future);
          if(status != std::future_status::ready) {
             return status_t::timeout;
          }
@@ -126,14 +129,13 @@ private:
          return future.get();
       }
 
-      auto wait() -> either<status_t, result_type>{
-         auto handler = promised_request_handler<result_type>{};
-         auto future = handler.promise_.get_future();
-         if(base::f_(handler) != enq_result::ok) {
-            return status_t::failed;
-         }
+   public:
+      auto wait(const std::chrono::microseconds& duration) -> either<status_t, result_type>{
+         return wait_([&](auto& future){ return future.wait_for(duration); });
+      }
 
-         return future.get();
+      auto wait() -> either<status_t, result_type>{
+         return wait_([&](auto& future){ return std::future_status::ready; });
       }
    };
 

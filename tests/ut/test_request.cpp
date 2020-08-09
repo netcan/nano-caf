@@ -27,8 +27,7 @@ namespace {
       auto get_behavior() -> behavior override {
          return {
             [&](media_session::open_atom, long value) -> long {
-               std::cout << "open received: " << value << std::endl;
-               return 109;
+               return value + 1;
             },
             [&](media_session::close_atom, long value) {
                std::cout << "close received: " << value << std::endl;
@@ -51,14 +50,20 @@ namespace {
       system.start(1);
       REQUIRE(system.get_num_of_actors() == 0);
 
+      using namespace std::chrono_literals;
+
       type_actor_handle<media_session> me = system.spawn_type<media_session, media_session_actor>();
       me.request(media_session::open, (long)10).wait().match(
          [](auto status) { REQUIRE(false); },
-         [](auto result) { REQUIRE(result == 109); });
+         [](auto result) { REQUIRE(result == 11); });
+
+      me.request(media_session::open, (long)20).wait(0us).match(
+         [](auto status) { REQUIRE(status == status_t::timeout); },
+         [](auto result) { REQUIRE(false); });
 
       me.request(media_session::close, (long)10).wait().match(
          [](auto status) { REQUIRE(false); },
-         [](auto result) { REQUIRE(true);  });
+         [](auto result) { REQUIRE(result == unit);  });
 
       REQUIRE(enq_result::ok == me.send(media_session::open, (long)10));
       REQUIRE(enq_result::ok == me.send(media_session::close, (long)20));
