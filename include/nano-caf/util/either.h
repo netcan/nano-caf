@@ -72,7 +72,7 @@ struct either {
    }
 
    template<typename L, typename R>
-   auto match(L&& f_l, R&& f_r) {
+   auto match(L&& f_l, R&& f_r) const {
       static_assert(std::is_invocable_v<L, U&>, "f_left type mismatch");
       static_assert(std::is_invocable_v<R, V&>, "f_right type mismatch");
       static_assert(std::is_same_v<std::invoke_result_t<L, U&>, std::invoke_result_t<R, V&>>, "result type mismatch");

@@ -89,18 +89,18 @@ namespace detail {
 
       template<typename F_SUCC, typename F_FAIL>
       auto then(F_SUCC&& f_succ, F_FAIL&& f_fail) -> status_t {
-         return future_.match(
-            [&](auto& future) {
-               auto l = [succ = std::move(f_succ), fail = std::move(f_fail)](auto result) {
-                  result.match(succ, fail);
-               };
-               return with_futures(std::move(l), future).match(
-                  [&](auto future_cb) { return registry_(future_cb); },
-                  [&](auto failure) { f_fail(failure); return failure; }
-               );
-            },
-            [&](auto result) { f_fail(result); return result; }
-         );
+         if(future_.left_set()) {
+            auto l = [succ = std::move(f_succ), fail = std::move(f_fail)](auto result) {
+               result.match(succ, fail);
+            };
+            return with_futures(std::move(l), future_.left()).match(
+               [&](auto future_cb) { return registry_(future_cb); },
+               [&](auto failure) { f_fail(failure); return failure; }
+            );
+         } else {
+            f_fail(future_.right());
+            return future_.right();
+         }
       }
 
    private:
