@@ -62,12 +62,14 @@ namespace detail {
    struct msg_type_trait;
 
    template <typename T>
-   struct msg_type_trait<T, std::enable_if_t<std::is_aggregate_v<T>>> : aggregate_trait<T> {};
+   struct msg_type_trait<T, std::enable_if_t<std::is_aggregate_v<T>>> : aggregate_trait<T> {
+      using result_type = void;
+   };
 
    template <typename T>
    struct msg_type_trait<T, std::enable_if_t<is_tuple<typename T::tuple_parent>::value>>  {
       using fields_types = decltype(deduce_tuple_types(std::declval<T>()));
-
+      using result_type = typename T::result_type;
       template <typename F>
       static auto call(const T& obj, F&& f) {
          return detail::aggregate_fields_type<fields_types::size, typename T::tuple_parent>::call(
@@ -75,26 +77,31 @@ namespace detail {
       }
    };
 
+   template <typename T> struct S;
+
    template<typename F>
    struct behavior_trait<F, std::enable_if_t<is_atom<F>>> {
       static_assert(!is_non_const_lref<first_arg_t<F>>, "the atom type cannot be non-const-lvalue-ref");
-
-      using decayed_args = typename callable_trait<F>::decayed_args_type::tail;
-      using args_type = typename callable_trait<F>::args_type::tail;
       using atom_type = std::decay_t<first_arg_t<F>>;
       using message_type = typename atom_type::msg_type;
       using fields_types = typename msg_type_trait<message_type>::fields_types;
-      using decayed_field_types = typename fields_types::template transform<std::decay_t>;
+      template <typename ... Ts>
+      using invokable = std::is_invocable<F, atom_type, Ts...>;
 
-      static_assert(std::is_same_v<decayed_field_types, decayed_args>, "parameters & message don't match");
-      static_assert(args_type::template pred<is_non_rvalue_ref>, "parameter cannot be rvalue-ref type");
+      static_assert(fields_types::template export_to<invokable>::value, "parameters & message don't match");
+
+      template <typename ... Ts>
+      using invoke_result = std::invoke_result_t<F, atom_type, Ts...>;
+      using invoke_result_t = typename fields_types::template export_to<invoke_result>;
+
+      static_assert(std::is_same_v<invoke_result_t, typename msg_type_trait<message_type>::result_type>, "return type mismatch");
 
       using base = behavior_base<F, message_type>;
       struct type : base {
          using base::base;
          auto operator()(message &msg) {
-            return base::handle_msg(msg, [](const message_type& msg, F& f) {
-               return msg_type_trait<message_type>::call(msg, [&](auto &&... args) {
+            return base::handle_msg(msg, [](const message_type& msg, F& f) -> invoke_result_t {
+               return msg_type_trait<message_type>::call(msg, [&](auto &&... args) -> invoke_result_t {
                   return f(atom_type{}, std::forward<decltype(args)>(args)...);
                });
             });

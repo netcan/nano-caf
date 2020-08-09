@@ -49,6 +49,7 @@ struct __CUB_atom_type(x) : atom_signature { \
    struct msg_type : type::msg_type { \
       using tuple_parent = type::msg_type;  \
       using tuple_parent::tuple_parent; \
+      using result_type = type::result_type; \
    }; \
 }; \
 constexpr static __CUB_atom_type(x) __CUB_method_name(x);

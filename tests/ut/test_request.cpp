@@ -26,8 +26,9 @@ namespace {
    struct media_session_actor : behavior_based_actor {
       auto get_behavior() -> behavior override {
          return {
-            [&](media_session::open_atom, long value) {
+            [&](media_session::open_atom, long value) -> long {
                std::cout << "open received: " << value << std::endl;
+               return 0;
             },
             [&](media_session::close_atom, long value) {
                std::cout << "close received: " << value << std::endl;
