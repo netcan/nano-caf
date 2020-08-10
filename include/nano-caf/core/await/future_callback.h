@@ -118,6 +118,38 @@ namespace detail {
    };
 }
 
+namespace async {
+   template<typename T>
+   constexpr bool is_future_type = false;
+
+   template<typename T>
+   constexpr bool is_future_type<std::shared_future<T>> = true;
+
+   template<typename T>
+   constexpr bool is_future_type<std::future<T>> = true;
+
+   template<typename T>
+   auto is_future_valid(const T& f) -> std::enable_if_t<is_future_type<T>, bool> {
+      return f.valid();
+   }
+
+   template<typename T>
+   auto is_future_valid(const either<T, status_t>& f) -> std::enable_if_t<is_future_type<T>, bool> {
+      return f.match(
+         [](auto& f) { return f.valid(); },
+         [](auto) { return false; });
+   }
+
+   template<typename T>
+   auto get_future(T& f) -> std::enable_if_t<is_future_type<T>, T&>{
+      return f;
+   }
+
+   template<typename T>
+   auto get_future(either<T, status_t>& f) -> std::enable_if_t<is_future_type<T>, T&> {
+      return f.left();
+   }
+}
 
 NANO_CAF_NS_END
 

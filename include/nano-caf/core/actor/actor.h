@@ -70,10 +70,10 @@ protected:
    template<typename ... Args>
    inline auto with(Args&& ... args) {
       return [&](auto&& callback) {
-         if(((!args.left_present()) || ...) ) {
+         if(((!async::is_future_valid(args)) || ...) ) {
             return status_t::failed;
          }
-         return detail::with_futures(std::forward<decltype(callback)>(callback), args.left()...).match(
+         return detail::with_futures(std::forward<decltype(callback)>(callback), async::get_future(args)...).match(
             [this](auto future_cb) { return register_future_callback(future_cb); },
             [](auto failure) { return failure; });
       };
