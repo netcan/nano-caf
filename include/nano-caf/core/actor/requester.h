@@ -29,8 +29,7 @@ NANO_CAF_NS_BEGIN namespace requester {
    using method_atoms = decltype(deduce_method_atoms<T>(std::make_index_sequence<T::total_methods>{}));
 
    template<typename T, size_t ... I>
-   auto deduce_method_pattens(std::index_sequence<I...>)
-   -> type_list<typename T::template __SeCrEtE_method<I, T>::pattern_type...>;
+   auto deduce_method_pattens(std::index_sequence<I...>) -> type_list<typename T::template __SeCrEtE_method<I, T>::pattern_type...>;
 
    template<typename T>
    using method_pattens = decltype(deduce_method_pattens<T>(std::make_index_sequence<T::total_methods>{}));
@@ -41,6 +40,9 @@ NANO_CAF_NS_BEGIN namespace requester {
 
    template<typename METHOD_ATOM, typename ACTOR_INTERFACE, typename ...Args>
    constexpr bool is_msg_valid = is_msg_atom<METHOD_ATOM> && msg_pattern_match<METHOD_ATOM, ACTOR_INTERFACE, Args...>;
+
+   template<typename METHOD_ATOM>
+   using result_type = result_t<typename METHOD_ATOM::type::result_type>;
 
    template<typename T>
    struct promised_request_handler : request_result_handler<T> {
@@ -104,16 +106,15 @@ NANO_CAF_NS_BEGIN namespace requester {
    struct wait_rsp : protected request_rsp_base<METHOD_ATOM, F> {
    protected:
       using base = request_rsp_base<METHOD_ATOM, F>;
-      using result_type = result_t<typename METHOD_ATOM::type::result_type>;
 
    public:
       using base::base;
 
-      using wait_result_t = either<result_type, status_t>;
+      using wait_result_t = either<result_type<METHOD_ATOM>, status_t>;
    private:
       template<typename F_WAIT>
       auto wait_(F_WAIT&& f_wait) -> wait_result_t {
-         auto handler = promised_request_handler<result_type>{};
+         auto handler = promised_request_handler<result_type<METHOD_ATOM>>{};
          auto future = handler.promise_.get_future();
 
          if(auto status = base::f_(handler); status != status_t::ok) {
@@ -142,20 +143,24 @@ NANO_CAF_NS_BEGIN namespace requester {
    struct then_rsp : wait_rsp<METHOD_ATOM, F> {
    private:
       using base = wait_rsp<METHOD_ATOM, F>;
-      using result_type = result_t<typename METHOD_ATOM::type::result_type>;
 
    public:
       using base::base;
 
       template<typename H_SUCC, typename H_FAIL>
       auto then(H_SUCC&& h_succ, H_FAIL&& h_fail) {
-         if(auto status = base::f_(
-               delegate_request_handler<result_type, H_SUCC>
-                  { std::forward<H_SUCC>(h_succ) }); status != status_t::ok) {
+         delegate_request_handler<result_type<METHOD_ATOM>, H_SUCC> handler{ std::forward<H_SUCC>(h_succ) };
+         if(auto status = base::f_(std::move(handler)); status != status_t::ok) {
             h_fail(status);
          }
       }
    };
+
+   template<typename METHOD_ATOM>
+   using method_result_t = either<result_type<METHOD_ATOM>, status_t>;
+
+   template<typename METHOD_ATOM>
+   using future_type = std::future<method_result_t<METHOD_ATOM>>;
 
 } NANO_CAF_NS_END
 

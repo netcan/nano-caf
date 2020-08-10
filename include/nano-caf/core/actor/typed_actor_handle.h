@@ -23,10 +23,6 @@ struct typed_actor_handle : private actor_handle {
       return actor_handle::send<typename METHOD_ATOM::msg_type>(std::forward<Args>(args)...);
    }
 
-   template<typename METHOD_ATOM>
-   using future_type = std::future<either<result_t<typename METHOD_ATOM::type::result_type>, status_t>>;
-
-public:
    template<typename METHOD_ATOM, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
    auto request(METHOD_ATOM atom, Args&& ... args) {
@@ -41,9 +37,8 @@ public:
    template<typename METHOD_ATOM, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
    auto request(intrusive_actor_ptr from, METHOD_ATOM atom, Args&& ... args)
-      -> either<future_type<METHOD_ATOM>, status_t> {
-      using result_type = result_t<typename METHOD_ATOM::type::result_type>;
-      requester::inter_actor_promise_handler<result_type> promise{ from };
+      -> either<requester::future_type<METHOD_ATOM>, status_t> {
+      requester::inter_actor_promise_handler<requester::result_type<METHOD_ATOM>> promise{ from };
       auto future = promise.promise_.get_future();
       if(auto result = actor_handle::request<typename METHOD_ATOM::msg_type>(
          from,
