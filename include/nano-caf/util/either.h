@@ -12,10 +12,8 @@
 NANO_CAF_NS_BEGIN
 
 template<typename L, typename R>
-struct either : private std::variant<L, R> {
-private:
+class either : private std::variant<L, R> {
    using parent = std::variant<L, R>;
-
 public:
    struct left_tag {};
    struct right_tag{};
