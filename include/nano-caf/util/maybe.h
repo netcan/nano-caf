@@ -38,8 +38,14 @@ public:
    template<typename F>
    constexpr auto map(F&& f) const noexcept -> maybe<std::invoke_result_t<F, const T&>> {
       static_assert(std::is_invocable_v<F, const T&>, "map function type mismatch");
-      static_assert(std::is_same_v<std::invoke_result_t<F, const T&>, void>, "map function should not return void");
+      static_assert(!std::is_same_v<std::invoke_result_t<F, const T&>, void>, "map function should not return void");
       return has_value() ? f(*value()) : nothing;
+   }
+
+   template<typename F>
+   constexpr auto visit(F&& f) const noexcept -> void {
+      static_assert(std::is_invocable_r_v<void, F, const T&>, "visit function type mismatch");
+      if(has_value()) f(*value());
    }
 
    auto swap(maybe& __opt) {
