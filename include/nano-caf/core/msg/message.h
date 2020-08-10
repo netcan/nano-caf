@@ -6,21 +6,14 @@
 #define NANO_CAF_MESSAGE_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/msg/message_id.h>
-#include <nano-caf/util/intrusive_ptr.h>
+#include <nano-caf/core/msg/request_result_handler.h>
 #include <nano-caf/util/type_id_t.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
-#include <utility>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/util/either.h>
+#include <utility>
 
 NANO_CAF_NS_BEGIN
-
-template<typename T>
-struct request_result_handler {
-   virtual auto handle(const T&) -> void = 0;
-   virtual ~request_result_handler() = default;
-};
 
 struct message {
    enum : uint64_t {
