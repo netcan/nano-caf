@@ -93,8 +93,7 @@ struct future_actor : actor {
       }
 
       auto result3 = with(future1, future2, future3)(
-         [this](unsigned long r1, unsigned long  r2, unsigned long r3) {
-            //std::cout << "future done" << std::endl;
+         [this](auto r1, auto  r2, auto r3) {
             final_result = r1 + r2 + r3;
             exit(exit_reason::normal);
          });

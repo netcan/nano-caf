@@ -7,96 +7,85 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <utility>
+#include <variant>
 
 NANO_CAF_NS_BEGIN
 
 template<typename L, typename R>
-struct either {
-private:
-   enum class state : uint8_t {
-      l_active,
-      r_active
-   };
+struct either : private std::variant<L, R> {
+   using parent = std::variant<L, R>;
+   using parent::parent;
 
-public:
-   either(L&& l) : state_{state::l_active} {
-      new (holder) L{std::move(l)};
-   }
-   either(R&& r) : state_{state::r_active} {
-      new (holder) R{std::move(r)};
-   }
-   either(const L& l) : state_{state::l_active} {
-      new (holder) L{l};
-   }
-   either(const R& r) : state_{state::r_active} {
-      new (holder) R{r};
+   template<typename T, typename ... Args>
+   inline constexpr auto emplace(Args&& ... args) -> T& {
+      return parent::template emplace<T>(std::forward<Args>(args)...);
    }
 
-   either(const either& rhs) : state_{rhs.state_} {
-      switch(state_) {
-         case state::l_active: new (holder) L(rhs.left()); break;
-         case state::r_active: new (holder) R(rhs.right()); break;
-      }
+   template<typename ... Args>
+   inline constexpr auto emplace_left(Args&& ... args) -> L& {
+      return parent::template emplace<L>(std::forward<Args>(args)...);
    }
 
-   either(either&& rhs) : state_{rhs.state_} {
-      switch(state_) {
-         case state::l_active: new (holder) L(std::move(rhs.left())); break;
-         case state::r_active: new (holder) R(std::move(rhs.right())); break;
-         default: break;
-      }
+   template<typename ... Args>
+   inline constexpr auto emplace_right(Args&& ... args) -> R& {
+      return parent::template emplace<R>(std::forward<Args>(args)...);
    }
 
-   either& operator=(either rhs) {
-      std::swap(rhs, this);
-      return *this;
+   inline constexpr auto left_present() const -> bool {
+      return parent::index() == 0;
    }
 
-   auto left_present() const -> bool {
-      return state_ == state::l_active;
+   inline constexpr auto right_present() const -> bool {
+      return parent::index() == 1;
    }
 
-   auto right_present() const -> bool {
-      return state_ == state::r_active;
+   inline constexpr auto left() -> L& {
+      return std::get<0>(*this);
    }
 
-   auto left() -> L& {
-      return *reinterpret_cast<L*>(holder);
-   }
-   auto right() -> R& {
-      return *reinterpret_cast<R*>(holder);
+   inline constexpr auto right() -> R& {
+      return std::get<1>(*this);
    }
 
-   auto left() const -> const L& {
-      return *reinterpret_cast<const L*>(holder);
+   inline constexpr auto left() const -> const L& {
+      return std::get<0>(*this);
    }
-   auto right() const -> const R& {
-      return *reinterpret_cast<const R*>(holder);
+
+   inline constexpr auto right() const -> const R& {
+      return std::get<1>(*this);
    }
 
    template<typename F_L, typename F_R>
-   auto match(F_L&& f_l, F_R&& f_r) const {
+   constexpr auto match(F_L&& f_l, F_R&& f_r) const {
       static_assert(std::is_invocable_v<F_L, L&>, "f_left type mismatch");
       static_assert(std::is_invocable_v<F_R, R&>, "f_right type mismatch");
       static_assert(std::is_same_v<std::invoke_result_t<F_L, L&>, std::invoke_result_t<F_R, R&>>, "result type mismatch");
-      switch (state_) {
-         case state::l_active: return f_l(left());
-         case state::r_active: return f_r(right());
-      }
+      return left_present() ? f_l(left()) : f_r(right());
    }
 
-   ~either() {
-      switch(state_) {
-         case state::l_active: left().~L();; break;
-         case state::r_active: right().~R();; break;
-      }
-   };
+   friend inline bool operator==(const either& lhs, const either& rhs) {
+      return static_cast<const parent&>(lhs) == static_cast<const parent&>(rhs);
+   }
 
-private:
-   constexpr static size_t size = std::max(sizeof(L), sizeof(R));
-   constexpr static size_t align = std::max(alignof(L), alignof(R));
-   alignas(align) char holder[size];
-   state state_;
+   friend inline bool operator!=(const either& lhs, const either& rhs) {
+      return !operator==(lhs, rhs);
+   }
+
+   friend inline bool operator<(const either& lhs, const either& rhs) {
+      return static_cast<const parent&>(lhs) < static_cast<const parent&>(rhs);
+   }
+
+   friend inline bool operator<=(const either& lhs, const either& rhs) {
+      return static_cast<const parent&>(lhs) <= static_cast<const parent&>(rhs);
+   }
+
+   friend inline bool operator>(const either& lhs, const either& rhs) {
+      return static_cast<const parent&>(lhs) > static_cast<const parent&>(rhs);
+   }
+
+   friend inline bool operator>=(const either& lhs, const either& rhs) {
+      return static_cast<const parent&>(lhs) >= static_cast<const parent&>(rhs);
+   }
 };
 
 NANO_CAF_NS_END
