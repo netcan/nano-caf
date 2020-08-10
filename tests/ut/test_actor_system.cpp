@@ -114,7 +114,7 @@ namespace {
 
       auto on_init() noexcept -> void override {
          auto future1 = async(&future_actor::add, this, 5, 3);
-         if(!future1.left_present()) {
+         if(!future1.is_left()) {
             exit(exit_reason::unhandled_exception);
          }
 
@@ -128,7 +128,7 @@ namespace {
 
             return result;
          });
-         if(!future2.left_present()) {
+         if(!future2.is_left()) {
             exit(exit_reason::unhandled_exception);
          }
 

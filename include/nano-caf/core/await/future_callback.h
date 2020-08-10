@@ -90,7 +90,7 @@ namespace detail {
    private:
       template<typename F_SUCC, typename F_FAIL>
       auto then_(F_SUCC&& f_succ, F_FAIL&& f_fail) -> status_t {
-         if(either_future_.left_present()) {
+         if(either_future_.is_left()) {
             auto l = [succ = std::move(f_succ), fail = std::move(f_fail)](auto result) {
                result.match(succ, fail);
             };

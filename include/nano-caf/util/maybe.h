@@ -26,7 +26,6 @@ public:
    using parent::value_or;
    using parent::reset;
    using parent::emplace;
-   using parent::swap;
 
    template<typename F_JUST, typename F_NOTHING>
    constexpr auto match(F_JUST&& f_just, F_NOTHING&& f_nothing) const noexcept {
@@ -34,6 +33,17 @@ public:
       static_assert(std::is_invocable_v<F_NOTHING>,        "f_nothing type mismatch");
       static_assert(std::is_same_v<std::invoke_result_t<F_JUST, const T&>, std::invoke_result_t<F_NOTHING>>, "result type mismatch");
       return has_value() ? f_just(*value()) : f_nothing();
+   }
+
+   template<typename F>
+   constexpr auto map(F&& f) const noexcept -> maybe<std::invoke_result_t<F, const T&>> {
+      static_assert(std::is_invocable_v<F, const T&>, "map function type mismatch");
+      static_assert(std::is_same_v<std::invoke_result_t<F, const T&>, void>, "map function should not return void");
+      return has_value() ? f(*value()) : nothing;
+   }
+
+   auto swap(maybe& __opt) {
+      parent::swap(__opt);
    }
 
    template<typename U, typename V>

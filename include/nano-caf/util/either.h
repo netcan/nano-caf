@@ -67,11 +67,11 @@ public:
       return parent::template emplace<1>(std::forward<Args>(args)...);
    }
 
-   inline constexpr auto left_present() const noexcept -> bool {
+   inline constexpr auto is_left() const noexcept -> bool {
       return parent::index() == 0;
    }
 
-   inline constexpr auto right_present() const noexcept -> bool {
+   inline constexpr auto is_right() const noexcept -> bool {
       return parent::index() == 1;
    }
 
@@ -87,8 +87,16 @@ public:
       return std::get<0>(*this);
    }
 
+   inline constexpr auto left(const L& default_l) const -> const L& {
+      return is_left() ? left() : default_l;
+   }
+
    inline constexpr auto right() const -> const R& {
       return std::get<1>(*this);
+   }
+
+   inline constexpr auto right(const R& default_r) const -> const R& {
+      return is_right() ? right() : default_r;
    }
 
    template<typename F_L, typename F_R>
@@ -96,7 +104,7 @@ public:
       static_assert(std::is_invocable_v<F_L, const L&>, "f_left type mismatch");
       static_assert(std::is_invocable_v<F_R, const R&>, "f_right type mismatch");
       static_assert(std::is_same_v<std::invoke_result_t<F_L, const L&>, std::invoke_result_t<F_R, const R&>>, "result type mismatch");
-      return left_present() ? f_l(left()) : f_r(right());
+      return is_left() ? f_l(left()) : f_r(right());
    }
 
    friend inline bool operator==(const either& lhs, const either& rhs) noexcept {
