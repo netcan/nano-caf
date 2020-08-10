@@ -21,7 +21,10 @@ struct actor {
 
 private:
    template<typename F>
-   using async_future_type = std::optional<std::shared_future<typename callable_trait<std::decay_t<F>>::result_type>>;
+   using async_future_t = std::shared_future<typename callable_trait<std::decay_t<F>>::result_type>;
+
+   template<typename F>
+   using async_future_type = either<async_future_t<F>, status_t>;
 
 protected:
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
@@ -50,9 +53,9 @@ protected:
    inline auto async(F&& f, Args&&...args) -> async_future_type<F> {
       auto obj = make_async_object(self_handle(), std::forward<F>(f), std::forward<Args>(args)...);
       if(obj == nullptr) {
-         return std::nullopt;
+         return status_t::out_of_mem;
       }
-      auto result = std::optional{std::shared_future{obj->get_future()}};
+      auto result = obj->get_future().share();
       self().context().schedule_job(*obj);
       return result;
    }
@@ -67,10 +70,10 @@ protected:
    template<typename ... Args>
    inline auto with(Args&& ... args) {
       return [&](auto&& callback) {
-         if(((!args.has_value()) || ...) ) {
+         if(((!args.left_present()) || ...) ) {
             return status_t::failed;
          }
-         return detail::with_futures(std::forward<decltype(callback)>(callback), *args...).match(
+         return detail::with_futures(std::forward<decltype(callback)>(callback), args.left()...).match(
             [this](auto future_cb) { return register_future_callback(future_cb); },
             [](auto failure) { return failure; });
       };

@@ -33,7 +33,7 @@ struct future_actor : actor {
 
    auto on_init() noexcept -> void override {
       auto future1 = async(&future_actor::add, this, 5, 3);
-      if(!future1) {
+      if(!future1.left_present()) {
          exit(exit_reason::unhandled_exception);
       }
 
@@ -52,7 +52,7 @@ struct future_actor : actor {
 
          return result;
       });
-      if(!future2) {
+      if(!future2.left_present()) {
          exit(exit_reason::unhandled_exception);
       }
 
@@ -72,7 +72,7 @@ struct future_actor : actor {
          return result;
       });
 
-      if(!future3) {
+      if(!future3.left_present()) {
          exit(exit_reason::unhandled_exception);
       }
 
