@@ -17,7 +17,42 @@ private:
    using parent = std::variant<L, R>;
 
 public:
-   using parent::parent;
+   struct left_tag {};
+   struct right_tag{};
+
+   constexpr either(L&& value) noexcept
+      : parent{std::move(value)}
+   {}
+
+   constexpr either(R&& value) noexcept
+      : parent{std::move(value)}
+   {}
+
+   constexpr either(const L& value) noexcept
+      : parent{value}
+   {}
+
+   constexpr either(const R& value) noexcept
+      : parent{value}
+   {}
+
+   template<typename ... Args>
+   constexpr either(left_tag, Args&&...args)
+      : parent{std::in_place_index_t<0>{}, std::forward<Args>(args)...}
+   {}
+
+   template<typename ... Args>
+   constexpr either(right_tag, Args&&...args)
+      : parent{std::in_place_index_t<1>{}, std::forward<Args>(args)...}
+   {}
+
+   constexpr either(const either& other)
+      : parent {other}
+   {}
+
+   constexpr either(either&& other) noexcept
+      : parent {std::move(other)}
+   {}
 
    template<typename T, typename ... Args>
    inline constexpr auto emplace(Args&& ... args) -> T& {
@@ -26,12 +61,12 @@ public:
 
    template<typename ... Args>
    inline constexpr auto emplace_left(Args&& ... args) -> L& {
-      return parent::template emplace<L>(std::forward<Args>(args)...);
+      return parent::template emplace<0>(std::forward<Args>(args)...);
    }
 
    template<typename ... Args>
    inline constexpr auto emplace_right(Args&& ... args) -> R& {
-      return parent::template emplace<R>(std::forward<Args>(args)...);
+      return parent::template emplace<1>(std::forward<Args>(args)...);
    }
 
    inline constexpr auto left_present() const -> bool {
