@@ -13,7 +13,10 @@ NANO_CAF_NS_BEGIN
 
 template<typename L, typename R>
 struct either : private std::variant<L, R> {
+private:
    using parent = std::variant<L, R>;
+
+public:
    using parent::parent;
 
    template<typename T, typename ... Args>
