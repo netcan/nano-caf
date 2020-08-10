@@ -67,11 +67,11 @@ public:
       return parent::template emplace<1>(std::forward<Args>(args)...);
    }
 
-   inline constexpr auto left_present() const -> bool {
+   inline constexpr auto left_present() const noexcept -> bool {
       return parent::index() == 0;
    }
 
-   inline constexpr auto right_present() const -> bool {
+   inline constexpr auto right_present() const noexcept -> bool {
       return parent::index() == 1;
    }
 
@@ -92,34 +92,34 @@ public:
    }
 
    template<typename F_L, typename F_R>
-   constexpr auto match(F_L&& f_l, F_R&& f_r) const {
-      static_assert(std::is_invocable_v<F_L, L&>, "f_left type mismatch");
-      static_assert(std::is_invocable_v<F_R, R&>, "f_right type mismatch");
-      static_assert(std::is_same_v<std::invoke_result_t<F_L, L&>, std::invoke_result_t<F_R, R&>>, "result type mismatch");
+   constexpr auto match(F_L&& f_l, F_R&& f_r) const noexcept {
+      static_assert(std::is_invocable_v<F_L, const L&>, "f_left type mismatch");
+      static_assert(std::is_invocable_v<F_R, const R&>, "f_right type mismatch");
+      static_assert(std::is_same_v<std::invoke_result_t<F_L, const L&>, std::invoke_result_t<F_R, const R&>>, "result type mismatch");
       return left_present() ? f_l(left()) : f_r(right());
    }
 
-   friend inline bool operator==(const either& lhs, const either& rhs) {
+   friend inline bool operator==(const either& lhs, const either& rhs) noexcept {
       return static_cast<const parent&>(lhs) == static_cast<const parent&>(rhs);
    }
 
-   friend inline bool operator!=(const either& lhs, const either& rhs) {
+   friend inline bool operator!=(const either& lhs, const either& rhs) noexcept {
       return !operator==(lhs, rhs);
    }
 
-   friend inline bool operator<(const either& lhs, const either& rhs) {
+   friend inline bool operator<(const either& lhs, const either& rhs) noexcept {
       return static_cast<const parent&>(lhs) < static_cast<const parent&>(rhs);
    }
 
-   friend inline bool operator<=(const either& lhs, const either& rhs) {
+   friend inline bool operator<=(const either& lhs, const either& rhs) noexcept {
       return static_cast<const parent&>(lhs) <= static_cast<const parent&>(rhs);
    }
 
-   friend inline bool operator>(const either& lhs, const either& rhs) {
+   friend inline bool operator>(const either& lhs, const either& rhs) noexcept {
       return static_cast<const parent&>(lhs) > static_cast<const parent&>(rhs);
    }
 
-   friend inline bool operator>=(const either& lhs, const either& rhs) {
+   friend inline bool operator>=(const either& lhs, const either& rhs) noexcept {
       return static_cast<const parent&>(lhs) >= static_cast<const parent&>(rhs);
    }
 };
