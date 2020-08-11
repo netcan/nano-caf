@@ -6,20 +6,11 @@
 #define NANO_CAF_TYPE_ID_T_H
 
 #include <nano-caf/nano-caf-ns.h>
+#include <cstdint>
 
 NANO_CAF_NS_BEGIN
 
-namespace detail {
-   template<typename T, typename ... Ts>
-   struct type_id_holder {
-      alignas(1) constexpr static char id[1]{};
-   };
-}
-
-using type_id_t = const char*;
-
-template<typename T, typename ... Ts>
-constexpr type_id_t type_id = detail::type_id_holder<T, Ts...>::id;
+using type_id_t = uint64_t;
 
 NANO_CAF_NS_END
 

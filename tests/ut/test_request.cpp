@@ -12,7 +12,7 @@
 namespace {
    using namespace NANO_CAF_NS;
 
-   __CAF_actor_interface(media_session,
+   __CAF_actor_interface(media_session, 1,
        (open,  (const long&) -> long),
        (close, (const long&) -> void)
    );

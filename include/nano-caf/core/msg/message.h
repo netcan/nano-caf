@@ -57,7 +57,7 @@ struct message {
 
    template<typename T>
    auto body() const noexcept -> const T* {
-      if(type_id<T> != msg_type_id_) return nullptr;
+      if(T::type_id != msg_type_id_) return nullptr;
       return reinterpret_cast<const T*>(body_ptr());
    }
 

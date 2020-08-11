@@ -13,9 +13,9 @@ NANO_CAF_NS_BEGIN
 
 template<typename T, message::category CATEGORY>
 struct message_base : message {
-   message_base() : message(type_id<T>, CATEGORY) {}
+   message_base() : message(T::type_id, CATEGORY) {}
    message_base(intrusive_actor_ptr sender)
-         : message(sender, type_id<T>, CATEGORY) {}
+         : message(sender, T::type_id, CATEGORY) {}
 
 };
 

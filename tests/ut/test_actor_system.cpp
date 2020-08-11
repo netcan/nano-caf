@@ -49,11 +49,11 @@ namespace {
    int pong_times = 0;
    struct pong_actor : actor {
       auto handle_message(message& msg) noexcept -> task_result override {
-         if(msg.msg_type_id_ == type_id<test_message>) {
+         if(msg.msg_type_id_ == test_message::type_id) {
             reply<test_message>(msg.body<test_message>()->value);
             pong_times++;
          }
-         else if(msg.msg_type_id_ == type_id<exit_msg>) {
+         else if(msg.msg_type_id_ == exit_msg::type_id) {
          }
 
          return task_result::resume;
@@ -71,10 +71,10 @@ namespace {
       }
 
       auto handle_message(message& msg) noexcept -> task_result override {
-         if(msg.msg_type_id_ == type_id<test_message>) {
+         if(msg.msg_type_id_ == test_message::type_id) {
             times++;
             send<test_message>(pong, msg.body<test_message>()->value + 1);
-         } else if(msg.msg_type_id_ == type_id<exit_msg>) {
+         } else if(msg.msg_type_id_ == exit_msg::type_id) {
             send<exit_msg>(pong, msg.body<exit_msg>()->reason);
          }
          return task_result::resume;

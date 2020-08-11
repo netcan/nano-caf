@@ -12,6 +12,7 @@
 #include <nano-caf/util/macro_reflex_call.h>
 #include <nano-caf/util/callable_trait.h>
 #include <nano-caf/util/type_list.h>
+#include <nano-caf/util/type_id_t.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -37,26 +38,33 @@ namespace detail {
 #define __CUB_method_signature(x) __CUB_rest  x
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-#define __CUB_actor_method(n, x)                                    \
-struct __CUB_method_name(x);                                          \
-template <typename T> struct __SeCrEtE_method<n, T>                 \
-   : NANO_CAF_NS::detail::request_type<__CUB_method_name(x), auto __CUB_method_signature(x)> {                      \
-   constexpr static auto name() -> const char* { return __CUB_stringify(__CUB_method_name(x)); } \
-};                                                                  \
-struct __CUB_method_name(x) : NANO_CAF_NS::atom_signature {                        \
-   using type = __SeCrEtE_method<n, __SeCrEtE_tHiS_tYpe>;           \
-   struct msg_type : type::msg_type {                               \
-      using tuple_parent = type::msg_type;                          \
-      using tuple_parent::tuple_parent;                             \
-      using result_type = type::result_type;                        \
-   };                                                               \
+#define __CUB_actor_method(n, x)                                           \
+struct __CUB_method_name(x);                                               \
+template <typename T> struct __SeCrEtE_method<n, T>                        \
+   : NANO_CAF_NS::detail::request_type                                     \
+           < __CUB_method_name(x), auto __CUB_method_signature(x)> {       \
+   constexpr static auto name() -> const char* {                           \
+       return __CUB_stringify(__CUB_method_name(x));                       \
+   }                                                                       \
+};                                                                         \
+struct __CUB_method_name(x) : NANO_CAF_NS::atom_signature {                \
+   using type = __SeCrEtE_method<n, __SeCrEtE_tHiS_tYpe>;                  \
+   struct msg_type : type::msg_type {                                      \
+      using tuple_parent = type::msg_type;                                 \
+      using tuple_parent::tuple_parent;                                    \
+      using result_type = type::result_type;                               \
+      constexpr static NANO_CAF_NS::type_id_t type_id =                    \
+           static_cast<type_id_t>(n) | __secrete_type_id;                  \
+   };                                                                      \
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#define __CAF_actor_interface(name, ...)                                                 \
+#define __CAF_actor_interface(name, interface_type_id, ...)                              \
 struct name {                                                                            \
 private:                                                                                 \
    using __SeCrEtE_tHiS_tYpe = name;                                                     \
+   constexpr static NANO_CAF_NS::type_id_t __secrete_type_id =                           \
+           static_cast<type_id_t>(interface_type_id) << 32;                              \
 public:                                                                                  \
    template <size_t, typename> struct __SeCrEtE_method;                                  \
    constexpr static size_t total_methods = __CUB_pp_size(__VA_ARGS__);                   \
