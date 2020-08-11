@@ -59,12 +59,15 @@ struct __CUB_method_name(x) : NANO_CAF_NS::atom_signature {                \
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#define __CAF_actor_interface(name, interface_type_id, ...)                              \
+#define __CAF_actor_interface(name, i_type_id, ...)                                      \
 struct name {                                                                            \
 private:                                                                                 \
    using __SeCrEtE_tHiS_tYpe = name;                                                     \
+   static_assert(sizeof(i_type_id) == sizeof(uint32_t) &&                                \
+                 std::is_convertible_v<decltype(i_type_id), uint32_t>,                   \
+                 "interface type id must be uint32_t");                                  \
    constexpr static NANO_CAF_NS::type_id_t __secrete_type_id =                           \
-           static_cast<type_id_t>(interface_type_id) << 32;                              \
+           static_cast<type_id_t>(i_type_id) << 32;                                      \
 public:                                                                                  \
    template <size_t, typename> struct __SeCrEtE_method;                                  \
    constexpr static size_t total_methods = __CUB_pp_size(__VA_ARGS__);                   \

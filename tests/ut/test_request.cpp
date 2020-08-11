@@ -12,9 +12,14 @@
 namespace {
    using namespace NANO_CAF_NS;
 
-   __CAF_actor_interface(media_session, 1,
+   enum : uint32_t {
+      media_session_interface_id = 1
+   };
+
+   __CAF_actor_interface(media_session, media_session_interface_id,
        (open,  (const long&) -> long),
-       (close, (const long&) -> void)
+       (close, (const long&) -> void),
+       (empty, ()            -> int)
    );
 
    struct not_atom {};
@@ -31,6 +36,10 @@ namespace {
                return value + 1;
             },
             [&](media_session::close, long) {
+            },
+            [&](media_session::empty) -> int {
+               std::cout << "empty received" << std::endl;
+               return 1234;
             },
             [&](exit_msg_atom, exit_reason) {
                std::cout << "exit received" << std::endl;
@@ -50,14 +59,14 @@ namespace {
          return {
             [&, this](test_message_atom, const int &amount) {
                request<media_session::open>(session_actor, static_cast<long>(amount))
-               .then(
-                  [this](auto result) {
-                     std::cout << "success = " << result << std::endl;
-                     exit(exit_reason::normal);
-                  },
-                  [](auto failure) {
-                     std::cout << "failed = " << failure << std::endl;
-                  });
+                  .then(
+                     [this](auto result) {
+                        std::cout << "success = " << result << std::endl;
+                        exit(exit_reason::normal);
+                     },
+                     [](auto failure) {
+                        std::cout << "failed = " << failure << std::endl;
+                     });
             },
             [&](exit_msg_atom, exit_reason) {
                std::cout << "exit received" << std::endl;
@@ -80,7 +89,7 @@ namespace {
    }
 
    TEST_CASE("actor interface") {
-      REQUIRE(2 == media_session::total_methods);
+      REQUIRE(3 == media_session::total_methods);
       REQUIRE(std::is_same_v<type_list<media_session::open, long>,
          media_session::open::type::pattern_type>);
       REQUIRE(std::is_same_v<type_list<long>, media_session::open::type::args_type>);
@@ -108,6 +117,12 @@ namespace {
       me.request<media_session::close>(static_cast<long>(10)).wait().match(
          [](auto result) { REQUIRE(result == unit);  },
          [](auto) { REQUIRE(false); });
+
+      me.request<media_session::empty>().wait().match(
+         [](auto result) { REQUIRE(result == 1234);  },
+         [](auto) { REQUIRE(false); });
+
+      me.request<media_session::empty>();
 
       REQUIRE(status_t::ok == me.send<media_session::open>(static_cast<long>(10)));
       REQUIRE(status_t::ok == me.send<media_session::close>(static_cast<long>(20)));

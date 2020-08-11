@@ -15,6 +15,17 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         -Wduplicated-branches
         -Wlogical-op
         -Wuseless-cast")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS, "${CMAKE_CXX_FLAGS}
+       -Waddress sanitizer
+       -Wambiguous-macro
+       -Warray-bounds
+       -Watomic-alignment
+       -Watomic-implicit-seq-cst
+       -Watomic-memory-ordering
+       -Wdangling
+       -Wdangling-else
+    ")
 endif()
 
 include_directories(

@@ -80,26 +80,47 @@ struct inter_actor_promise_handler : promised_request_handler<T> {
    actor_handle sender_;
 };
 
-template<typename T, typename H_SUCC>
+template<typename T, typename H_RESULT>
 struct delegate_request_handler : request_result_handler<T> {
-   delegate_request_handler(H_SUCC&& h_succ)
-      : h_succ_{std::move(h_succ)}
+   delegate_request_handler(H_RESULT&& h_result)
+      : h_result_{std::move(h_result)}
    {}
 
-   static_assert(std::is_invocable_r_v<void, H_SUCC, T>, "T function signature mismatch");
+   static_assert(std::is_invocable_r_v<void, H_RESULT, T>, "T function signature mismatch");
 
    auto handle(const T& value) -> void override {
-      h_succ_(value);
+      h_result_(value);
    }
 
-   H_SUCC h_succ_;
+   H_RESULT h_result_;
 };
+
 
 template<typename METHOD_ATOM, typename F>
 struct request_rsp_base {
    request_rsp_base(F&& f) : f_{std::move(f)} {}
 
+
+   template<typename HANDLER>
+   auto invoke(HANDLER&& handler) {
+      invoked_ = true;
+      return f_(std::forward<HANDLER>(handler));
+   }
+
+   struct dummy_request_handler : request_result_handler<result_type<METHOD_ATOM>> {
+      auto handle(const result_type<METHOD_ATOM>&) -> void override {}
+   };
+
+   ~request_rsp_base() {
+      if(!invoked_) {
+         if(auto status = f_(dummy_request_handler{}); status != status_t::ok) {
+            // error log
+         }
+      };
+   }
+private:
    F f_;
+   bool invoked_{false};
 };
 
 template<typename METHOD_ATOM, typename F>
@@ -117,7 +138,7 @@ private:
       auto handler = promised_request_handler<result_type<METHOD_ATOM>>{};
       auto future = handler.promise_.get_future();
 
-      if(auto status = base::f_(handler); status != status_t::ok) {
+      if(auto status = base::invoke(handler); status != status_t::ok) {
          return status;
       }
 
@@ -140,17 +161,17 @@ public:
 };
 
 template<typename METHOD_ATOM, typename F>
-struct then_rsp : wait_rsp<METHOD_ATOM, F> {
+struct [[nodiscard]] then_rsp : wait_rsp<METHOD_ATOM, F> {
 private:
    using base = wait_rsp<METHOD_ATOM, F>;
 
 public:
    using base::base;
 
-   template<typename H_SUCC, typename H_FAIL>
-   auto then(H_SUCC&& h_succ, H_FAIL&& h_fail) {
-      delegate_request_handler<result_type<METHOD_ATOM>, H_SUCC> handler{ std::forward<H_SUCC>(h_succ) };
-      if(auto status = base::f_(std::move(handler)); status != status_t::ok) {
+   template<typename H_RESULT, typename H_FAIL>
+   auto then(H_RESULT&& h_result, H_FAIL&& h_fail) {
+      delegate_request_handler<result_type<METHOD_ATOM>, H_RESULT> handler{ std::forward<H_RESULT>(h_result) };
+      if(auto status = base::invoke(std::move(handler)); status != status_t::ok) {
          h_fail(status);
       }
    }

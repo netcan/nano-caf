@@ -14,6 +14,7 @@ class aggregate_fields_type;
 
 template<typename T>
 class aggregate_fields_type<0, T> {
+public:
    using type = type_list<>;
    template <typename F>
    static auto call(const T&, F&& f) {{
