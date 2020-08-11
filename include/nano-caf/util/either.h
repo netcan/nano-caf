@@ -6,6 +6,7 @@
 #define NANO_CAF_EITHER_H
 
 #include <nano-caf/nano-caf-ns.h>
+#include <nano-caf/util/ptr_trait.h>
 #include <utility>
 #include <variant>
 
@@ -103,8 +104,19 @@ public:
    constexpr auto match(F_L&& f_l, F_R&& f_r) const noexcept {
       static_assert(std::is_invocable_v<F_L, const L&>, "f_left type mismatch");
       static_assert(std::is_invocable_v<F_R, const R&>, "f_right type mismatch");
-      static_assert(std::is_same_v<std::invoke_result_t<F_L, const L&>, std::invoke_result_t<F_R, const R&>>, "result type mismatch");
-      return is_left() ? f_l(left()) : f_r(right());
+
+      using type_l = std::invoke_result_t<F_L, const L&>;
+      using type_r = std::invoke_result_t<F_R, const R&>;
+      if constexpr(std::is_null_pointer_v<type_l>) {
+         static_assert(is_ptr_v<type_r>, "result type mismatch");
+         return is_left() ? static_cast<type_r>(f_l(left())) : f_r(right());
+      } else if constexpr(std::is_null_pointer_v<type_r>) {
+         static_assert(is_ptr_v<type_l>, "result type mismatch");
+         return is_left() ? f_l(left()) : static_cast<type_l>(f_r(right()));
+      } else {
+         static_assert(std::is_same_v<type_r, type_r>, "result type mismatch");
+         return is_left() ? f_l(left()) : f_r(right());
+      }
    }
 
    friend inline bool operator==(const either& lhs, const either& rhs) noexcept {

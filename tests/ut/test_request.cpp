@@ -19,7 +19,7 @@ namespace {
    __CAF_actor_interface(media_session, media_session_interface_id,
        (open,  (const long&) -> long),
        (close, (const long&) -> void),
-       (empty, ()            -> int)
+       (empty, ()            -> std::shared_ptr<int>)
    );
 
    struct not_atom {};
@@ -37,9 +37,9 @@ namespace {
             },
             [&](media_session::close, long) {
             },
-            [&](media_session::empty) -> int {
+            [&](media_session::empty) -> auto {
                std::cout << "empty received" << std::endl;
-               return 1234;
+               return std::make_shared<int>(1234);
             },
             [&](exit_msg_atom, exit_reason) {
                std::cout << "exit received" << std::endl;
@@ -119,10 +119,13 @@ namespace {
          [](auto) { REQUIRE(false); });
 
       me.request<media_session::empty>().wait().match(
-         [](auto result) { REQUIRE(result == 1234);  },
+         [](auto result) { REQUIRE(*result == 1234);  },
          [](auto) { REQUIRE(false); });
 
-      //me.request<media_session::empty>();
+      me.request<media_session::empty>().wait().match(
+         [](auto result) { return result; },
+         [](auto) { return nullptr; }
+         );
 
       REQUIRE(status_t::ok == me.send<media_session::open>(static_cast<long>(10)));
       REQUIRE(status_t::ok == me.send<media_session::close>(static_cast<long>(20)));

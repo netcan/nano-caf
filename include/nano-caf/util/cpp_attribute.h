@@ -5,9 +5,9 @@
 #ifndef NANO_CAF_CPP_ATTRIBUTE_H
 #define NANO_CAF_CPP_ATTRIBUTE_H
 
-#ifdef __CLANG__
+#ifdef __clang__
 #define __MAYBE_UNUSED__ [[maybe_unused]]
-#elif defined(__GNUG__)
+#elif defined(__GNUG__) && !defined(__clang__)
 #define __MAYBE_UNUSED__
 #endif
 
