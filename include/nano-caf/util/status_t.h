@@ -19,7 +19,8 @@ enum status_t : std::uint_fast64_t {
    out_of_mem,
    null_msg,
    msg_queue_closed,
-   null_sender
+   null_sender,
+   msg_dropped
 };
 
 NANO_CAF_NS_END

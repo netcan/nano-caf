@@ -59,7 +59,7 @@ struct promised_request_handler : request_result_handler<T> {
    }
 
    ~promised_request_handler() {
-      if(!value_set_) promise_.set_value(status_t::failed);
+      if(!value_set_) promise_.set_value(status_t::msg_dropped);
    }
 
    std::promise<either<T, status_t>> promise_{};
