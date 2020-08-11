@@ -88,25 +88,23 @@ namespace detail {
          , either_future_{std::move(future)} {}
 
    private:
-      template<typename F_SUCC, typename F_FAIL>
-      auto then_(F_SUCC&& f_succ, F_FAIL&& f_fail) -> status_t {
+      template<typename F_HANDLER, typename F_FAIL>
+      auto then_(F_HANDLER&& f_handler, F_FAIL&& f_fail) -> status_t {
          if(either_future_.is_left()) {
-            auto l = [succ = std::move(f_succ), fail = std::move(f_fail)](auto result) {
-               result.match(succ, fail);
+            auto l = [handler = std::move(f_handler), fail = std::move(f_fail)](auto result) {
+               result.match(handler, fail);
             };
-            return with_futures(std::move(l), either_future_.left()).match(
-               [&](auto future_cb) { return registry_(future_cb); },
-               [&](auto failure)   { return failure; }
-            );
+            return with_futures(std::move(l), either_future_.left())
+               .left_match([&](auto future_cb) { return registry_(future_cb); });
          } else {
             return either_future_.right();
          }
       }
 
    public:
-      template<typename F_SUCC, typename F_FAIL>
-      auto then(F_SUCC&& f_succ, F_FAIL&& f_fail) -> status_t {
-         auto status = then_(std::forward<F_SUCC>(f_succ), std::forward<F_FAIL>(f_fail));
+      template<typename F_HANDLER, typename F_FAIL>
+      auto then(F_HANDLER&& f_handler, F_FAIL&& f_fail) -> status_t {
+         auto status = then_(std::forward<F_HANDLER>(f_handler), std::forward<F_FAIL>(f_fail));
          if(status != status_t::ok) {
             f_fail(status);
          }
