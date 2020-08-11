@@ -38,7 +38,9 @@ namespace {
          AND_WHEN("consume 1 ") {
             auto value = 0;
             auto l = [&](const message& elem) noexcept  {
-               value = elem.body<test_message>()->value;
+                auto msg = elem.body<test_message>();
+                REQUIRE(msg != nullptr);
+               value = msg->value;
                return task_result::resume; };
             auto result = queue.new_round(1, l);
             THEN("should consume the 1st element") {
