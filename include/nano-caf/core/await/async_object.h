@@ -7,12 +7,12 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/resumable.h>
-#include <type_traits>
-#include <functional>
-#include <future>
 #include <nano-caf/core/msg/predefined-msgs.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
 #include <nano-caf/core/actor/actor_handle.h>
+#include <type_traits>
+#include <functional>
+#include <future>
 
 NANO_CAF_NS_BEGIN
 

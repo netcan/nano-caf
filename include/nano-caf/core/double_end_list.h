@@ -10,8 +10,8 @@
 #include <nano-caf/core/thread_safe_list.h>
 #include <nano-caf/core/double_end_list_elem.h>
 #include <nano-caf/core/actor/enq_result.h>
-#include <memory>
 #include <nano-caf/util/cpp_attribute.h>
+#include <memory>
 
 NANO_CAF_NS_BEGIN
 

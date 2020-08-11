@@ -8,8 +8,8 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/util/type_list.h>
 #include <nano-caf/util/aggregate_fields_type.h>
-#include <type_traits>
 #include <nano-caf/util/supress_warning.h>
+#include <type_traits>
 
 NANO_CAF_NS_BEGIN
 

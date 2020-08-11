@@ -11,7 +11,7 @@
 #include <nano-caf/core/new_round_result.h>
 #include <cstddef>
 #include <functional>
-#include "task_result.h"
+#include <nano-caf/core/actor/task_result.h>
 
 NANO_CAF_NS_BEGIN
 

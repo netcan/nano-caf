@@ -8,12 +8,12 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/thread_safe_list.h>
 #include <nano-caf/util/disable_copy.h>
+#include <nano-caf/core/cache_line_size.h>
+#include <nano-caf/core/double_end_list.h>
+#include <condition_variable>
 #include <cstddef>
 #include <memory>
 #include <mutex>
-#include <condition_variable>
-#include <nano-caf/core/cache_line_size.h>
-#include <nano-caf/core/double_end_list.h>
 
 NANO_CAF_NS_BEGIN
 

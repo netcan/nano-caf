@@ -15,7 +15,7 @@ enum status_t : std::uint_fast64_t {
    ok,
    failed,
    timeout,
-   null_ptr,
+   null_pointer,
    out_of_mem,
    null_msg,
    msg_queue_closed,

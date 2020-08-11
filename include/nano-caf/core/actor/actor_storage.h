@@ -88,7 +88,7 @@ private:
       }
 
       auto register_future_callback(future_callback* future) noexcept -> status_t override {
-         if(future == nullptr) return status_t::null_ptr;
+         if(future == nullptr) return status_t::null_pointer;
          futures_.push_back(future);
          return status_t::ok;
       }

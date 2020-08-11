@@ -9,7 +9,6 @@
 #include <nano-caf/core/double_end_list.h>
 #include <cstddef>
 
-
 NANO_CAF_NS_BEGIN
 
 struct resumable : list_element_t

@@ -7,7 +7,6 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/thread_safe_list.h>
-
 #include <cstddef>
 #include <vector>
 

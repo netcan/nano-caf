@@ -53,7 +53,7 @@ struct actor_handle {
 
    auto wait_for_exit() -> either<exit_reason, status_t>{
       if(ptr_ == nullptr) {
-         return status_t::null_ptr;
+         return status_t::null_pointer;
       }
       return ptr_->wait_for_exit();
    }
