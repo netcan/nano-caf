@@ -11,7 +11,6 @@
 #include <nano-caf/util/either.h>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/core/actor/exit_reason.h>
-#include <nano-caf/core/actor/wait_result.h>
 #include <cstddef>
 #include <atomic>
 #include <future>
