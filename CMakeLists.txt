@@ -101,7 +101,7 @@ add_library(nano_caf
         include/nano-caf/util/status_t.h
         include/nano-caf/util/result_trait.h
         include/nano-caf/core/actor/requester.h
-        include/nano-caf/core/msg/request_result_handler.h)
+        include/nano-caf/core/msg/request_result_handler.h include/nano-caf/util/supress_warning.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp

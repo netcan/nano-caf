@@ -9,6 +9,7 @@
 #include <nano-caf/util/type_list.h>
 #include <nano-caf/util/aggregate_fields_type.h>
 #include <type_traits>
+#include <nano-caf/util/supress_warning.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -22,13 +23,17 @@ namespace detail {
       constexpr static size_t size = sizeof...(Ts) - 1;
    };
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+
    template<typename T, typename ... Ts>
-   struct aggregate_fields_number<T, std::enable_if_t<std::is_aggregate_v<T> && std::is_same_v<T, decltype(T{Ts{}...})>>, Ts...> {
+   struct aggregate_fields_number<T, std::enable_if_t<std::is_aggregate_v<T> &&
+      DISABLE_WARNING_PUSH
+      DISABLE_WARNING_MISS_FIELD
+      std::is_same_v<T, decltype(T{Ts{}...})>>
+      DISABLE_WARNING_POP
+      , Ts...> {
       constexpr static size_t size = aggregate_fields_number<T, void, Ts..., universal_type>::size;
    };
-#pragma GCC diagnostic pop
+
 }
 
 template<typename T, typename = std::enable_if_t<std::is_aggregate_v<T>>>
