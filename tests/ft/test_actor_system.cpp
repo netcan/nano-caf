@@ -10,7 +10,7 @@
 using namespace NANO_CAF_NS;
 
 struct my_actor : actor {
-    std::vector<size_t> values;
+    std::vector<int> values;
     auto handle_message(message& msg) noexcept -> task_result override {
         values.push_back(msg.body<test_message>()->value);
         return task_result::resume;

@@ -14,10 +14,10 @@
 using namespace NANO_CAF_NS;
 
 struct future_actor : actor {
-   const int value = 10;
-   unsigned long final_result = 0;
+   const size_t value = 10;
+   size_t final_result = 0;
 
-   auto add(int a, int b) {
+   auto add(size_t a, size_t b) {
       //std::cout << "calc future 1" << std::endl;
       std::random_device r;
       std::default_random_engine regen{r()};
@@ -40,13 +40,13 @@ struct future_actor : actor {
       auto future2 = async([this]() {
          //std::cout << "calc future 2" << std::endl;
          size_t result = 0;
-         int a = 20;
-         int b = 4;
+          size_t a = 20;
+          size_t b = 4;
          std::random_device r;
          std::default_random_engine regen{r()};
          std::uniform_int_distribution<size_t> uniform(0, 1000);
 
-         for(unsigned long i = 0; i < 100000; i++) {
+         for(size_t i = 0; i < 100000; i++) {
             result += (a * b + value) + uniform(regen);
          }
 
@@ -59,13 +59,13 @@ struct future_actor : actor {
       auto future3 = async([this]() {
          //std::cout << "calc future 3" << std::endl;
          size_t result = 0;
-         int a = 20;
-         int b = 42;
+          size_t a = 20;
+          size_t b = 42;
          std::random_device r;
          std::default_random_engine regen{r()};
          std::uniform_int_distribution<size_t> uniform(0, 1000);
 
-         for(unsigned long i = 0; i < 100000; i++) {
+         for(size_t i = 0; i < 100000; i++) {
             result += (a * b + value) + uniform(regen);
          }
 
@@ -76,7 +76,7 @@ struct future_actor : actor {
          exit(exit_reason::unhandled_exception);
       }
 
-      auto result1 = with(future1)([this](unsigned long r1) {
+      auto result1 = with(future1)([this](unsigned long) {
          //std::cout << "async future1 done = " << r1 << std::endl;
       });
 
@@ -84,7 +84,7 @@ struct future_actor : actor {
          exit(exit_reason::unhandled_exception);
       }
 
-      auto result2 = with(future2)([this](unsigned long r2) {
+      auto result2 = with(future2)([this](unsigned long) {
          //std::cout << "async future2 done = " << r2 << std::endl;
       });
 
@@ -103,7 +103,7 @@ struct future_actor : actor {
       }
    }
 
-   auto handle_message(message& msg) noexcept -> task_result override {
+   auto handle_message(message&) noexcept -> task_result override {
       return task_result::resume;
    }
 };
@@ -114,7 +114,7 @@ void run_on_thread(size_t num_of_threads, char const* name) {
 
    ankerl::nanobench::Bench().minEpochIterations(109).run(name, [&] {
       auto me = system.spawn<future_actor>();
-      me.send<my_message>(1);
+      me.send<test_message>(1);
       me.wait_for_exit();
       me.release();
    });

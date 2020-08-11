@@ -60,9 +60,9 @@ protected:
       return result;
    }
 
-   template<typename A, typename METHOD, typename ... Args>
-   inline auto request(typed_actor_handle<A>& to, METHOD method, Args&&...args)  {
-      auto result = to.request(self_handle(), method, std::forward<Args>(args)...);
+   template<typename METHOD, typename A, typename ... Args>
+   inline auto request(typed_actor_handle<A>& to, Args&&...args)  {
+      auto result = to.template request<METHOD>(self_handle(), std::forward<Args>(args)...);
       auto l = [this](auto future_cb) { return register_future_callback(future_cb); };
       return detail::request_then<decltype(l), decltype(result)>{l, result};
    }
@@ -94,7 +94,7 @@ private:
 protected:
    virtual auto on_init() -> void {}
    virtual auto on_exit() -> void {}
-   virtual auto handle_message(message& msg) noexcept -> task_result {
+   virtual auto handle_message(message&) noexcept -> task_result {
       return task_result::done;
    }
 };

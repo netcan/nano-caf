@@ -114,7 +114,7 @@ namespace ro_meta_data {
 
    template<size_t N>
    struct meta_flags {
-      enum { num_of_bytes = (size_t)((N + 7) / 8) };
+      enum { num_of_bytes = (N + 7) / 8 };
       unsigned char flags_[num_of_bytes]{};
    };
 

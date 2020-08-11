@@ -22,10 +22,13 @@ namespace detail {
       constexpr static size_t size = sizeof...(Ts) - 1;
    };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
    template<typename T, typename ... Ts>
    struct aggregate_fields_number<T, std::enable_if_t<std::is_aggregate_v<T> && std::is_same_v<T, decltype(T{Ts{}...})>>, Ts...> {
       constexpr static size_t size = aggregate_fields_number<T, void, Ts..., universal_type>::size;
    };
+#pragma GCC diagnostic pop
 }
 
 template<typename T, typename = std::enable_if_t<std::is_aggregate_v<T>>>

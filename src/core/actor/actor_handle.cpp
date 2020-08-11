@@ -24,6 +24,8 @@ auto actor_handle::send_(message* msg) noexcept -> status_t {
          return status_t::null_msg;
       case enq_result::null_sender:
          return status_t::null_sender;
+      default:
+         return status_t::failed;
    }
 }
 

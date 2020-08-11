@@ -34,7 +34,8 @@ namespace {
       }
       WHEN("pass a shared_buf_msg") {
          auto behavior = get_behavior();
-         std::unique_ptr<message> msg{make_message<shared_buf_msg>(std::shared_ptr<big_msg>(new big_msg{20, (float)1.4, 2.5}))};
+         std::unique_ptr<message> msg{make_message<shared_buf_msg>(std::shared_ptr<big_msg>(new big_msg{20,
+                                                                                                        static_cast<float >(1.4), 2.5}))};
          REQUIRE(msg != nullptr);
          REQUIRE(behavior.ptr_ != nullptr);
          REQUIRE(behavior.ptr_->handle_msg(*msg)== task_result::resume);

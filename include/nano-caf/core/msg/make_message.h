@@ -82,13 +82,13 @@ struct request_entity : message_entity<T, CATEGORY> {
 
 template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
 inline auto make_request(HANDLER&& handler, Args&&...args) -> message* {
-   return new request_entity<T, HANDLER, (message::category)((uint64_t)CATEGORY | message::request_mask)>
+   return new request_entity<T, HANDLER, static_cast<message::category>(CATEGORY | message::request_mask)>
       (std::forward<HANDLER>(handler), std::forward<Args>(args)...);
 }
 
 template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
 inline auto make_request(intrusive_actor_ptr sender, HANDLER&& handler, Args&&...args) -> message* {
-   return new request_entity<T, HANDLER, (message::category)((uint64_t)CATEGORY | message::request_mask)>
+   return new request_entity<T, HANDLER, static_cast<message::category>(CATEGORY | message::request_mask)>
          (sender, std::forward<HANDLER>(handler), std::forward<Args>(args)...);
 }
 

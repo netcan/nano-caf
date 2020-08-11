@@ -19,7 +19,7 @@ struct pong_actor_1 : behavior_based_actor {
                 reply<test_message>(value);
                 pong_times_2++;
             },
-            [&](exit_msg_atom, exit_reason reason) {
+            [&](exit_msg_atom, exit_reason) {
             }
         };
     }

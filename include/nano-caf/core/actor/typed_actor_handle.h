@@ -19,13 +19,13 @@ struct typed_actor_handle : private actor_handle {
 
    template<typename METHOD_ATOM, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
-   auto send(METHOD_ATOM atom, Args&& ... args) {
+   auto send(Args&& ... args) {
       return actor_handle::send<typename METHOD_ATOM::msg_type>(std::forward<Args>(args)...);
    }
 
    template<typename METHOD_ATOM, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
-   auto request(METHOD_ATOM atom, Args&& ... args) {
+   auto request(Args&& ... args) {
       auto l = [&, this](auto&& handler) {
          return actor_handle::request<typename METHOD_ATOM::msg_type>(
                std::forward<decltype(handler)>(handler),
@@ -36,7 +36,7 @@ struct typed_actor_handle : private actor_handle {
 
    template<typename METHOD_ATOM, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
-   auto request(intrusive_actor_ptr from, METHOD_ATOM atom, Args&& ... args)
+   auto request(intrusive_actor_ptr from, Args&& ... args)
       -> either<requester::future_type<METHOD_ATOM>, status_t> {
       requester::inter_actor_promise_handler<requester::result_type<METHOD_ATOM>> promise{ from };
       auto future = promise.promise_.get_future();

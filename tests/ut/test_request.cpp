@@ -27,12 +27,12 @@ namespace {
    struct media_session_actor : behavior_based_actor {
       auto get_behavior() -> behavior override {
          return {
-            [&](media_session::open_atom, long value) -> long {
+            [&](media_session::open, long value) -> long {
                return value + 1;
             },
-            [&](media_session::close_atom, long value) {
+            [&](media_session::close, long) {
             },
-            [&](exit_msg_atom, exit_reason reason) {
+            [&](exit_msg_atom, exit_reason) {
                std::cout << "exit received" << std::endl;
             },
          };
@@ -49,7 +49,7 @@ namespace {
       auto get_behavior() -> behavior override {
          return {
             [&, this](test_message_atom, const int &amount) {
-               request(session_actor, media_session::open, (long)amount)
+               request<media_session::open>(session_actor, static_cast<long>(amount))
                .then(
                   [this](auto result) {
                      std::cout << "success = " << result << std::endl;
@@ -59,7 +59,7 @@ namespace {
                      std::cout << "failed = " << failure << std::endl;
                   });
             },
-            [&](exit_msg_atom, exit_reason reason) {
+            [&](exit_msg_atom, exit_reason) {
                std::cout << "exit received" << std::endl;
             },
          };
@@ -81,10 +81,10 @@ namespace {
 
    TEST_CASE("actor interface") {
       REQUIRE(2 == media_session::total_methods);
-      REQUIRE(std::is_same_v<type_list<media_session::open_atom, long>,
-         media_session::open_atom::type::pattern_type>);
-      REQUIRE(std::is_same_v<type_list<long>, media_session::open_atom::type::args_type>);
-      REQUIRE(std::is_same_v<type_list<long>, media_session::open_atom::type::args_type>);
+      REQUIRE(std::is_same_v<type_list<media_session::open, long>,
+         media_session::open::type::pattern_type>);
+      REQUIRE(std::is_same_v<type_list<long>, media_session::open::type::args_type>);
+      REQUIRE(std::is_same_v<type_list<long>, media_session::open::type::args_type>);
 
       actor_system system;
       system.start(1);
@@ -93,24 +93,24 @@ namespace {
       using namespace std::chrono_literals;
 
       typed_actor_handle<media_session> me = system.spawn_typed_actor<media_session, media_session_actor>();
-      me.request(media_session::open, (long)10).wait().match(
+      me.request<media_session::open>(static_cast<long>(10)).wait().match(
          [](auto result) { REQUIRE(result == 11); },
-         [](auto status) { REQUIRE(false); });
+         [](auto) { REQUIRE(false); });
 
-      me.request(media_session::open, (long)20).wait(0us).match(
-         [](auto result) { REQUIRE(false); },
+      me.request<media_session::open>(static_cast<long>(20)).wait(0us).match(
+         [](auto) { REQUIRE(false); },
          [](auto status) { REQUIRE(status == status_t::timeout); });
 
-      me.request(media_session::open, (long)30).then(
+      me.request<media_session::open>(static_cast<long>(30)).then(
          [](auto result) { REQUIRE(result == 31); },
-         [](auto status) {});
+         [](auto) {});
 
-      me.request(media_session::close, (long)10).wait().match(
+      me.request<media_session::close>(static_cast<long>(10)).wait().match(
          [](auto result) { REQUIRE(result == unit);  },
-         [](auto status) { REQUIRE(false); });
+         [](auto) { REQUIRE(false); });
 
-      REQUIRE(status_t::ok == me.send(media_session::open, (long)10));
-      REQUIRE(status_t::ok == me.send(media_session::close, (long)20));
+      REQUIRE(status_t::ok == me.send<media_session::open>(static_cast<long>(10)));
+      REQUIRE(status_t::ok == me.send<media_session::close>(static_cast<long>(20)));
       REQUIRE(status_t::ok == me.exit());
 
       me.wait_for_exit();

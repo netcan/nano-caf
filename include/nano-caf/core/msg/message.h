@@ -39,8 +39,8 @@ struct message {
 
    message(intrusive_actor_ptr sender, type_id_t type_id, category cat = normal)
       : sender_{sender}
-      , category_(cat)
       , msg_type_id_(type_id)
+      , category_(cat)
    {}
 
    auto is_urgent() const noexcept -> bool {
@@ -85,9 +85,8 @@ public:
 
 public:
    intrusive_actor_ptr sender_{};
-   category category_;
-
    const type_id_t msg_type_id_;
+   category category_;
 };
 
 NANO_CAF_NS_END

@@ -28,11 +28,11 @@ namespace meta_data {
    };
 
    static constexpr auto flag_byte(size_t n) -> size_t {
-      return size_t(n / 8);
+      return n / 8;
    }
 
    static constexpr auto flag_mask(size_t n) -> uint8_t {
-      return ((uint8_t)1) << uint8_t(n % 8);
+      return static_cast<uint8_t>(1) << (n % 8);
    }
 
    static constexpr auto clear_flag_mask(size_t n) -> uint8_t {

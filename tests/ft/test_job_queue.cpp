@@ -12,33 +12,33 @@
 using namespace NANO_CAF_NS;
 
 struct job : double_end_list_elem {
-   job(int value) : value{value} {}
-   int value;
+   job(size_t value) : value{value} {}
+    size_t value;
 
    auto to_value_ptr() -> void* override {
-      return (void*)this;
+      return reinterpret_cast<void*>(this);
    }
 };
 
 struct job1 : lock_free_list_elem {
-   job1(int value) : value{value} {}
-   int value;
+   job1(size_t value) : value{value} {}
+    size_t value;
 
    auto to_value_ptr() -> void* override {
-      return (void*)this;
+      return reinterpret_cast<void*>(this);
    }
 };
 
 struct job2 : list_element {
-   job2(int value) : value{value} {}
-   int value;
+   job2(size_t value) : value{value} {}
+    size_t value;
 
    auto to_value_ptr() -> void* override {
-      return (void*)this;
+      return reinterpret_cast<void*>(this);
    }
 };
 
-const unsigned long total = 1000;
+const size_t total = 1000;
 
 auto double_end_list_one_round(size_t number) -> void {
    double_end_list list{};
@@ -74,7 +74,7 @@ auto double_end_list_one_round(size_t number) -> void {
          cv.wait(lock, [&]{ return started; });
       }
 
-      for(int i=0; i<total; i++) {
+      for(size_t i=0; i<total; i++) {
          list.enqueue(new job{i});
       }
    };
@@ -107,7 +107,7 @@ auto lock_free_list_one_round(size_t number) -> void {
    std::mutex mutex;
    std::condition_variable cv;
 
-   auto l = [&](size_t id){
+   auto l = [&](size_t){
       {
          std::unique_lock lock{mutex};
          cv.wait(lock, [&] { return started; });
@@ -135,7 +135,7 @@ auto lock_free_list_one_round(size_t number) -> void {
          cv.wait(lock, [&]{ return started; });
       }
 
-      for(int i=0; i<total; i++) {
+      for(size_t i=0; i<total; i++) {
          auto result = list.enqueue(new job1{i});
          if(result != enq_result::ok) {
             exit(-1);
@@ -197,7 +197,7 @@ auto thread_safe_list_one_round(size_t number) -> void {
          cv.wait(lock, [&]{ return started; });
       }
 
-      for(int i=0; i<total; i++) {
+      for(size_t i=0; i<total; i++) {
          list.enqueue(new job2{i});
       }
    };

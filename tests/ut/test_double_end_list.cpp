@@ -13,7 +13,7 @@ namespace {
       int value;
 
       auto to_value_ptr() -> void* override {
-         return (void*)this;
+         return reinterpret_cast<void*>(this);
       }
    };
 

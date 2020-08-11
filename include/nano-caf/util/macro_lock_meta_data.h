@@ -152,7 +152,7 @@ namespace lock_meta_data {
          return_type result;
          auto size = self.v_.n_;
          auto& data = self.v_.data_;
-         for(int i=0; i<size; i++)
+         for(size_t i=0; i<size; i++)
             result.first[i] = data[i];
          result.second = size;
          return result;
@@ -187,7 +187,7 @@ namespace lock_meta_data {
 
    template<size_t N>
    struct meta_flags {
-      enum { num_of_bytes = (size_t)((N + 7) / 8) };
+      enum { num_of_bytes = (N + 7) / 8 };
       std::atomic<unsigned char> v_[num_of_bytes]{};
    };
 }

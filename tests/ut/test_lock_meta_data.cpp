@@ -102,7 +102,7 @@ namespace {
          }
          WHEN("access a non-present value with lambda") {
             auto result = foo.c_value(
-               [](auto value) {
+               [](auto) {
                   return true;
                },
                [](){

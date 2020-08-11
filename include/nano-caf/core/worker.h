@@ -24,7 +24,8 @@ struct coordinator;
 struct
 //alignas(CACHE_LINE_SIZE)
 worker : disable_copy {
-   worker(coordinator& coordinator, size_t id) : coordinator_(coordinator), id_(id) {}
+   worker(coordinator& coordinator, size_t id)
+    : id_(id), coordinator_(coordinator) {}
    worker(const worker&) = delete;
 
    auto take_one() noexcept -> resumable*;

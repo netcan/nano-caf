@@ -26,7 +26,7 @@ struct async_object : resumable {
    virtual auto resume() noexcept -> result override {
       auto result = f_();
       promise_.set_value(result);
-      sender_.send<future_done, (message::category)message::future>();
+      sender_.send<future_done, static_cast<message::category>(message::future)>();
       return result::done;
    }
 

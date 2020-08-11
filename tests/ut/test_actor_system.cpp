@@ -22,7 +22,7 @@ namespace {
    }
 
    struct my_actor : actor {
-      std::vector<size_t> values;
+      std::vector<int> values;
       auto handle_message(message& msg) noexcept -> task_result override {
          values.push_back(msg.body<test_message>()->value);
          return task_result::resume;
@@ -100,12 +100,12 @@ namespace {
    }
 
    struct future_actor : actor {
-      const int value = 10;
-      unsigned long final_result = 0;
+      const size_t value = 10;
+      size_t final_result = 0;
 
-      auto add(int a, int b) {
-         unsigned long result = 0;
-         for(int i = 0; i < 1000000; i++) {
+      auto add(size_t a, size_t b) {
+         size_t result = 0;
+         for(size_t i = 0; i < 1000000; i++) {
             result += (a * b + value);
          }
 
@@ -120,9 +120,9 @@ namespace {
 
          auto future2 = async([this]() {
             size_t result = 0;
-            int a = 20;
-            int b = 4;
-            for(int i = 0; i < 1000000; i++) {
+             size_t a = 20;
+             size_t b = 4;
+            for(size_t i = 0; i < 1000000; i++) {
                result += (a * b + value);
             }
 
@@ -163,7 +163,7 @@ namespace {
          }
       }
 
-      auto handle_message(message& msg) noexcept -> task_result override {
+      auto handle_message(message&) noexcept -> task_result override {
          return task_result::resume;
       }
    };
@@ -202,7 +202,7 @@ namespace {
                reply<test_message>(value);
                pong_times_2++;
             },
-            [&](exit_msg_atom, exit_reason reason) {
+            [&](exit_msg_atom, exit_reason) {
             }
          };
       }

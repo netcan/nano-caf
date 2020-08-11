@@ -21,7 +21,7 @@ namespace {
       actor_inbox inbox{};
       WHEN("consume elements") {
          uint32_t times = 0;
-         auto result = inbox.new_round(100, [&](const message& elem) noexcept  {
+         auto result = inbox.new_round(100, [&](const message&) noexcept  {
             times++;
             return task_result::resume; });
          THEN("should consume 0 elements") {
@@ -38,7 +38,7 @@ namespace {
       inbox.enqueue(make_message<test_message>(3));
       WHEN("consume elements") {
          uint32_t times = 0;
-         auto result = inbox.new_round(100, [&](const message& elem) noexcept  {
+         auto result = inbox.new_round(100, [&](const message&) noexcept  {
             times++;
             return task_result::resume; });
          THEN("should consume all elements") {
@@ -55,7 +55,7 @@ namespace {
       inbox.enqueue(make_message<test_message, message::urgent>(3));
       WHEN("consume elements") {
          uint32_t times = 0;
-         auto result = inbox.new_round(100, [&](const message& elem) noexcept  {
+         auto result = inbox.new_round(100, [&](const message&) noexcept  {
             times++;
             return task_result::resume; });
          THEN("should consume all elements") {

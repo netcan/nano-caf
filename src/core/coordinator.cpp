@@ -97,7 +97,7 @@ auto coordinator::try_steal(size_t id) noexcept -> resumable* {
    std::default_random_engine regen{r()};
    std::uniform_int_distribution<size_t> uniform(0, try_times);
 
-   for(auto i = 0; i < try_times; ++i) {
+   for(size_t i = 0; i < try_times; ++i) {
       auto victim = uniform(regen);
       if(__likely(victim != id)) {
          auto job = workers_[victim]->take_one();

@@ -74,7 +74,7 @@ struct inter_actor_promise_handler : promised_request_handler<T> {
 
    auto handle(const T& value) -> void override {
       promised_request_handler<T>::handle(value);
-      sender_.send<future_done, (message::category)message::future>();
+      sender_.send<future_done, static_cast<message::category>(message::future)>();
    }
 
    actor_handle sender_;
@@ -135,7 +135,7 @@ public:
    }
 
    auto wait() -> wait_result_t {
-      return wait_([&](auto& future){ return std::future_status::ready; });
+      return wait_([&](auto&){ return std::future_status::ready; });
    }
 };
 
