@@ -9,6 +9,7 @@
 #include <nano-caf/core/cache_line_size.h>
 #include <nano-caf/core/double_end_list_elem.h>
 #include <nano-caf/core/actor/enq_result.h>
+#include <nano-caf/util/cpp_attribute.h>
 #include <memory>
 
 NANO_CAF_NS_BEGIN
@@ -90,7 +91,7 @@ private:
    std::atomic<detail::lock_free_node_handle> head_{};
    alignas(CACHE_LINE_SIZE)
    std::atomic<detail::lock_free_node_handle> tail_{};
-   [[maybe_unused]] alignas(CACHE_LINE_SIZE) char __cache_line_alignment[0];
+    __MAYBE_UNUSED__ alignas(CACHE_LINE_SIZE) char __cache_line_alignment[0];
 };
 
 NANO_CAF_NS_END

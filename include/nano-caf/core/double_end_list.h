@@ -11,6 +11,7 @@
 #include <nano-caf/core/double_end_list_elem.h>
 #include <nano-caf/core/actor/enq_result.h>
 #include <memory>
+#include <nano-caf/util/cpp_attribute.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -37,15 +38,15 @@ double_end_list {
    auto pop_front() noexcept -> double_end_list_elem*;
 
 private:
-   [[maybe_unused]] alignas(CACHE_LINE_SIZE) char __align_boundary_0[0];
+   __MAYBE_UNUSED__ alignas(CACHE_LINE_SIZE) char __align_boundary_0[0];
    std::atomic<double_end_list_node*> head_{nullptr};
    std::atomic_flag head_lock_{false};
 
-   [[maybe_unused]] alignas(CACHE_LINE_SIZE) char __align_boundary_1[0];
+   __MAYBE_UNUSED__ alignas(CACHE_LINE_SIZE) char __align_boundary_1[0];
    std::atomic<double_end_list_node*> tail_{nullptr};
    std::atomic_flag tail_lock_{false};
 
-   [[maybe_unused]] alignas(CACHE_LINE_SIZE) char __align_boundary_2[0];
+   __MAYBE_UNUSED__ alignas(CACHE_LINE_SIZE) char __align_boundary_2[0];
 };
 
 #ifdef USE_DOUBLE_END_LIST

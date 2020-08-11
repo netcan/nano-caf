@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
       -Wcast-align -Wunused -Woverloaded-virtual -Wconversion \
       -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 \
       -Wno-invalid-offsetof   \
-      -Wold-style-cast -Wduplicate-enum")
+      -Wold-style-cast")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS, "${CMAKE_CXX_FLAGS}
@@ -25,6 +25,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
        -Watomic-memory-ordering
        -Wdangling
        -Wdangling-else
+       -Wduplicate-enum
     ")
 endif()
 
@@ -112,7 +113,7 @@ add_library(nano_caf
         include/nano-caf/util/status_t.h
         include/nano-caf/util/result_trait.h
         include/nano-caf/core/actor/requester.h
-        include/nano-caf/core/msg/request_result_handler.h include/nano-caf/util/supress_warning.h)
+        include/nano-caf/core/msg/request_result_handler.h include/nano-caf/util/supress_warning.h include/nano-caf/util/cpp_attribute.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp

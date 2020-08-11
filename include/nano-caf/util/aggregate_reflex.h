@@ -23,16 +23,14 @@ namespace detail {
       constexpr static size_t size = sizeof...(Ts) - 1;
    };
 
-
+DISABLE_WARNING_PUSH
    template<typename T, typename ... Ts>
    struct aggregate_fields_number<T, std::enable_if_t<std::is_aggregate_v<T> &&
-      DISABLE_WARNING_PUSH
-      DISABLE_WARNING_MISS_FIELD
       std::is_same_v<T, decltype(T{Ts{}...})>>
-      DISABLE_WARNING_POP
       , Ts...> {
       constexpr static size_t size = aggregate_fields_number<T, void, Ts..., universal_type>::size;
    };
+DISABLE_WARNING_POP
 
 }
 

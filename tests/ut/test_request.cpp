@@ -122,7 +122,7 @@ namespace {
          [](auto result) { REQUIRE(result == 1234);  },
          [](auto) { REQUIRE(false); });
 
-      me.request<media_session::empty>();
+      //me.request<media_session::empty>();
 
       REQUIRE(status_t::ok == me.send<media_session::open>(static_cast<long>(10)));
       REQUIRE(status_t::ok == me.send<media_session::close>(static_cast<long>(20)));
