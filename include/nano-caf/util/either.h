@@ -89,7 +89,7 @@ public:
       return std::get<0>(*this);
    }
 
-   inline constexpr auto left(const L& default_l) const -> const L& {
+   inline constexpr auto left_or_else(const L& default_l) const -> const L& {
       return is_left() ? left() : default_l;
    }
 
@@ -123,7 +123,7 @@ public:
       return std::get<1>(*this);
    }
 
-   inline constexpr auto right(const R& default_r) const -> const R& {
+   inline constexpr auto right_or_else(const R& default_r) const -> const R& {
       return is_right() ? right() : default_r;
    }
 
