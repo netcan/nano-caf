@@ -34,6 +34,7 @@ auto sched_actor::resume() noexcept  -> resumable::result {
       if(actor_inbox::empty() && actor_inbox::try_block()) {
          return resumable::result::awaiting_message;
       }
+
       auto result = actor_inbox::new_round(max_throughput - consumed_msgs,
          [this](const message& msg) {
             current_message_ = const_cast<message*>(&msg);
@@ -42,7 +43,7 @@ auto sched_actor::resume() noexcept  -> resumable::result {
             return result;
       });
 
-      if(!result) {
+      if(__unlikely(!result)) {
          to_ctl()->on_exit(reason_);
          return result::done;
       }
@@ -60,11 +61,11 @@ auto sched_actor::resume() noexcept  -> resumable::result {
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto sched_actor::handle_message_internal(message& msg) noexcept -> task_result {
    auto result = user_defined_handle_msg(msg);
-   if(reinterpret_cast<type_id_t>(msg.msg_type_id_) == exit_msg::type_id) {
+   if(__unlikely(msg.msg_type_id_ == exit_msg::type_id)) {
       exit_(msg.body<exit_msg>()->reason);
    }
 
-   if(flags_ & exiting_flag) {
+   if(__unlikely(flags_ & exiting_flag)) {
       actor_inbox::close();
       return task_result::done;
    }

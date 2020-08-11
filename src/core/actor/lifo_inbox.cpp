@@ -51,7 +51,7 @@ auto lifo_inbox::take_all() noexcept -> message* {
 //////////////////////////////////////////////////////////////////
 auto lifo_inbox::try_block() noexcept -> bool {
    message* e = nullptr;
-   auto result = stack_.compare_exchange_weak(e, block_tag(),
+   auto result = stack_.compare_exchange_strong(e, block_tag(),
       std::memory_order_release,
       std::memory_order_relaxed);
    if(result) return true;
