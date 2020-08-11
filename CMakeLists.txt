@@ -6,8 +6,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
       -Wcast-align -Wunused -Woverloaded-virtual -Wconversion \
       -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 \
-      -Wno-invalid-offsetof -Wduplicated-cond -Wduplicated-branches \
-      -Wlogical-op -Wuseless-cast -Wold-style-cast")
+      -Wno-invalid-offsetof   \
+      -Wold-style-cast -Wduplicate-enum")
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS, "${CMAKE_CXX_FLAGS}
+        -Wduplicated-cond
+        -Wduplicated-branches
+        -Wlogical-op
+        -Wuseless-cast")
+endif()
 
 include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -70,7 +78,30 @@ add_library(nano_caf
         include/nano-caf/core/actor/drr_queue.h
         src/core/actor/drr_queue.cpp
         include/nano-caf/util/either.h
-        include/nano-caf/util/unit.h include/nano-caf/util/likely.h include/nano-caf/core/double_end_list.h src/core/double_end_list.cpp src/core/thread_safe_list.cpp include/nano-caf/core/lock_free_list.h include/nano-caf/core/double_end_list_elem.h src/core/lock_free_list.cpp include/nano-caf/core/actor/task_stack.h include/nano-caf/core/actor/task_result.h src/core/actor/task_stack.cpp include/nano-caf/util/macro_ro_meta_data.h include/nano-caf/util/macro_struct.h include/nano-caf/util/macro_lock_meta_data.h include/nano-caf/util/macro_meta_common.h include/nano-caf/util/maybe.h include/nano-caf/core/msg/request.h include/nano-caf/util/type_id_t.h include/nano-caf/core/msg/atom.h include/nano-caf/core/actor/typed_actor_handle.h include/nano-caf/util/status_t.h include/nano-caf/util/result_trait.h include/nano-caf/core/actor/requester.h include/nano-caf/core/msg/request_result_handler.h)
+        include/nano-caf/util/unit.h
+        include/nano-caf/util/likely.h
+        include/nano-caf/core/double_end_list.h
+        src/core/double_end_list.cpp
+        src/core/thread_safe_list.cpp
+        include/nano-caf/core/lock_free_list.h
+        include/nano-caf/core/double_end_list_elem.h
+        src/core/lock_free_list.cpp
+        include/nano-caf/core/actor/task_stack.h
+        include/nano-caf/core/actor/task_result.h
+        src/core/actor/task_stack.cpp
+        include/nano-caf/util/macro_ro_meta_data.h
+        include/nano-caf/util/macro_struct.h
+        include/nano-caf/util/macro_lock_meta_data.h
+        include/nano-caf/util/macro_meta_common.h
+        include/nano-caf/util/maybe.h
+        include/nano-caf/core/msg/request.h
+        include/nano-caf/util/type_id_t.h
+        include/nano-caf/core/msg/atom.h
+        include/nano-caf/core/actor/typed_actor_handle.h
+        include/nano-caf/util/status_t.h
+        include/nano-caf/util/result_trait.h
+        include/nano-caf/core/actor/requester.h
+        include/nano-caf/core/msg/request_result_handler.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp
@@ -82,7 +113,12 @@ add_executable(nano_caf-test
         tests/ut/test_sched_actor.cpp
         tests/ut/test_actor_system.cpp
         tests/ut/test_msgs.h
-        tests/ut/test_behavior.cpp tests/ut/test_double_end_list.cpp tests/ut/test_lock_free_list.cpp tests/ut/test_ro_meta.cpp tests/ut/test_lock_meta_data.cpp tests/ut/test_request.cpp)
+        tests/ut/test_behavior.cpp
+        tests/ut/test_double_end_list.cpp
+        tests/ut/test_lock_free_list.cpp
+        tests/ut/test_ro_meta.cpp
+        tests/ut/test_lock_meta_data.cpp
+        tests/ut/test_request.cpp)
 
 add_executable(test_actor_system
         tests/ft/test_actor_system.cpp)
@@ -99,11 +135,7 @@ add_executable(test_job_queue
         third-party/nanobench.h
         tests/ut/nanobench.cpp)
 
-if(UNIX AND NOT APPLE)
-    set(LINUX TRUE)
-endif()
-
-if(UNIX)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(nano_caf-test nano_caf pthread atomic)
     target_link_libraries(test_actor_system nano_caf pthread atomic)
     target_link_libraries(test_ping_pong nano_caf pthread atomic)

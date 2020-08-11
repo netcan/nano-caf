@@ -26,7 +26,7 @@ struct typed_actor_handle : private actor_handle {
    template<typename METHOD_ATOM, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
    auto request(Args&& ... args) {
-      auto l = [&, this](auto&& handler) {
+      auto l = [&](auto&& handler) {
          return actor_handle::request<typename METHOD_ATOM::msg_type>(
                std::forward<decltype(handler)>(handler),
                std::forward<Args>(args)...);

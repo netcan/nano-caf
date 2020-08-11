@@ -76,7 +76,7 @@ struct future_actor : actor {
          exit(exit_reason::unhandled_exception);
       }
 
-      auto result1 = with(future1)([this](unsigned long) {
+      auto result1 = with(future1)([](unsigned long) {
          //std::cout << "async future1 done = " << r1 << std::endl;
       });
 
@@ -84,7 +84,7 @@ struct future_actor : actor {
          exit(exit_reason::unhandled_exception);
       }
 
-      auto result2 = with(future2)([this](unsigned long) {
+      auto result2 = with(future2)([](unsigned long) {
          //std::cout << "async future2 done = " << r2 << std::endl;
       });
 

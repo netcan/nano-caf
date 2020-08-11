@@ -10,11 +10,15 @@ NANO_CAF_NS_BEGIN
 
 namespace detail {
 template<size_t N, typename T>
-struct aggregate_fields_type;
+class aggregate_fields_type;
 
 template<typename T>
-struct aggregate_fields_type<0, T> {
+class aggregate_fields_type<0, T> {
    using type = type_list<>;
+   template <typename F>
+   static auto call(const T&, F&& f) {{
+      return f();
+   }}
 };
 
 

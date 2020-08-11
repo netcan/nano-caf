@@ -44,8 +44,6 @@ namespace {
       system.power_off();
    }
 
-   constexpr size_t total_times = 100000;
-
    int pong_times = 0;
    struct pong_actor : actor {
       auto handle_message(message& msg) noexcept -> task_result override {

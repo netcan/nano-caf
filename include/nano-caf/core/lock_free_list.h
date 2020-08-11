@@ -59,7 +59,7 @@ private:
       node.reset(mem);
    }
 
-   friend class lock_free_list;
+   friend struct lock_free_list;
 
 private:
    virtual auto to_value_ptr() -> void* = 0;
@@ -90,7 +90,7 @@ private:
    std::atomic<detail::lock_free_node_handle> head_{};
    alignas(CACHE_LINE_SIZE)
    std::atomic<detail::lock_free_node_handle> tail_{};
-   alignas(CACHE_LINE_SIZE) char __cache_line_alignment[0];
+   [[maybe_unused]] alignas(CACHE_LINE_SIZE) char __cache_line_alignment[0];
 };
 
 NANO_CAF_NS_END

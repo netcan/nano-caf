@@ -32,7 +32,7 @@ namespace meta_data {
    }
 
    static constexpr auto flag_mask(size_t n) -> uint8_t {
-      return static_cast<uint8_t>(1) << (n % 8);
+      return static_cast<uint8_t>(1 << (n % 8));
    }
 
    static constexpr auto clear_flag_mask(size_t n) -> uint8_t {
