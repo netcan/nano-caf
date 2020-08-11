@@ -91,7 +91,7 @@ namespace {
       REQUIRE(system.get_num_of_actors() == 2);
       std::this_thread::sleep_for(std::chrono::seconds {1});
       me.send<exit_msg>(exit_reason::user_shutdown);
-      REQUIRE(me.wait_for_exit() == USER_SHUTDOWN);
+      REQUIRE(me.wait_for_exit() == exit_reason::user_shutdown);
       me.release();
 
       system.shutdown();
@@ -174,7 +174,7 @@ namespace {
 
       auto me = system.spawn<future_actor>();
       me.send<test_message>(1);
-      REQUIRE(me.wait_for_exit() == NORMAL_EXIT);
+      REQUIRE(me.wait_for_exit() == exit_reason::normal);
       me.release();
 
       system.shutdown();
@@ -238,7 +238,7 @@ namespace {
       REQUIRE(system.get_num_of_actors() == 2);
       std::this_thread::sleep_for(std::chrono::seconds {1});
       me.send<exit_msg>(exit_reason::user_shutdown);
-      REQUIRE(me.wait_for_exit() == USER_SHUTDOWN);
+      REQUIRE(me.wait_for_exit() == exit_reason::user_shutdown);
       me.release();
 
       system.shutdown();

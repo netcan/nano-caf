@@ -20,6 +20,7 @@ namespace {
        (i_array5,    int[5]),
        (c_value,     char));
 
+
    TEST_CASE("should be able to get value of simple-type") {
       Foo_RW foo_rw;
 

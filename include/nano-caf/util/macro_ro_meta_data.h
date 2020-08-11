@@ -199,9 +199,10 @@ using __secrete_parent__::__CUB_var_name(x);
 struct ro_stage {                                            \
   __CUB_ro_meta_data(__VA_ARGS__);                           \
 };                                                           \
-struct rw_stage : ro_stage {                                 \
+template <typename RO = ro_stage>                            \
+struct rw_stage : RO {                                       \
 private:                                                     \
-  using __secrete_parent__ = ro_stage;                       \
+  using __secrete_parent__ = RO;                             \
 public:                                                      \
   __CUB_all_fields__(__CUB_export_meta_w__, __VA_ARGS__);    \
 }

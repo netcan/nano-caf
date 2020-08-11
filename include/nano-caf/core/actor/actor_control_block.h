@@ -8,6 +8,8 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/cache_line_size.h>
 #include <nano-caf/util/intrusive_ptr.h>
+#include <nano-caf/util/either.h>
+#include <nano-caf/util/status_t.h>
 #include <nano-caf/core/actor/exit_reason.h>
 #include <nano-caf/core/actor/wait_result.h>
 #include <cstddef>
@@ -45,13 +47,13 @@ struct actor_control_block {
    }
 
 
-   auto wait_exit(const std::chrono::nanoseconds& duration) -> wait_result {
+   auto wait_exit(const std::chrono::nanoseconds& duration) -> either<exit_reason, status_t> {
       auto result = exit_promise_.get_future().wait_for(duration);
       if(result != std::future_status::ready) {
-         return {wait_result::timeout, exit_reason::normal};
+         return status_t::timeout;
       }
 
-      return {wait_result::exited, exit_promise_.get_future().get() };
+      return exit_promise_.get_future().get();
    }
 
    auto on_exit(exit_reason reason) {

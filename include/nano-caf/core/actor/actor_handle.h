@@ -52,11 +52,11 @@ struct actor_handle {
       ptr_ = nullptr;
    }
 
-   auto wait_for_exit() -> wait_result {
+   auto wait_for_exit() -> either<exit_reason, status_t>{
       if(ptr_ == nullptr) {
-         return { .result = wait_result::invalid_handle };
+         return status_t::null_ptr;
       }
-      return { .result = wait_result::exited, ptr_->wait_for_exit() };
+      return ptr_->wait_for_exit();
    }
 
    ~actor_handle() {
@@ -68,9 +68,6 @@ private:
 private:
    intrusive_actor_ptr ptr_{};
 };
-
-inline constexpr wait_result NORMAL_EXIT{wait_result::exited, exit_reason::normal};
-inline constexpr wait_result USER_SHUTDOWN{wait_result::exited, exit_reason::user_shutdown};
 
 NANO_CAF_NS_END
 
