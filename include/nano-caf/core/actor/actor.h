@@ -71,11 +71,10 @@ protected:
    inline auto with(Args&& ... args) {
       return [&](auto&& callback) {
          if(((!async::is_future_valid(args)) || ...) ) {
-            return status_t::failed;
+            return status_t::invalid_data;
          }
-         return detail::with_futures(std::forward<decltype(callback)>(callback), async::get_future(args)...).match(
-            [this](auto future_cb) { return register_future_callback(future_cb); },
-            [](auto failure) { return failure; });
+         return detail::with_futures(std::forward<decltype(callback)>(callback), async::get_future(args)...)
+            .left_match([this](auto future_cb) { return register_future_callback(future_cb); });
       };
    }
 

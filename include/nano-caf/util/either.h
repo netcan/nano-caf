@@ -12,6 +12,7 @@
 
 NANO_CAF_NS_BEGIN
 
+
 template<typename L, typename R>
 class either : private std::variant<L, R> {
    using parent = std::variant<L, R>;
@@ -92,12 +93,64 @@ public:
       return is_left() ? left() : default_l;
    }
 
+private:
+   template<typename T>
+   struct is_either_r_type {
+      constexpr static bool value = false;
+   };
+
+   template<typename T>
+   struct is_either_r_type<either<T, R>> {
+      constexpr static bool value = true;
+   };
+
+   template<typename T>
+   constexpr static bool is_either_r_type_v = is_either_r_type<T>::value;
+
+   template<typename F>
+   using l_invoke_result = std::invoke_result_t<F, const L&>;
+
+public:
+
+   template<typename F, typename = std::enable_if_t<
+      std::is_invocable_v<F, const L&> &&
+      ( is_either_r_type_v<l_invoke_result<F>> || std::is_same_v<l_invoke_result<F>, R>)>>
+   inline constexpr auto left_match(F&& f) const -> std::invoke_result_t<F, const L&> {
+      return is_left() ? f(left()) : right();
+   }
+
    inline constexpr auto right() const -> const R& {
       return std::get<1>(*this);
    }
 
    inline constexpr auto right(const R& default_r) const -> const R& {
       return is_right() ? right() : default_r;
+   }
+
+private:
+   template<typename T>
+   struct is_either_l_type {
+      constexpr static bool value = false;
+   };
+
+   template<typename T>
+   struct is_either_l_type<either<L, T>> {
+      constexpr static bool value = true;
+   };
+
+   template<typename T>
+   constexpr static bool is_either_l_type_v = is_either_l_type<T>::value;
+
+   template<typename F>
+   using r_invoke_result = std::invoke_result_t<F, const R&>;
+
+public:
+
+   template<typename F, typename = std::enable_if_t<
+      std::is_invocable_v<F, const R&> &&
+      ( is_either_l_type_v<r_invoke_result<F>> || std::is_same_v<r_invoke_result<F>, L>)>>
+   inline constexpr auto right_match(F&& f) const -> std::invoke_result_t<F, const R&> {
+      return is_left() ? left() : f(right());
    }
 
    template<typename F_L, typename F_R>
