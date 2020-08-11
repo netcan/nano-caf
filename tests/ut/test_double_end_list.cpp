@@ -30,7 +30,7 @@ namespace {
             REQUIRE_FALSE(list.empty());
          }
          AND_THEN("the elem could be take out") {
-            auto elem = list.dequeue<job>();
+            auto elem = std::unique_ptr<job>(list.dequeue<job>());
             REQUIRE(elem != nullptr);
             REQUIRE(elem->value == 8);
 
@@ -48,17 +48,17 @@ namespace {
             REQUIRE_FALSE(list.empty());
          }
          AND_THEN("dequeue an elem") {
-            auto elem = list.dequeue<job>();
+            auto elem = std::unique_ptr<job>(list.dequeue<job>());
             THEN("should be the 1st one") {
                REQUIRE(elem != nullptr);
                REQUIRE(elem->value == 1);
                AND_WHEN("dequeue an elem again") {
-                  auto elem = list.dequeue<job>();
+                  auto elem = std::unique_ptr<job>(list.dequeue<job>());
                   THEN("should be the 2nd one") {
                      REQUIRE(elem != nullptr);
                      REQUIRE(elem->value == 2);
                      AND_WHEN("dequeue an elem again") {
-                        auto elem = list.dequeue<job>();
+                        auto elem = std::unique_ptr<job>(list.dequeue<job>());
                         THEN("should be the 3rd one") {
                            REQUIRE(elem != nullptr);
                            REQUIRE(elem->value == 3);
