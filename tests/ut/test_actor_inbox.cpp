@@ -74,7 +74,9 @@ namespace {
          auto value = 0;
          bool urgent = false;
          auto l = [&](const message& elem) noexcept  {
-            value = elem.body<test_message>()->value;
+             auto msg = elem.body<test_message>();
+             REQUIRE(msg != nullptr);
+            value = msg->value;
             urgent = elem.is_urgent();
             return task_result::resume; };
 

@@ -24,6 +24,9 @@ namespace detail {
    };
 
 DISABLE_WARNING_PUSH
+#ifdef __GNUG__
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
    template<typename T, typename ... Ts>
    struct aggregate_fields_number<T, std::enable_if_t<std::is_aggregate_v<T> &&
       std::is_same_v<T, decltype(T{Ts{}...})>>
