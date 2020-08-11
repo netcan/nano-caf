@@ -20,6 +20,7 @@ double_end_list::~double_end_list() {
    while((p = pop_front())  != nullptr) {
       delete p;
    }
+   delete head_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
