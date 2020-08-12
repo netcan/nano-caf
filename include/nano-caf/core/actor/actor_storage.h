@@ -93,7 +93,7 @@ private:
          return status_t::ok;
       }
 
-      ~internal_actor() {
+      ~internal_actor() noexcept {
          for (auto& i : futures_) {
             delete i;
          }

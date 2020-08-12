@@ -23,7 +23,7 @@ NANO_CAF_NS_BEGIN namespace requester {
 
 template<typename T, size_t ... I>
 auto deduce_method_atoms(std::index_sequence<I...>)
--> type_list<typename T::template __SeCrEtE_method<I, T>::method_type...>;
+     -> type_list<typename T::template __SeCrEtE_method<I, T>::method_type...>;
 
 template<typename T>
 using method_atoms = decltype(deduce_method_atoms<T>(std::make_index_sequence<T::total_methods>{}));

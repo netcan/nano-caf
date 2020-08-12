@@ -49,7 +49,8 @@ private:
    __MAYBE_UNUSED__ alignas(CACHE_LINE_SIZE) char __align_boundary_2[0];
 };
 
-#ifdef USE_DOUBLE_END_LIST
+#define USE_DOUBLE_END_LIST 0
+#if USE_DOUBLE_END_LIST
 using list_element_t = double_end_list_elem;
 using job_list_t = double_end_list;
 #else
