@@ -37,7 +37,7 @@ struct typed_actor_handle : private actor_handle {
    template<typename METHOD_ATOM, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
    auto request(intrusive_actor_ptr from, Args&& ... args)
-      -> either<requester::future_type<METHOD_ATOM>, status_t> {
+      -> result_t<requester::future_type<METHOD_ATOM>> {
       requester::inter_actor_promise_handler<requester::result_type<METHOD_ATOM>> promise{ from };
       auto future = promise.promise_.get_future();
       if(auto result = actor_handle::request<typename METHOD_ATOM::msg_type>(

@@ -23,7 +23,7 @@ namespace detail {
 }
 
 template<typename T>
-using result_t = typename detail::result_trait<T>::type;
+using func_result_t = typename detail::result_trait<T>::type;
 
 NANO_CAF_NS_END
 

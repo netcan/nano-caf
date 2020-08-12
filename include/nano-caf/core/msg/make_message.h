@@ -75,7 +75,7 @@ struct request_entity : message_entity<T, CATEGORY> {
       return reinterpret_cast<void*>(const_cast<real_handler_t*>(&handler_));
    }
 
-   using result_type = result_t<typename T::result_type>;
+   using result_type = func_result_t<typename T::result_type>;
    static_assert(std::is_base_of_v<request_result_handler<result_type>, real_handler_t>);
    real_handler_t handler_;
 };

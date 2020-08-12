@@ -8,6 +8,7 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/msg/message.h>
 #include <nano-caf/util/callable_trait.h>
+#include <nano-caf/util/result_t.h>
 #include <type_traits>
 #include <functional>
 #include <optional>
@@ -63,7 +64,7 @@ private:
 
 namespace detail {
    template<typename F, typename ... Args>
-   auto with_futures(F&& f, Args&& ...args) -> either<future_callback*, status_t> {
+   auto with_futures(F&& f, Args&& ...args) -> result_t<future_callback*> {
       static_assert(std::is_invocable_r_v<void, F, decltype(std::declval<std::decay_t<Args>>().get())...>);
       using seq_type = std::make_index_sequence<sizeof...(Args)>;
       future_set<std::decay_t<Args>...> futures{std::forward<Args>(args)...};
@@ -90,14 +91,14 @@ namespace detail {
    private:
       template<typename F_HANDLER, typename F_FAIL>
       auto then_(F_HANDLER&& f_handler, F_FAIL&& f_fail) -> status_t {
-         if(either_future_.is_left()) {
+         if(either_future_.is_ok()) {
             auto l = [handler = std::move(f_handler), fail = std::move(f_fail)](auto result) {
                result.match(handler, fail);
             };
-            return with_futures(std::move(l), either_future_.left())
-               .left_match([&](auto future_cb) { return registry_(future_cb); });
+            return with_futures(std::move(l), *either_future_)
+               .with_value([&](auto future_cb) { return registry_(future_cb); });
          } else {
-            return either_future_.right();
+            return either_future_.failure();
          }
       }
 

@@ -10,7 +10,7 @@
 #include <nano-caf/util/callable_trait.h>
 #include <nano-caf/util/type_list.h>
 #include <nano-caf/util/either.h>
-#include <nano-caf/util/status_t.h>
+#include <nano-caf/util/result_t.h>
 #include <nano-caf/util/result_trait.h>
 #include <nano-caf/core/msg/request_result_handler.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
@@ -42,7 +42,7 @@ template<typename METHOD_ATOM, typename ACTOR_INTERFACE, typename ...Args>
 constexpr bool is_msg_valid = is_msg_atom<METHOD_ATOM> && msg_pattern_match<METHOD_ATOM, ACTOR_INTERFACE, Args...>;
 
 template<typename METHOD_ATOM>
-using result_type = result_t<typename METHOD_ATOM::type::result_type>;
+using result_type = func_result_t<typename METHOD_ATOM::type::result_type>;
 
 template<typename T>
 struct promised_request_handler : request_result_handler<T> {
@@ -62,7 +62,7 @@ struct promised_request_handler : request_result_handler<T> {
       if(!value_set_) promise_.set_value(status_t::msg_dropped);
    }
 
-   std::promise<either<T, status_t>> promise_{};
+   std::promise<result_t<T>> promise_{};
    bool value_set_{false};
 };
 
@@ -131,7 +131,7 @@ protected:
 public:
    using base::base;
 
-   using wait_result_t = either<result_type<METHOD_ATOM>, status_t>;
+   using wait_result_t = result_t<result_type<METHOD_ATOM>>;
 private:
    template<typename F_WAIT>
    auto wait_(F_WAIT&& f_wait) -> wait_result_t {
@@ -178,7 +178,7 @@ public:
 };
 
 template<typename METHOD_ATOM>
-using method_result_t = either<result_type<METHOD_ATOM>, status_t>;
+using method_result_t = result_t<result_type<METHOD_ATOM>>;
 
 template<typename METHOD_ATOM>
 using future_type = std::future<method_result_t<METHOD_ATOM>>;

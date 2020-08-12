@@ -243,6 +243,6 @@ auto thread_safe_list_test(size_t number) -> void {
 
 int main() {
    double_end_list_test(10);
-   lock_free_list_test(10);
+   //lock_free_list_test(10);
    thread_safe_list_test(10);
 }

@@ -74,7 +74,7 @@ protected:
             return status_t::invalid_data;
          }
          return detail::with_futures(std::forward<decltype(callback)>(callback), async::get_future(args)...)
-            .left_match([this](auto future_cb) { return register_future_callback(future_cb); });
+            .with_value([this](auto future_cb) { return register_future_callback(future_cb); });
       };
    }
 
