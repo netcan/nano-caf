@@ -43,6 +43,9 @@ struct actor_handle {
       return send_(make_request<T, CATEGORY>(from, std::forward<HANDLER>(handler), std::forward<Args>(args)...));
    }
 
+   auto get() {
+      return ptr_;
+   }
    auto exists() const {
       return ptr_ != nullptr;
    }
@@ -61,6 +64,7 @@ struct actor_handle {
    ~actor_handle() {
        ptr_.release();
    }
+
 private:
    auto send_(message*) noexcept -> status_t;
 

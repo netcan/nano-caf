@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/11.
 //
 
-#ifndef NANO_CAF_SUPRESS_WARNING_H
-#define NANO_CAF_SUPRESS_WARNING_H
+#ifndef NANO_CAF_SUPPRESS_WARNING_H
+#define NANO_CAF_SUPPRESS_WARNING_H
 
 #if defined(__CLANG__) || defined(__GNUG__)
 #define DISABLE_WARNING_PUSH _Pragma("GCC diagnostic push")
@@ -15,4 +15,4 @@
 #define DISABLE_WARNING_MISS_FIELD
 #endif
 
-#endif //NANO_CAF_SUPRESS_WARNING_H
+#endif //NANO_CAF_SUPPRESS_WARNING_H

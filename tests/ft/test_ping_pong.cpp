@@ -15,8 +15,8 @@ int pong_times_2 = 0;
 struct pong_actor_1 : behavior_based_actor {
     auto get_behavior() -> behavior override {
         return {
-            [&](test_message_atom, int value) {
-                reply<test_message>(value);
+            [&](shared_buf_msg_atom, std::shared_ptr<big_msg> msg) {
+                reply<shared_buf_msg>(msg);
                 pong_times_2++;
             },
             [&](exit_msg_atom, exit_reason) {
@@ -30,13 +30,13 @@ struct ping_actor_1 : behavior_based_actor {
 
     auto on_init() noexcept -> void override {
         pong = spawn<pong_actor_1>();
-        send<test_message>(pong, 1);
+        send<shared_buf_msg>(pong, std::make_shared<big_msg>());
     }
 
     auto get_behavior() -> behavior override {
         return {
-                [&](test_message_atom, int value) {
-                    send<test_message>(pong, value + 1);
+                [&](shared_buf_msg_atom, std::shared_ptr<big_msg>) {
+                    send<shared_buf_msg>(pong, std::make_shared<big_msg>());
                 },
                 [&](exit_msg_atom, exit_reason reason) {
                     send<exit_msg>(pong, reason);

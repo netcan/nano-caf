@@ -10,15 +10,13 @@
 NANO_CAF_NS_BEGIN
 
 struct actor_system
-   : private actor_context {
+   : actor_context {
    auto start(size_t num_of_workers) noexcept -> void;
    auto shutdown() noexcept -> void;
    auto power_off() noexcept -> void;
 
-   using actor_context::spawn;
-   using actor_context::spawn_typed_actor;
    using actor_context::get_num_of_actors;
-   using actor_context::sched_jobs;
+   using actor_context::wait_actors_done;
 };
 
 NANO_CAF_NS_END

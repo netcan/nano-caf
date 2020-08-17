@@ -15,17 +15,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
 #        -Wlogical-op
 #        -Wuseless-cast")
 #elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-    -Wold-style-cast \
-    -fsanitize=address \
-    -fno-omit-frame-pointer \
-    -fsanitize=alignment \
-    -fsanitize=function \
-    -fsanitize=return \
-    -fsanitize=nullability \
-    -fsanitize=unreachable \
-    -fsanitize=null")
-#endif()
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+#    -Wold-style-cast \
+#    -fsanitize=address \
+#    -fno-omit-frame-pointer \
+#    -fsanitize=alignment \
+#    -fsanitize=function \
+#    -fsanitize=return \
+#    -fsanitize=nullability \
+#    -fsanitize=unreachable \
+#    -fsanitize=null")
+##endif()
 
 include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -111,7 +111,11 @@ add_library(nano_caf
         include/nano-caf/util/status_t.h
         include/nano-caf/util/result_trait.h
         include/nano-caf/core/actor/requester.h
-        include/nano-caf/core/msg/request_result_handler.h include/nano-caf/util/supress_warning.h include/nano-caf/util/cpp_attribute.h include/nano-caf/util/ptr_trait.h include/nano-caf/util/result_t.h)
+        include/nano-caf/core/msg/request_result_handler.h
+        include/nano-caf/util/suppress_warning.h
+        include/nano-caf/util/cpp_attribute.h
+        include/nano-caf/util/ptr_trait.h
+        include/nano-caf/util/result_t.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp
