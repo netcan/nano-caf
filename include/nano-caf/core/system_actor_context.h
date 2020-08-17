@@ -10,14 +10,22 @@
 #include <nano-caf/util/disable_copy.h>
 #include <nano-caf/core/coordinator.h>
 #include <nano-caf/core/actor/typed_actor_handle.h>
-#include <nano-caf/core/actor_context.h>
 
 NANO_CAF_NS_BEGIN
 
 struct system_actor_context
    : protected coordinator
-   , private disable_copy
-   , public actor_context {
+   , private disable_copy {
+
+   template<typename T, typename ... Ts>
+   auto spawn(Ts&& ... args) noexcept -> actor_handle {
+      return make_actor<T>(*this, std::forward<Ts>(args)...);
+   }
+
+   template<typename A, typename T, typename ... Ts>
+   auto spawn_typed_actor(Ts&& ... args) noexcept -> typed_actor_handle<A> {
+      return make_actor<T>(*this, std::forward<Ts>(args)...);
+   }
 
    auto schedule_job(resumable& job) noexcept -> void;
 
@@ -30,9 +38,6 @@ protected:
    auto wait_actors_done() -> void;
 
    auto get_num_of_actors() const -> size_t;
-
-private:
-   auto get_system_actor_context() -> system_actor_context& override { return *this; }
 
 private:
    std::atomic<size_t> num_of_actors_{};

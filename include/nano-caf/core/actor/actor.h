@@ -16,7 +16,7 @@
 
 NANO_CAF_NS_BEGIN
 
-struct actor {
+struct actor : actor_context {
    virtual ~actor() = default;
 
 private:
@@ -28,25 +28,10 @@ private:
 
 protected:
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
-   inline auto send(actor_handle& to, Args&& ... args) noexcept {
-      return to.send<T, CATEGORY>(self_handle(), std::forward<Args>(args)...);
-   }
-
-   template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    inline auto reply(Args&& ... args) noexcept {
       auto sender = current_sender();
       if(!sender.exists()) return status_t::null_sender;
       return sender.send<T, CATEGORY>(self_handle(), std::forward<Args>(args)...);
-   }
-
-   template<typename T, typename ... Ts>
-   inline auto spawn(Ts&& ... args) noexcept -> actor_handle {
-      return self().context().spawn<T>(std::forward<Ts>(args)...);
-   }
-
-   template<typename A, typename T, typename ... Ts>
-   auto spawn_typed_actor(Ts&& ... args) noexcept -> typed_actor_handle<A> {
-      return self().context().spawn_typed_actor<A, T>(std::forward<Ts>(args)...);
    }
 
    template<typename F, typename ... Args>
@@ -81,8 +66,12 @@ protected:
    virtual auto exit(exit_reason) noexcept -> void = 0;
 
 private:
-   auto self_handle() const noexcept -> intrusive_actor_ptr {
+   auto self_handle() const noexcept -> intrusive_actor_ptr override {
       return &self();
+   }
+
+   virtual auto get_system_actor_context() -> system_actor_context& override {
+      return self().context();
    }
 
 private:
