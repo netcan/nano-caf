@@ -13,6 +13,7 @@
 #include <nano-caf/core/await/async_object.h>
 #include <nano-caf/core/await/future_callback.h>
 #include <optional>
+#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
