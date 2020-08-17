@@ -18,7 +18,7 @@ NANO_CAF_NS_BEGIN
 template<typename T>
 struct actor_storage  {
    template<typename ... Ts>
-   actor_storage(actor_context& context, Ts&& ... args)
+   actor_storage(system_actor_context& context, Ts&& ... args)
       : control{context, data_dtor, block_dtor} {
       auto p = new (&value_) internal_actor(std::forward<Ts>(args)...);
       p->init_handler();

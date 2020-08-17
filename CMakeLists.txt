@@ -70,7 +70,7 @@ add_library(nano_caf
         include/nano-caf/core/actor/actor.h
         include/nano-caf/core/actor/intrusive_actor_ptr.h
         include/nano-caf/core/actor_context.h
-        src/core/actor/actor_context.cpp
+        src/core/actor/system_actor_context.cpp
         include/nano-caf/core/await/async_object.h
         include/nano-caf/core/await/future_callback.h
         include/nano-caf/util/callable_trait.h
@@ -115,7 +115,7 @@ add_library(nano_caf
         include/nano-caf/util/suppress_warning.h
         include/nano-caf/util/cpp_attribute.h
         include/nano-caf/util/ptr_trait.h
-        include/nano-caf/util/result_t.h)
+        include/nano-caf/util/result_t.h include/nano-caf/core/system_actor_context.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp

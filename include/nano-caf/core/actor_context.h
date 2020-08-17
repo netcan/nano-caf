@@ -13,35 +13,25 @@
 
 NANO_CAF_NS_BEGIN
 
-struct actor_context
-   : protected coordinator
-   , private disable_copy {
+struct system_actor_context;
+
+struct actor_context {
    template<typename T, typename ... Ts>
    auto spawn(Ts&& ... args) noexcept -> actor_handle {
-      return make_actor<T>(*this, std::forward<Ts>(args)...);
+      return make_actor<T>(get_system_actor_context(), std::forward<Ts>(args)...);
    }
 
    template<typename A, typename T, typename ... Ts>
    auto spawn_typed_actor(Ts&& ... args) noexcept -> typed_actor_handle<A> {
-      return make_actor<T>(*this, std::forward<Ts>(args)...);
+      return make_actor<T>(get_system_actor_context(), std::forward<Ts>(args)...);
    }
 
-   auto schedule_job(resumable& job) noexcept -> void;
-
-   auto register_actor() -> void;
-   auto deregister_actor() -> void;
-
-   using coordinator::sched_jobs;
-
-protected:
-   auto wait_actors_done() -> void;
-
-   auto get_num_of_actors() const -> size_t;
+   virtual ~actor_context() = default;
 
 private:
-   std::atomic<size_t> num_of_actors_{};
+   virtual auto get_system_actor_context() -> system_actor_context& = 0;
 };
 
 NANO_CAF_NS_END
 
-#endif //NANO_CAF_ACTOR_CONTEXT_H
+#endif //NANO_CAF_SYSTEM_ACTOR_CONTEXT_H
