@@ -13,48 +13,42 @@ NANO_CAF_NS_BEGIN
 template<typename T>
 struct intrusive_ptr {
    intrusive_ptr() noexcept = default;
-   intrusive_ptr(T* ptr, bool add_ref = true) noexcept : ptr_(ptr) {
+   intrusive_ptr(T* ptr, bool add_ref = true) noexcept
+      : ptr_(ptr)
+   {
       if(ptr && add_ref) intrusive_ptr_add_ref(ptr);
    }
 
    intrusive_ptr(const intrusive_ptr& another) noexcept
-      : ptr_(another.ptr_) {
-      if(ptr_)
-         intrusive_ptr_add_ref(ptr_);
+      : ptr_(another.ptr_)
+   {
+      if(ptr_) intrusive_ptr_add_ref(ptr_);
    }
 
    intrusive_ptr(intrusive_ptr&& another) noexcept
-      : ptr_(another.ptr_) {
+      : ptr_(another.ptr_)
+   {
       another.ptr_ = nullptr;
    }
 
-   ~intrusive_ptr() noexcept {
-       release();
-   }
+   ~intrusive_ptr() noexcept { release(); }
 
    intrusive_ptr& operator=(intrusive_ptr other) noexcept {
       swap(other);
       return *this;
    }
 
-   T* operator->() const noexcept {
-      return ptr_;
-   }
-
-   T& operator*() const noexcept {
-      return *ptr_;
-   }
-
-   bool operator!() const noexcept {
-      return !ptr_;
-   }
+   T* operator->()  const noexcept { return ptr_; }
+   T& operator*()   const noexcept { return *ptr_; }
+   bool operator!() const noexcept { return !ptr_; }
 
    auto release() -> void {
-       if (ptr_) {
-           intrusive_ptr_release(ptr_);
-           ptr_ = nullptr;
-       }
+      if (ptr_) {
+         intrusive_ptr_release(ptr_);
+         ptr_ = nullptr;
+      }
    }
+
    explicit operator bool() const noexcept {
       return ptr_ != nullptr;
    }
@@ -98,6 +92,7 @@ struct intrusive_ptr {
    inline friend auto operator!=(const intrusive_ptr& x, const intrusive_ptr& y) noexcept -> bool {
       return x.ptr_ != y.ptr_;
    }
+
 private:
    void swap(intrusive_ptr& other) noexcept {
       std::swap(ptr_, other.ptr_);

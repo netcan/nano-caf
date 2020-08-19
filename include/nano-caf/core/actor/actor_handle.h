@@ -43,16 +43,9 @@ struct actor_handle {
       return send_(make_request<T, CATEGORY>(from, std::forward<HANDLER>(handler), std::forward<Args>(args)...));
    }
 
-   auto get() {
-      return ptr_;
-   }
-   auto exists() const {
-      return ptr_ != nullptr;
-   }
-
-   auto release() -> void {
-      ptr_ = nullptr;
-   }
+   auto get()             { return ptr_; }
+   auto exists() const    { return ptr_ != nullptr; }
+   auto release() -> void { ptr_ = nullptr; }
 
    auto wait_for_exit() -> either<exit_reason, status_t>{
       if(ptr_ == nullptr) {
@@ -61,9 +54,7 @@ struct actor_handle {
       return ptr_->wait_for_exit();
    }
 
-   ~actor_handle() {
-       ptr_.release();
-   }
+   ~actor_handle() { ptr_.release(); }
 
    auto operator==(actor_handle const& rhs) const -> bool {
       return ptr_ == rhs.ptr_;

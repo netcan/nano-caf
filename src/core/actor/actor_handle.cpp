@@ -5,7 +5,6 @@
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
-#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
