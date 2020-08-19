@@ -8,6 +8,7 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/enq_result.h>
+#include <nano-caf/util/result_t.h>
 #include <nano-caf/core/msg/make_message.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
 
@@ -16,7 +17,7 @@ NANO_CAF_NS_BEGIN
 struct message;
 
 struct actor_handle {
-   actor_handle(intrusive_actor_ptr ptr = nullptr) : ptr_{ptr} {}
+   actor_handle(intrusive_actor_ptr ptr = nullptr) noexcept : ptr_{ptr} {}
 
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    auto send(Args&& ... args) noexcept {
@@ -28,9 +29,21 @@ struct actor_handle {
       return send_(make_request<T, CATEGORY>(std::forward<HANDLER>(handler), std::forward<Args>(args)...));
    }
 
-   template<message::category CATEGORY = message::normal>
-   auto exit(exit_reason reason = (CATEGORY == message::urgent ? exit_reason::kill : exit_reason::normal)) noexcept {
+   template<message::category CATEGORY = message::urgent>
+   auto exit(exit_reason reason = exit_reason::normal) noexcept {
       return send_(make_message<exit_msg, CATEGORY>(reason));
+   }
+
+   template<message::category CATEGORY = message::urgent>
+   auto exit_and_wait(exit_reason reason = exit_reason::normal) noexcept -> result_t<exit_reason> {
+      if(auto status = exit<CATEGORY>(reason); __unlikely(status != status_t::ok)) {
+         return status;
+      }
+      auto result = wait_for_exit();
+      if(__likely(result.is_ok())) {
+         release();
+      }
+      return result;
    }
 
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
@@ -47,20 +60,20 @@ struct actor_handle {
    auto exists() const    { return ptr_ != nullptr; }
    auto release() -> void { ptr_ = nullptr; }
 
-   auto wait_for_exit() -> either<exit_reason, status_t>{
+   auto wait_for_exit() noexcept -> result_t<exit_reason> {
       if(ptr_ == nullptr) {
          return status_t::null_pointer;
       }
       return ptr_->wait_for_exit();
    }
 
-   ~actor_handle() { ptr_.release(); }
+   ~actor_handle() noexcept { ptr_.release(); }
 
-   auto operator==(actor_handle const& rhs) const -> bool {
+   inline auto operator==(actor_handle const& rhs) const noexcept -> bool {
       return ptr_ == rhs.ptr_;
    }
 
-   auto operator!=(actor_handle const& rhs) const -> bool {
+   inline auto operator!=(actor_handle const& rhs) const noexcept -> bool {
       return !operator==(rhs);
    }
 
