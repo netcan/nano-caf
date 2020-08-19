@@ -34,7 +34,7 @@ public:
     
     template <typename F>
     static auto call(const T& obj, F&& f) {
-        auto [a1] = obj;
+        auto& [a1] = obj;
         return f(a1);
     }
 };

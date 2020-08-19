@@ -65,6 +65,14 @@ struct actor_handle {
        ptr_.release();
    }
 
+   auto operator==(actor_handle const& rhs) const -> bool {
+      return ptr_ == rhs.ptr_;
+   }
+
+   auto operator!=(actor_handle const& rhs) const -> bool {
+      return !operator==(rhs);
+   }
+
 private:
    auto send_(message*) noexcept -> status_t;
 

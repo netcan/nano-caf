@@ -100,7 +100,7 @@ namespace detail {
       using message_type = typename atom_type::msg_type;
       using fields_types = typename msg_type_trait<message_type>::fields_types;
       template <typename ... Ts>
-      using invokable = std::is_invocable<F, atom_type, Ts...>;
+      using invokable = std::is_invocable<F, atom_type, std::decay_t<Ts>...>;
 
       static_assert(fields_types::template export_to<invokable>::value, "parameters & message don't match");
 
