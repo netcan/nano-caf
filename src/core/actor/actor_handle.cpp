@@ -5,10 +5,15 @@
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
+#include <nano-caf/util/likely.h>
 
 NANO_CAF_NS_BEGIN
 
 auto actor_handle::send_(message* msg) noexcept -> status_t {
+   if(__unlikely(ptr_ == nullptr)) {
+      return status_t::null_pointer;
+   }
+
    auto actor = ptr_->get();
    auto result = actor->enqueue(msg);
    switch(result) {

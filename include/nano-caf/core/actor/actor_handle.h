@@ -9,6 +9,7 @@
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/enq_result.h>
 #include <nano-caf/util/result_t.h>
+#include <nano-caf/util/likely.h>
 #include <nano-caf/core/msg/make_message.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
 
