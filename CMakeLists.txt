@@ -115,7 +115,7 @@ add_library(nano_caf
         include/nano-caf/util/suppress_warning.h
         include/nano-caf/util/cpp_attribute.h
         include/nano-caf/util/ptr_trait.h
-        include/nano-caf/util/result_t.h include/nano-caf/core/system_actor_context.h)
+        include/nano-caf/util/result_t.h include/nano-caf/core/system_actor_context.h include/nano-caf/core/timer/timer_scheduler.h src/core/timer/timer_scheduler.cpp include/nano-caf/util/ipc_notifier.h include/nano-caf/core/timer/actor_timer.h include/nano-caf/core/timer/timer_set.h src/core/timer/timer_set.cpp)
 
 add_executable(nano_caf-test
         third-party/catch.hpp

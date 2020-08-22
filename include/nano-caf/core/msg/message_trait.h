@@ -8,6 +8,7 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/msg/atom.h>
 #include <nano-caf/util/macro_reflex.h>
+#include <nano-caf/util/type_id_t.h>
 
 NANO_CAF_NS_BEGIN
 

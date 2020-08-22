@@ -49,6 +49,9 @@ struct intrusive_ptr {
       }
    }
 
+   inline auto raw() const -> const T* { return ptr_; }
+   inline auto actor_id() const -> intptr_t { return reinterpret_cast<intptr_t>(ptr_); }
+
    explicit operator bool() const noexcept {
       return ptr_ != nullptr;
    }
