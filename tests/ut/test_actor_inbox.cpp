@@ -73,7 +73,7 @@ namespace {
       WHEN("consume 1 element") {
          auto value = 0;
          bool urgent = false;
-         auto l = [&](message& elem) noexcept  {
+         auto l = [&](const message& elem) noexcept  {
              auto msg = elem.body<test_message>();
              REQUIRE(msg != nullptr);
             value = msg->value;

@@ -41,7 +41,7 @@ namespace {
    }
 }
 
-auto timer_set::add_timer(std::shared_ptr<message> msg) -> status_t {
+auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    if(__unlikely(msg == nullptr)) return status_t::null_msg;
 
    auto start_msg = msg->body<start_timer_msg>();
@@ -96,13 +96,15 @@ auto timer_set::on_timeout(std::atomic_bool& shutdown) -> void {
       auto msg = timer->second->body<start_timer_msg>();
       actor_handle(msg->actor).send<timeout_msg>(msg->id);
 
+      actor_indexer_.erase(msg->actor.actor_id());
+
       if(msg->is_periodic) {
-         auto resched_msg = timer->second;
-         remove_timer(msg->actor.actor_id(), msg->id);
          msg->issue_time_point = timer->first;
-         add_timer(std::move(resched_msg));
+         auto sched_msg = std::move(timer->second);
+         timers_.erase(timer);
+         add_timer(std::move(sched_msg));
       } else {
-         remove_timer(msg->actor.actor_id(), msg->id);
+         timers_.erase(timer);
       }
    }
 }

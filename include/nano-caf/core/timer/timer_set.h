@@ -15,7 +15,7 @@
 NANO_CAF_NS_BEGIN
 
 struct timer_set {
-   auto add_timer(std::shared_ptr<message> msg) -> status_t;
+   auto add_timer(std::unique_ptr<message> msg) -> status_t;
    auto remove_timer(intptr_t, timer_id) -> void;
    auto clear_actor_timers(intptr_t) -> void;
    auto on_timeout(std::atomic_bool& shutdown) -> void;
@@ -23,7 +23,7 @@ struct timer_set {
 protected:
    using time_point = std::chrono::system_clock::time_point;
 
-   using timers = std::multimap<time_point, std::shared_ptr<message>>;
+   using timers = std::multimap<time_point, std::unique_ptr<message>>;
    timers timers_{};
    std::multimap<intptr_t, timers::iterator> actor_indexer_{};
 };
