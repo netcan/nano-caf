@@ -12,6 +12,7 @@ NANO_CAF_NS_BEGIN
 
 struct actor_system
    : private system_actor_context
+   , private timer_scheduler
    , actor_context {
    auto start(size_t num_of_workers) noexcept -> void;
    auto shutdown() noexcept -> void;

@@ -18,6 +18,13 @@ struct ipc_notifier {
       sleeping_ = false;
    }
 
+   auto wait() {
+      std::unique_lock lock(mutex_);
+      sleeping_ = true;
+      cv_.wait(lock);
+      sleeping_ = false;
+   }
+
    template<class Rep, class Period, typename F>
    auto wait_for(std::chrono::duration<Rep, Period> const& duration, F&& f) {
       std::unique_lock lock(mutex_);

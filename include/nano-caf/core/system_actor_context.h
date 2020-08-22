@@ -10,6 +10,7 @@
 #include <nano-caf/util/disable_copy.h>
 #include <nano-caf/core/coordinator.h>
 #include <nano-caf/core/actor/typed_actor_handle.h>
+#include <nano-caf/core/timer/timer_scheduler.h>
 
 NANO_CAF_NS_BEGIN
 

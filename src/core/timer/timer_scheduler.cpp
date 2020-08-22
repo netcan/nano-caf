@@ -6,14 +6,13 @@
 #include <nano-caf/core/msg/make_message.h>
 #include <nano-caf/util/likely.h>
 #include <nano-caf/core/actor/actor_handle.h>
+#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
 auto timer_scheduler::go_sleep() -> void {
    if(timers_.empty()) {
-      notifier_.wait([this]{
-         return msg_queue_.empty();
-      });
+      notifier_.wait();
    } else {
       if(notifier_.wait_until(timers_.begin()->first) == std::cv_status::timeout) {
          timer_set::on_timeout(shutdown);
@@ -56,7 +55,6 @@ auto timer_scheduler::handle_msgs(message* msgs) -> void {
 auto timer_scheduler::schedule() -> void {
    while(1) {
       if(shutdown.load(std::memory_order_relaxed)) break;
-
       auto msgs = msg_queue_.take_all();
       if(msgs == nullptr) {
          if(msg_queue_.try_block()) {
@@ -74,7 +72,8 @@ auto timer_scheduler::start() -> void {
 }
 
 auto timer_scheduler::stop() -> void {
-   shutdown.store(std::memory_order_relaxed);
+   shutdown.store(true, std::memory_order_relaxed);
+   notifier_.wake_up();
    thread_.join();
 }
 
