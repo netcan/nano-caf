@@ -3,6 +3,7 @@
 //
 
 #include <nano-caf/core/system_actor_context.h>
+#include <iostream>
 
 NANO_CAF_NS_BEGIN
 

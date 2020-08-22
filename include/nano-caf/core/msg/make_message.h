@@ -34,6 +34,10 @@ struct message_entity : message_base<T, CATEGORY> {
       return reinterpret_cast<const void*>(&value);
    }
 
+   auto body_ptr() noexcept -> void* override {
+      return reinterpret_cast<void*>(&value);
+   }
+
    T value;
 };
 
@@ -49,6 +53,10 @@ struct message_entity<T, CATEGORY, std::enable_if_t<std::is_class_v<T>>>
    template<typename ... Args>
    message_entity(Args&&...args)
       : T{std::forward<Args>(args)...} {}
+
+   auto body_ptr() noexcept -> void* override {
+      return reinterpret_cast<void*>(static_cast<T*>(this));
+   }
 
    auto body_ptr() const noexcept -> const void* override {
       return reinterpret_cast<const void*>(static_cast<const T*>(this));

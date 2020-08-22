@@ -64,6 +64,14 @@ protected:
       };
    }
 
+   auto start_timer(const duration& duration, bool periodic = false) -> result_t<uint64_t> {
+      return get_system_actor_context().start_timer(self_handle(), duration, periodic);
+   }
+
+   auto stop_timer(uint64_t timer_id)  {
+      return get_system_actor_context().stop_timer(self_handle(), timer_id);
+   }
+
    virtual auto exit(exit_reason) noexcept -> void = 0;
 
 private:

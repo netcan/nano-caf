@@ -56,6 +56,12 @@ struct message {
    }
 
    template<typename T>
+   auto body() noexcept -> T* {
+      if(T::type_id != msg_type_id_) return nullptr;
+      return reinterpret_cast<T*>(body_ptr());
+   }
+
+   template<typename T>
    auto body() const noexcept -> const T* {
       if(T::type_id != msg_type_id_) return nullptr;
       return reinterpret_cast<const T*>(body_ptr());
@@ -70,6 +76,7 @@ struct message {
    virtual ~message() = default;
 
 private:
+   virtual auto body_ptr() noexcept -> void* = 0;
    virtual auto body_ptr() const noexcept -> const void* = 0;
    virtual auto handler_ptr() const noexcept -> void* {
       return nullptr;

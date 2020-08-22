@@ -16,6 +16,7 @@ NANO_CAF_NS_BEGIN
 
 struct system_actor_context
    : protected coordinator
+   , protected timer_scheduler
    , private disable_copy {
 
    template<typename T, typename ... Ts>
@@ -34,6 +35,9 @@ struct system_actor_context
    auto deregister_actor() -> void;
 
    using coordinator::sched_jobs;
+   using timer_scheduler::start_timer;
+   using timer_scheduler::stop_timer;
+   using timer_scheduler::clear_actor_timer;
 
 protected:
    auto wait_actors_done() -> void;

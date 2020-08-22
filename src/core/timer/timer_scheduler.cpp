@@ -12,7 +12,9 @@ NANO_CAF_NS_BEGIN
 
 auto timer_scheduler::go_sleep() -> void {
    if(timers_.empty()) {
-      notifier_.wait();
+      notifier_.wait([this]() {
+         return shutdown.load(std::memory_order_relaxed) || !msg_queue_.blocked();
+      });
    } else {
       if(notifier_.wait_until(timers_.begin()->first) == std::cv_status::timeout) {
          timer_set::on_timeout(shutdown);
@@ -27,7 +29,7 @@ auto timer_scheduler::handle_msgs(message* msgs) -> void {
       head->next_ = nullptr;
       switch(head->msg_type_id_) {
       case start_timer_msg::type_id:
-         timer_set::add_timer(head.release());
+         timer_set::add_timer(std::move(head));
          break;
       case stop_timer_msg::type_id: {
          auto stop_msg = head->body<stop_timer_msg>();

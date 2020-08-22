@@ -44,6 +44,7 @@ auto sched_actor::resume() noexcept  -> resumable::result {
       });
 
       if(__unlikely(!result)) {
+         to_ctl()->context().clear_actor_timer(to_ctl());
          to_ctl()->on_exit(reason_);
          return result::done;
       }
