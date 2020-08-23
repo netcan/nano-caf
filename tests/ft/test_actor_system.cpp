@@ -20,7 +20,7 @@ struct my_actor : actor {
        switch (msg.msg_type_id_) {
           case test_message::type_id: {
              std::cout << "start timer : " << test_message::type_id << std::endl;
-             auto status = every(duration{1, timer_unit::seconds}, [&]{
+             auto status = every(1s, [&]{
                 std::cout << "timeout : " << timeout_msg::type_id << std::endl;
                 if(times++ >= 5) {
                    std::cout << "ready to stop" << std::endl;
