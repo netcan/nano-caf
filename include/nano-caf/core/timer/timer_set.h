@@ -16,7 +16,7 @@ NANO_CAF_NS_BEGIN
 
 struct timer_set {
    auto add_timer(std::unique_ptr<message> msg) -> status_t;
-   auto remove_timer(intptr_t, timer_id) -> void;
+   auto remove_timer(intptr_t, timer_id_t) -> void;
    auto clear_actor_timers(intptr_t) -> void;
    auto on_timeout(std::atomic_bool& shutdown) -> void;
 

@@ -12,6 +12,7 @@
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
 #include <cstdint>
 #include <chrono>
+#include <nano-caf/core/timer/timer_callback.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -32,24 +33,36 @@ struct duration {
 };
 
 using timer_spec = either<duration, std::chrono::system_clock::time_point>;
-using timer_id = uint64_t;
+
+struct timer_id_t {
+   explicit timer_id_t(uint64_t id) : id_{id} {}
+
+   auto operator==(timer_id_t& rhs) const { return id_ == rhs.id_; }
+   auto operator!=(timer_id_t& rhs) const { return id_ != rhs.id_; }
+   auto operator<(timer_id_t& rhs) const  { return id_ < rhs.id_; }
+
+private:
+   uint64_t id_;
+};
 
 CAF_def_message(start_timer_msg,
-    (id, timer_id),
+    (id, timer_id_t),
     (actor, intrusive_actor_ptr),
     (spec, timer_spec),
     (issue_time_point, std::chrono::system_clock::time_point),
-    (is_periodic, bool));
+    (is_periodic, bool),
+    (callback, std::shared_ptr<timer_callback>));
 
 CAF_def_message(stop_timer_msg,
     (actor, intptr_t),
-    (id, timer_id));
+    (id, timer_id_t));
 
 CAF_def_message(clear_actor_timer_msg,
     (actor, intptr_t));
 
 CAF_def_message(timeout_msg,
-    (id, timer_id));
+    (id, timer_id_t),
+    (callback, std::shared_ptr<timer_callback>));
 
 NANO_CAF_NS_END
 

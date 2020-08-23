@@ -51,7 +51,7 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    });
 
    if(due < std::chrono::system_clock::now()) {
-      actor_handle(start_msg->actor).send<timeout_msg>(start_msg->id);
+      actor_handle(start_msg->actor).send<timeout_msg>(start_msg->id, start_msg->callback);
       if(!start_msg->is_periodic) {
          return status_t::ok;
       }
@@ -64,7 +64,7 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    return status_t::ok;
 }
 
-auto timer_set::remove_timer(intptr_t actor_id, timer_id msg_id) -> void {
+auto timer_set::remove_timer(intptr_t actor_id, timer_id_t msg_id) -> void {
    auto range = actor_indexer_.equal_range(actor_id);
    for(auto i = range.first; i != range.second; ++i) {
       if(i->second->second->body<start_timer_msg>()->id == msg_id) {
@@ -93,7 +93,7 @@ auto timer_set::on_timeout(std::atomic_bool& shutdown) -> void {
       }
 
       auto msg = timer->second->body<start_timer_msg>();
-      actor_handle(msg->actor).send<timeout_msg>(msg->id);
+      actor_handle(msg->actor).send<timeout_msg>(msg->id, msg->callback);
 
       actor_indexer_.erase(msg->actor.actor_id());
 

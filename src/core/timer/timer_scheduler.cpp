@@ -79,23 +79,28 @@ auto timer_scheduler::stop() -> void {
    thread_.join();
 }
 
-auto timer_scheduler::start_timer(intrusive_actor_ptr sender, const duration& duration, bool periodic) -> result_t<uint64_t> {
+auto timer_scheduler::start_timer
+   ( intrusive_actor_ptr sender
+   , const duration& duration
+   , bool periodic
+   , std::unique_ptr<timer_callback> callback ) -> result_t<timer_id_t> {
+
    if(__unlikely(!sender)) {
       return status_t::null_sender;
    }
 
-   timer_id id = timer_id_.fetch_add(1, std::memory_order_relaxed);
+   timer_id_t id{timer_id_.fetch_add(1, std::memory_order_relaxed)};
    switch(msg_queue_.enqueue(make_message<start_timer_msg>(
-      id, std::move(sender), duration, std::chrono::system_clock::now(), periodic))) {
+      id, std::move(sender), duration, std::chrono::system_clock::now(), periodic, std::move(callback)))) {
       case enq_result::ok: return id;
-      case enq_result::blocked: notifier_.wake_up(); return status_t::ok;
+      case enq_result::blocked: notifier_.wake_up(); return id;
       case enq_result::null_msg: return status_t::null_msg;
       case enq_result::closed:   return status_t::msg_queue_closed;
       default: return status_t::failed;
    }
 }
 
-auto timer_scheduler::stop_timer(const intrusive_actor_ptr& self, timer_id id) -> void {
+auto timer_scheduler::stop_timer(const intrusive_actor_ptr& self, timer_id_t id) -> void {
    switch(msg_queue_.enqueue(make_message<stop_timer_msg>(self.actor_id(), id))) {
       case enq_result::blocked: notifier_.wake_up(); break;
       default: break;

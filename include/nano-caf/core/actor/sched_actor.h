@@ -63,11 +63,15 @@ protected:
       return current_message_->sender_;
    }
 
+   auto user_timer_created() {
+      timer_created_ = true;
+   }
 private:
    message* current_message_{};
    uint32_t flags_{};
    exit_reason reason_;
-   bool registered_;
+   bool registered_{false};
+   bool timer_created_{false};
 };
 
 NANO_CAF_NS_END

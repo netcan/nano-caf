@@ -12,7 +12,7 @@ using namespace NANO_CAF_NS;
 using namespace std::chrono_literals;
 
 struct my_actor : actor {
-   timer_id timer_id_ = 300949;
+   timer_id_t timer_id_{300949};
    unsigned int times = 0;
     std::vector<int> values;
     auto handle_message(message& msg) noexcept -> task_result override {

@@ -11,7 +11,9 @@
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/await/future_callback.h>
+#include <nano-caf/core/timer/timer_callback.h>
 #include <vector>
+#include <unordered_map>
 
 NANO_CAF_NS_BEGIN
 
@@ -66,7 +68,6 @@ private:
       auto check_futures() {
          for (auto it = futures_.begin(); it != futures_.end(); ) {
             if ((*it)->invoke()) {
-               delete *it;
                it = futures_.erase(it);
             } else {
                ++it;
@@ -78,7 +79,15 @@ private:
          if(msg.is_future_response()) {
             check_futures();
             return task_result::resume;
-         } else {
+         } else if(msg.msg_type_id_ == timeout_msg::type_id) {
+            auto timeout = msg.body<timeout_msg>();
+            if(timeout->callback) {
+               timeout->callback->on_timeout();
+               return task_result::resume;
+            }
+            return T::handle_message(msg);
+         }
+         else {
             return T::handle_message(msg);
          }
       }
@@ -89,22 +98,20 @@ private:
 
       auto register_future_callback(future_callback* future) noexcept -> status_t override {
          if(future == nullptr) return status_t::null_pointer;
-         futures_.push_back(future);
+         futures_.emplace_back(future);
          return status_t::ok;
       }
 
-      ~internal_actor() noexcept {
-         for (auto& i : futures_) {
-            delete i;
-         }
+      auto on_timer_created() -> void override {
+         sched_actor::user_timer_created();
       }
 
-      std::vector<future_callback*> futures_{};
+      std::vector<std::unique_ptr<future_callback>> futures_{};
+
    };
 
    union { internal_actor value_; };
 };
-
 
 NANO_CAF_NS_END
 

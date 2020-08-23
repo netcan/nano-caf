@@ -12,6 +12,7 @@
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/await/async_object.h>
 #include <nano-caf/core/await/future_callback.h>
+#include <nano-caf/core/timer/timer_callback.h>
 #include <optional>
 #include <iostream>
 
@@ -64,15 +65,32 @@ protected:
       };
    }
 
-   auto start_timer(const duration& duration, bool periodic = false) -> result_t<uint64_t> {
-      return get_system_actor_context().start_timer(self_handle(), duration, periodic);
+   auto start_timer(const duration& duration, bool periodic = false) -> result_t<timer_id_t> {
+      return start_timer(duration, periodic, nullptr);
    }
 
-   auto stop_timer(uint64_t timer_id)  {
-      return get_system_actor_context().stop_timer(self_handle(), timer_id);
+   auto stop_timer(timer_id_t timer_id) -> void {
+      get_system_actor_context().stop_timer(self_handle(), timer_id);
+   }
+
+   template<typename F>
+   auto after(const duration& duration, F&& f) -> result_t<timer_id_t> {
+      auto callback = new generic_timer_callback<std::decay_t<F>>(std::forward<F>(f));
+      if(callback == nullptr) return status_t::out_of_mem;
+      return start_timer(duration, false, callback);
    }
 
    virtual auto exit(exit_reason) noexcept -> void = 0;
+
+private:
+   auto start_timer(const duration& duration, bool periodic, std::unique_ptr<timer_callback> callback) -> result_t<timer_id_t> {
+      auto result = get_system_actor_context().start_timer(self_handle(), duration, periodic, std::move(callback));
+      if(result.is_ok()) {
+         on_timer_created();
+      }
+
+      return result;
+   }
 
 private:
    auto self_handle() const noexcept -> intrusive_actor_ptr override {
@@ -87,6 +105,7 @@ private:
    virtual auto self() const noexcept -> actor_control_block& = 0;
    virtual auto current_sender() const noexcept -> actor_handle = 0;
    virtual auto register_future_callback(future_callback*) noexcept -> status_t = 0;
+   virtual auto on_timer_created() -> void = 0;
 
 protected:
    virtual auto on_init() -> void {}

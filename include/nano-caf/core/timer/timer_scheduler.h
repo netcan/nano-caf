@@ -23,8 +23,10 @@ struct timer_scheduler
 
    auto start_timer(intrusive_actor_ptr self,
                     const duration& duration,
-                    bool periodic = false) -> result_t<uint64_t>;
-   auto stop_timer(const intrusive_actor_ptr& self, timer_id) -> void;
+                    bool periodic,
+                    std::unique_ptr<timer_callback> callback) -> result_t<timer_id_t>;
+
+   auto stop_timer(const intrusive_actor_ptr& self, timer_id_t) -> void;
    auto clear_actor_timer(const intrusive_actor_ptr& self) -> void;
 
 private:
@@ -34,7 +36,7 @@ private:
 
 private:
    lifo_inbox msg_queue_{};
-   std::atomic<timer_id> timer_id_{0};
+   std::atomic<uint64_t> timer_id_{0};
    std::atomic_bool shutdown{false};
    ipc_notifier notifier_{};
    std::thread thread_;
