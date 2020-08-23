@@ -91,18 +91,18 @@ protected:
    }
 
    template<typename F>
-   auto every(uint64_t length, timer_unit unit, F&& f) -> result_t<timer_id_t> {
-      return every(duration{length, unit}, std::forward<F>(f));
+   auto repeat(uint64_t length, timer_unit unit, F&& f) -> result_t<timer_id_t> {
+      return repeat(duration{length, unit}, std::forward<F>(f));
    }
 
    template<typename Rep, typename Period, typename F>
-   auto every(std::chrono::duration<Rep, Period> const& d, F&& f) -> result_t<timer_id_t> {
-      return every(duration{(uint64_t)std::chrono::microseconds(d).count(), timer_unit::microseconds},
+   auto repeat(std::chrono::duration<Rep, Period> const& d, F&& f) -> result_t<timer_id_t> {
+      return repeat(duration{(uint64_t)std::chrono::microseconds(d).count(), timer_unit::microseconds},
                    std::forward<F>(f));
    }
 
    template<typename F>
-   auto every(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
+   auto repeat(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
       auto callback = new generic_timer_callback<std::decay_t<F>>(std::forward<F>(f));
       if(callback == nullptr) return status_t::out_of_mem;
       return start_timer_(spec, true, std::unique_ptr<timer_callback>(callback));

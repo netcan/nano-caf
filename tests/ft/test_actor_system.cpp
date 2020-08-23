@@ -14,33 +14,27 @@ using namespace std::chrono_literals;
 struct my_actor : actor {
    timer_id_t timer_id_{300949};
    unsigned int times = 0;
-    std::vector<int> values;
-    auto handle_message(message& msg) noexcept -> task_result override {
-       std::cout << "received a message" << std::endl;
-       switch (msg.msg_type_id_) {
-          case test_message::type_id: {
-             std::cout << "start timer : " << test_message::type_id << std::endl;
-             auto status = every(1s, [&]{
-                std::cout << "timeout "  << std::endl;
-                if(times++ >= 5) {
-                   std::cout << "ready to stop" << std::endl;
-                   stop_timer(timer_id_);
-                   std::cout << "stop" << std::endl;
-                   exit(exit_reason::normal);
-                }
-             })
-             .with_value([this](auto timer_id) {
-                timer_id_ = timer_id;
-                return status_t::ok;
-             });
-             if (status != status_t::ok) {
-                std::cout << "start timer failed" << std::endl;
-             }
-             break;
-          }
-       }
-       return task_result::resume;
-    }
+   std::vector<int> values;
+
+   auto handle_message(message& msg) noexcept -> task_result override {
+      if (msg.msg_type_id_ == test_message::type_id ) {
+         auto result = repeat(1s, [&]{
+            std::cout << "timeout "  << std::endl;
+            if(++times >= 5) {
+               std::cout << "ready to stop" << std::endl;
+               stop_timer(timer_id_);
+               std::cout << "stop" << std::endl;
+               exit(exit_reason::normal);
+            }
+         });
+         if(result.is_ok()) {
+            timer_id_ = *result;
+         } else {
+            std::cout << "start timer failed" << std::endl;
+         }
+      }
+      return task_result::resume;
+   }
 
     void clear() {
         values.clear();
