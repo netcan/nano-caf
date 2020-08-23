@@ -65,8 +65,12 @@ protected:
       };
    }
 
-   auto start_timer(const duration& duration, bool periodic = false) -> result_t<timer_id_t> {
-      return start_timer(duration, periodic, nullptr);
+   auto start_timer(uint64_t length, timer_unit unit, bool periodic = false) -> result_t<timer_id_t> {
+      return start_timer(duration{length, unit}, periodic);
+   }
+
+   auto start_timer(timer_spec const& spec, bool periodic = false) -> result_t<timer_id_t> {
+      return start_timer_(spec, periodic, nullptr);
    }
 
    auto stop_timer(timer_id_t timer_id) -> void {
@@ -74,21 +78,27 @@ protected:
    }
 
    template<typename F>
-   auto after(const duration& duration, F&& f) -> result_t<timer_id_t> {
+   auto after(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
       auto callback = new generic_timer_callback<std::decay_t<F>>(std::forward<F>(f));
       if(callback == nullptr) return status_t::out_of_mem;
-      return start_timer(duration, false, callback);
+      return start_timer_(spec, false, callback);
+   }
+
+   template<typename F>
+   auto every(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
+      auto callback = new generic_timer_callback<std::decay_t<F>>(std::forward<F>(f));
+      if(callback == nullptr) return status_t::out_of_mem;
+      return start_timer_(spec, true, std::unique_ptr<timer_callback>(callback));
    }
 
    virtual auto exit(exit_reason) noexcept -> void = 0;
 
 private:
-   auto start_timer(const duration& duration, bool periodic, std::unique_ptr<timer_callback> callback) -> result_t<timer_id_t> {
-      auto result = get_system_actor_context().start_timer(self_handle(), duration, periodic, std::move(callback));
+   auto start_timer_(timer_spec const& spec, bool periodic, std::unique_ptr<timer_callback> callback) -> result_t<timer_id_t> {
+      auto result = get_system_actor_context().start_timer(self_handle(), spec, periodic, std::move(callback));
       if(result.is_ok()) {
          on_timer_created();
       }
-
       return result;
    }
 

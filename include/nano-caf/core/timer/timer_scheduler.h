@@ -21,10 +21,10 @@ struct timer_scheduler
    auto start() -> void;
    auto stop() -> void;
 
-   auto start_timer(intrusive_actor_ptr self,
-                    const duration& duration,
-                    bool periodic,
-                    std::unique_ptr<timer_callback> callback) -> result_t<timer_id_t>;
+   auto start_timer( intrusive_actor_ptr self,
+                     timer_spec const& spec,
+                     bool periodic,
+                     std::unique_ptr<timer_callback> callback) -> result_t<timer_id_t>;
 
    auto stop_timer(const intrusive_actor_ptr& self, timer_id_t) -> void;
    auto clear_actor_timer(const intrusive_actor_ptr& self) -> void;
@@ -33,6 +33,7 @@ private:
    auto schedule() -> void;
    auto go_sleep() -> void;
    auto handle_msgs(message* msgs) -> void;
+   auto send_start_timer_msg(timer_id_t id, message* msg) -> result_t<timer_id_t>;
 
 private:
    lifo_inbox msg_queue_{};

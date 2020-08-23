@@ -6,7 +6,6 @@
 #include <nano-caf/core/msg/make_message.h>
 #include <nano-caf/util/likely.h>
 #include <nano-caf/core/actor/actor_handle.h>
-#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
@@ -79,9 +78,23 @@ auto timer_scheduler::stop() -> void {
    thread_.join();
 }
 
+auto make_msg() {
+
+}
+
+auto timer_scheduler::send_start_timer_msg(timer_id_t id, message* msg) -> result_t<timer_id_t> {
+   switch(msg_queue_.enqueue(msg)) {
+      case enq_result::ok: return id;
+      case enq_result::blocked: notifier_.wake_up(); return id;
+      case enq_result::null_msg: return status_t::null_msg;
+      case enq_result::closed:   return status_t::msg_queue_closed;
+      default: return status_t::failed;
+   }
+}
+
 auto timer_scheduler::start_timer
    ( intrusive_actor_ptr sender
-   , const duration& duration
+   , timer_spec const& spec
    , bool periodic
    , std::unique_ptr<timer_callback> callback ) -> result_t<timer_id_t> {
 
@@ -90,14 +103,8 @@ auto timer_scheduler::start_timer
    }
 
    timer_id_t id{timer_id_.fetch_add(1, std::memory_order_relaxed)};
-   switch(msg_queue_.enqueue(make_message<start_timer_msg>(
-      id, std::move(sender), duration, std::chrono::system_clock::now(), periodic, std::move(callback)))) {
-      case enq_result::ok: return id;
-      case enq_result::blocked: notifier_.wake_up(); return id;
-      case enq_result::null_msg: return status_t::null_msg;
-      case enq_result::closed:   return status_t::msg_queue_closed;
-      default: return status_t::failed;
-   }
+   return send_start_timer_msg(id, make_message<start_timer_msg>(
+      id, std::move(sender), spec, std::chrono::system_clock::now(), periodic, std::move(callback)));
 }
 
 auto timer_scheduler::stop_timer(const intrusive_actor_ptr& self, timer_id_t id) -> void {

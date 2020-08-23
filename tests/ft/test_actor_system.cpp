@@ -20,29 +20,26 @@ struct my_actor : actor {
        switch (msg.msg_type_id_) {
           case test_message::type_id: {
              std::cout << "start timer : " << test_message::type_id << std::endl;
-             auto status = start_timer({1, timer_unit::seconds}, true)
-                .with_value([this](auto timer_id) {
-                   timer_id_ = timer_id;
-                   return status_t::ok;
-                });
+             auto status = every(duration{1, timer_unit::seconds}, [&]{
+                std::cout << "timeout : " << timeout_msg::type_id << std::endl;
+                if(times++ >= 5) {
+                   std::cout << "ready to stop" << std::endl;
+                   stop_timer(timer_id_);
+                   std::cout << "stop" << std::endl;
+                   exit(exit_reason::normal);
+                }
+             })
+             .with_value([this](auto timer_id) {
+                timer_id_ = timer_id;
+                return status_t::ok;
+             });
              if (status != status_t::ok) {
                 std::cout << "start timer failed" << std::endl;
              }
              break;
           }
-          case timeout_msg::type_id:
-             std::cout << "timeout : " << timeout_msg::type_id << std::endl;
-             if(times++ >= 5) {
-                std::cout << "ready to stop" << std::endl;
-                stop_timer(timer_id_);
-                std::this_thread::sleep_for(1s);
-                std::cout << "stop" << std::endl;
-                exit(exit_reason::normal);
-             }
-
-             break;
        }
-        return task_result::resume;
+       return task_result::resume;
     }
 
     void clear() {
