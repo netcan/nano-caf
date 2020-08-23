@@ -20,7 +20,7 @@ class aggregate_fields_type<0, T> {
 public:
    using type = type_list<>;
    template <typename F>
-   static auto call(const T&, F&& f) {{
+   static auto call(T&, F&& f) {{
       return f();
    }}
 };
@@ -46,8 +46,8 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {{
-        auto [{3}] = obj;
+    static auto call(T& obj, F&& f) {{
+        auto& [{3}] = obj;
         return f({4});
     }}
 }};
@@ -55,21 +55,25 @@ public:
 
 def gen_one(n):
     bindings = ""
+    move_bindings = ""
     decltypes = ""
     m = 0
     for i in range(n):
         bindings = bindings + "a{}".format(i+1)
+        move_bindings = move_bindings + "std::move(a{})".format(i+1)
         decltypes = decltypes + "decltype(a{})".format(i+1)
         if i < n-1:
             bindings = bindings + ","
             decltypes = decltypes + ","
+            move_bindings = move_bindings + ","
         m = m+1
         if m % 10 == 0:
             bindings = bindings + "\n              "
         if m % 5 == 0:
             decltypes = decltypes + "\n              "
+            move_bindings = move_bindings + "\n               "
 
-    return name.format(n, bindings, decltypes, bindings, bindings)
+    return name.format(n, bindings, decltypes, bindings, move_bindings)
 
 def gen_all(n):
     all = ""

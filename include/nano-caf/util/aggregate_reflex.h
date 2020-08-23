@@ -43,7 +43,7 @@ struct aggregate_trait {
    using fields_types = typename detail::aggregate_fields_type<num_of_fields, T>::type;
 
    template <typename F>
-   static auto call(const T& obj, F&& f) {
+   static auto call(T& obj, F&& f) {
       return detail::aggregate_fields_type<num_of_fields, T>::call(obj, std::forward<F>(f));
    }
 };

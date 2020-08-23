@@ -42,7 +42,7 @@ namespace detail {
 
       using result_type = typename callable_trait<F>::result_type;
 
-      auto handle_msg(message &msg, auto (*handler)(const MSG_TYPE& msg, F& f) -> result_type) -> bool {
+      auto handle_msg(message &msg, auto (*handler)(MSG_TYPE& msg, F& f) -> result_type) -> bool {
          auto *body = msg.body<MSG_TYPE>();
          if (body == nullptr) return false;
          if constexpr(std::is_same_v<void, result_type>) {
@@ -85,9 +85,9 @@ namespace detail {
       using fields_types = decltype(deduce_tuple_types(std::declval<T>()));
       using result_type = typename T::result_type;
       template <typename F>
-      static auto call(const T& obj, F&& f) {
+      static auto call(T& obj, F&& f) {
          return detail::aggregate_fields_type<fields_types::size, typename T::tuple_parent>::call(
-            static_cast<const typename T::tuple_parent&>(obj), std::forward<F>(f));
+            static_cast<typename T::tuple_parent&>(obj), std::forward<F>(f));
       }
    };
 
@@ -114,9 +114,9 @@ namespace detail {
       struct type : base {
          using base::base;
          auto operator()(message &msg) {
-            return base::handle_msg(msg, [](const message_type& msg, F& f) -> invoke_result_t {
+            return base::handle_msg(msg, [](message_type& msg, F& f) -> invoke_result_t {
                return msg_type_trait<message_type>::call(msg, [&](auto &&... args) -> invoke_result_t {
-                  return f(atom_type{}, std::forward<decltype(args)>(args)...);
+                  return f(atom_type{}, std::move(args)...);
                });
             });
          }
@@ -133,7 +133,7 @@ namespace detail {
       struct type : base {
          using base::base;
          auto operator()(message &msg) -> bool {
-            return base::handle_msg(msg, [](const message_type& msg, F& f) { return f(msg); });
+            return base::handle_msg(msg, [](message_type& msg, F& f) { return f(msg); });
          }
       };
    };

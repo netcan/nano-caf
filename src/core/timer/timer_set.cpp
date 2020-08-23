@@ -5,7 +5,6 @@
 #include <nano-caf/core/timer/timer_set.h>
 #include <nano-caf/util/likely.h>
 #include <nano-caf/core/actor/actor_handle.h>
-#include <iostream>
 
 NANO_CAF_NS_BEGIN
 

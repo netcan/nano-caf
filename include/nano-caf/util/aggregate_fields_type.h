@@ -17,7 +17,7 @@ class aggregate_fields_type<0, T> {
 public:
    using type = type_list<>;
    template <typename F>
-   static auto call(const T&, F&& f) {{
+   static auto call(T&, F&& f) {{
       return f();
    }}
 };
@@ -33,9 +33,9 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {
+    static auto call(T& obj, F&& f) {
         auto& [a1] = obj;
-        return f(a1);
+        return f(std::move(a1));
     }
 };
 
@@ -49,9 +49,9 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {
-        auto [a1,a2] = obj;
-        return f(a1,a2);
+    static auto call(T& obj, F&& f) {
+        auto& [a1,a2] = obj;
+        return f(std::move(a1),std::move(a2));
     }
 };
 
@@ -65,9 +65,9 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {
-        auto [a1,a2,a3] = obj;
-        return f(a1,a2,a3);
+    static auto call(T& obj, F&& f) {
+        auto& [a1,a2,a3] = obj;
+        return f(std::move(a1),std::move(a2),std::move(a3));
     }
 };
 
@@ -81,9 +81,9 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {
-        auto [a1,a2,a3,a4] = obj;
-        return f(a1,a2,a3,a4);
+    static auto call(T& obj, F&& f) {
+        auto& [a1,a2,a3,a4] = obj;
+        return f(std::move(a1),std::move(a2),std::move(a3),std::move(a4));
     }
 };
 
@@ -98,9 +98,10 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {
-        auto [a1,a2,a3,a4,a5] = obj;
-        return f(a1,a2,a3,a4,a5);
+    static auto call(T& obj, F&& f) {
+        auto& [a1,a2,a3,a4,a5] = obj;
+        return f(std::move(a1),std::move(a2),std::move(a3),std::move(a4),std::move(a5)
+               );
     }
 };
 
@@ -115,9 +116,10 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {
-        auto [a1,a2,a3,a4,a5,a6] = obj;
-        return f(a1,a2,a3,a4,a5,a6);
+    static auto call(T& obj, F&& f) {
+        auto& [a1,a2,a3,a4,a5,a6] = obj;
+        return f(std::move(a1),std::move(a2),std::move(a3),std::move(a4),std::move(a5),
+               std::move(a6));
     }
 };
 
@@ -132,9 +134,10 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {
-        auto [a1,a2,a3,a4,a5,a6,a7] = obj;
-        return f(a1,a2,a3,a4,a5,a6,a7);
+    static auto call(T& obj, F&& f) {
+        auto& [a1,a2,a3,a4,a5,a6,a7] = obj;
+        return f(std::move(a1),std::move(a2),std::move(a3),std::move(a4),std::move(a5),
+               std::move(a6),std::move(a7));
     }
 };
 
@@ -149,9 +152,10 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {
-        auto [a1,a2,a3,a4,a5,a6,a7,a8] = obj;
-        return f(a1,a2,a3,a4,a5,a6,a7,a8);
+    static auto call(T& obj, F&& f) {
+        auto& [a1,a2,a3,a4,a5,a6,a7,a8] = obj;
+        return f(std::move(a1),std::move(a2),std::move(a3),std::move(a4),std::move(a5),
+               std::move(a6),std::move(a7),std::move(a8));
     }
 };
 
@@ -166,9 +170,10 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {
-        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9] = obj;
-        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9);
+    static auto call(T& obj, F&& f) {
+        auto& [a1,a2,a3,a4,a5,a6,a7,a8,a9] = obj;
+        return f(std::move(a1),std::move(a2),std::move(a3),std::move(a4),std::move(a5),
+               std::move(a6),std::move(a7),std::move(a8),std::move(a9));
     }
 };
 
@@ -185,11 +190,12 @@ public:
     using type = decltype(deduce_type());
     
     template <typename F>
-    static auto call(const T& obj, F&& f) {
-        auto [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
+    static auto call(T& obj, F&& f) {
+        auto& [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
               ] = obj;
-        return f(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10
-              );
+        return f(std::move(a1),std::move(a2),std::move(a3),std::move(a4),std::move(a5),
+               std::move(a6),std::move(a7),std::move(a8),std::move(a9),std::move(a10)
+               );
     }
 };
 
