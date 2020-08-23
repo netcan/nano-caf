@@ -45,8 +45,8 @@ auto timer_scheduler::handle_msgs(message* msgs) -> void {
 
       if(__unlikely(!shutdown.load())) {
          while(msgs != nullptr) {
+            std::unique_ptr<message> head{msgs};
             msgs = head->next_;
-            delete msgs;
          }
          break;
       }
