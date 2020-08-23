@@ -7,6 +7,7 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <algorithm>
+#include <cstdint>
 
 NANO_CAF_NS_BEGIN
 
