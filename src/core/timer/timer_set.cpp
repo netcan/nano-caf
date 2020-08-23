@@ -8,38 +8,6 @@
 
 NANO_CAF_NS_BEGIN
 
-namespace {
-   inline auto by_microseconds(uint64_t value) -> uint64_t {
-      return value;
-   }
-
-   inline auto by_milliseconds(uint64_t value) -> uint64_t {
-      return 1000 * by_microseconds(value);
-   }
-
-   inline auto by_seconds(uint64_t value) -> uint64_t {
-      return 1000 * by_milliseconds(value);
-   }
-
-   inline auto by_minutes(uint64_t value) -> uint64_t {
-      return 60 * by_seconds(value);
-   }
-
-   inline auto by_hours(uint64_t value) -> uint64_t {
-      return 60 * by_minutes(value);
-   }
-
-   auto to_micro_seconds(duration const& d) -> uint64_t {
-      switch (d.unit) {
-         case timer_unit::hours:   return by_hours(d.length);
-         case timer_unit::minutes: return by_minutes(d.length);
-         case timer_unit::seconds: return by_seconds(d.length);
-         case timer_unit::milliseconds: return by_milliseconds(d.length);
-         default: return d.length;
-      }
-   }
-}
-
 auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    if(__unlikely(msg == nullptr)) return status_t::null_msg;
 
@@ -47,7 +15,7 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    if(__unlikely(start_msg == nullptr)) return status_t::failed;
 
    auto due = start_msg->spec.left_match([&](auto const& duration) {
-      return start_msg->issue_time_point + std::chrono::microseconds(to_micro_seconds(duration));
+      return start_msg->issue_time_point + std::chrono::microseconds(duration);
    });
 
    if(due < std::chrono::system_clock::now()) {

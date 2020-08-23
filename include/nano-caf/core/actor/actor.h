@@ -65,8 +65,9 @@ protected:
       };
    }
 
-   auto start_timer(uint64_t length, timer_unit unit, bool periodic = false) -> result_t<timer_id_t> {
-      return start_timer(duration{length, unit}, periodic);
+   template<typename Rep, typename Period>
+   auto start_timer(std::chrono::duration<Rep, Period> const& d, bool periodic = false) -> result_t<timer_id_t> {
+      return start_timer((uint64_t)std::chrono::microseconds(d).count(), periodic);
    }
 
    auto start_timer(timer_spec const& spec, bool periodic = false) -> result_t<timer_id_t> {
@@ -86,19 +87,12 @@ protected:
 
    template<typename Rep, typename Period, typename F>
    auto after(std::chrono::duration<Rep, Period> const& d, F&& f) -> result_t<timer_id_t> {
-      return after(duration{(uint64_t)std::chrono::microseconds(d).count(), timer_unit::microseconds},
-                   std::forward<F>(f));
-   }
-
-   template<typename F>
-   auto repeat(uint64_t length, timer_unit unit, F&& f) -> result_t<timer_id_t> {
-      return repeat(duration{length, unit}, std::forward<F>(f));
+      return after((uint64_t)std::chrono::microseconds(d).count(), std::forward<F>(f));
    }
 
    template<typename Rep, typename Period, typename F>
    auto repeat(std::chrono::duration<Rep, Period> const& d, F&& f) -> result_t<timer_id_t> {
-      return repeat(duration{(uint64_t)std::chrono::microseconds(d).count(), timer_unit::microseconds},
-                   std::forward<F>(f));
+      return repeat((uint64_t)std::chrono::microseconds(d).count(), std::forward<F>(f));
    }
 
    template<typename F>

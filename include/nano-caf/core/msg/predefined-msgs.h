@@ -19,18 +19,7 @@ NANO_CAF_NS_BEGIN
 CAF_def_message(exit_msg, (reason, exit_reason));
 CAF_def_message(future_done);
 
-enum class timer_unit {
-   microseconds,
-   milliseconds,
-   seconds,
-   minutes,
-   hours,
-};
-
-struct duration {
-   uint64_t   length;
-   timer_unit unit;
-};
+using duration = uint64_t ;
 
 using timer_spec = either<duration, std::chrono::system_clock::time_point>;
 
