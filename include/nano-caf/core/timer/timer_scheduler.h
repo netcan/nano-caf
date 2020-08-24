@@ -24,7 +24,7 @@ struct timer_scheduler
    auto start_timer( intrusive_actor_ptr self,
                      timer_spec const& spec,
                      bool periodic,
-                     std::unique_ptr<timer_callback> callback) -> result_t<timer_id_t>;
+                     std::shared_ptr<timer_callback> callback) -> result_t<timer_id_t>;
 
    auto stop_timer(const intrusive_actor_ptr& self, timer_id_t) -> void;
    auto clear_actor_timer(const intrusive_actor_ptr& self) -> void;

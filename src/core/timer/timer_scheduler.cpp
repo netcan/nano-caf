@@ -96,7 +96,7 @@ auto timer_scheduler::start_timer
    ( intrusive_actor_ptr sender
    , timer_spec const& spec
    , bool periodic
-   , std::unique_ptr<timer_callback> callback ) -> result_t<timer_id_t> {
+   , std::shared_ptr<timer_callback> callback ) -> result_t<timer_id_t> {
 
    if(__unlikely(!sender)) {
       return status_t::null_sender;

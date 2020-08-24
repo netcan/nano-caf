@@ -80,7 +80,7 @@ protected:
 
    template<typename F>
    auto after(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
-      auto callback = new generic_timer_callback<std::decay_t<F>>(std::forward<F>(f));
+      auto callback = std::make_shared<generic_timer_callback<std::decay_t<F>>>(std::forward<F>(f));
       if(callback == nullptr) return status_t::out_of_mem;
       return start_timer_(spec, false, std::unique_ptr<timer_callback>(callback));
    }
@@ -97,15 +97,15 @@ protected:
 
    template<typename F>
    auto repeat(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
-      auto callback = new generic_timer_callback<std::decay_t<F>>(std::forward<F>(f));
+      auto callback = std::make_shared<generic_timer_callback<std::decay_t<F>>>(std::forward<F>(f));
       if(callback == nullptr) return status_t::out_of_mem;
-      return start_timer_(spec, true, std::unique_ptr<timer_callback>(callback));
+      return start_timer_(spec, true, callback);
    }
 
    virtual auto exit(exit_reason) noexcept -> void = 0;
 
 private:
-   auto start_timer_(timer_spec const& spec, bool periodic, std::unique_ptr<timer_callback> callback) -> result_t<timer_id_t> {
+   auto start_timer_(timer_spec const& spec, bool periodic, std::shared_ptr<timer_callback> callback) -> result_t<timer_id_t> {
       auto result = get_system_actor_context().start_timer(self_handle(), spec, periodic, std::move(callback));
       if(result.is_ok()) {
          on_timer_created();
