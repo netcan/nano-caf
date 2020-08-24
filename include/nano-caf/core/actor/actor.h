@@ -85,7 +85,7 @@ protected:
    inline auto after(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
       auto callback = std::make_shared<generic_timer_callback<std::decay_t<F>>>(std::forward<F>(f));
       if(callback == nullptr) return status_t::out_of_mem;
-      return start_timer_(spec, false, std::unique_ptr<timer_callback>(callback));
+      return start_timer_(spec, false, callback);
    }
 
    template<typename Rep, typename Period, typename F>
