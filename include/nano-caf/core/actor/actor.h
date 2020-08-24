@@ -14,7 +14,6 @@
 #include <nano-caf/core/await/future_callback.h>
 #include <nano-caf/core/timer/timer_callback.h>
 #include <optional>
-#include <iostream>
 
 NANO_CAF_NS_BEGIN
 
@@ -27,6 +26,10 @@ private:
 
    template<typename F>
    using async_future_type = either<async_future_t<F>, status_t>;
+
+private:
+   inline auto self_handle() const noexcept -> intrusive_actor_ptr override { return &self(); }
+   inline auto get_system_actor_context() -> system_actor_context& override { return self().context(); }
 
 protected:
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
@@ -66,37 +69,37 @@ protected:
    }
 
    template<typename Rep, typename Period>
-   auto start_timer(std::chrono::duration<Rep, Period> const& d, bool periodic = false) -> result_t<timer_id_t> {
+   inline auto start_timer(std::chrono::duration<Rep, Period> const& d, bool periodic = false) -> result_t<timer_id_t> {
       return start_timer((uint64_t)std::chrono::microseconds(d).count(), periodic);
    }
 
-   auto start_timer(timer_spec const& spec, bool periodic = false) -> result_t<timer_id_t> {
+   inline auto start_timer(timer_spec const& spec, bool periodic = false) -> result_t<timer_id_t> {
       return start_timer_(spec, periodic, nullptr);
    }
 
-   auto stop_timer(timer_id_t timer_id) -> void {
+   inline auto stop_timer(timer_id_t timer_id) -> void {
       get_system_actor_context().stop_timer(self_handle(), timer_id);
    }
 
    template<typename F>
-   auto after(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
+   inline auto after(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
       auto callback = std::make_shared<generic_timer_callback<std::decay_t<F>>>(std::forward<F>(f));
       if(callback == nullptr) return status_t::out_of_mem;
       return start_timer_(spec, false, std::unique_ptr<timer_callback>(callback));
    }
 
    template<typename Rep, typename Period, typename F>
-   auto after(std::chrono::duration<Rep, Period> const& d, F&& f) -> result_t<timer_id_t> {
+   inline auto after(std::chrono::duration<Rep, Period> const& d, F&& f) -> result_t<timer_id_t> {
       return after((uint64_t)std::chrono::microseconds(d).count(), std::forward<F>(f));
    }
 
    template<typename Rep, typename Period, typename F>
-   auto repeat(std::chrono::duration<Rep, Period> const& d, F&& f) -> result_t<timer_id_t> {
+   inline auto repeat(std::chrono::duration<Rep, Period> const& d, F&& f) -> result_t<timer_id_t> {
       return repeat((uint64_t)std::chrono::microseconds(d).count(), std::forward<F>(f));
    }
 
    template<typename F>
-   auto repeat(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
+   inline auto repeat(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
       auto callback = std::make_shared<generic_timer_callback<std::decay_t<F>>>(std::forward<F>(f));
       if(callback == nullptr) return status_t::out_of_mem;
       return start_timer_(spec, true, callback);
@@ -111,15 +114,6 @@ private:
          on_timer_created();
       }
       return result;
-   }
-
-private:
-   auto self_handle() const noexcept -> intrusive_actor_ptr override {
-      return &self();
-   }
-
-   virtual auto get_system_actor_context() -> system_actor_context& override {
-      return self().context();
    }
 
 private:
