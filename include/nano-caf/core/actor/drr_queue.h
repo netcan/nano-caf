@@ -16,7 +16,7 @@
 
 NANO_CAF_NS_BEGIN
 
-using message_consumer = std::function<auto (const message&) -> task_result>;
+using message_consumer = std::function<auto (message&) -> task_result>;
 
 struct drr_queue : private task_list {
    using task_list::append_list;

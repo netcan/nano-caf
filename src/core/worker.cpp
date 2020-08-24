@@ -19,7 +19,7 @@ auto worker::take_one() noexcept -> resumable* {
 auto worker::external_enqueue(resumable* job) noexcept -> void {
    intrusive_ptr_add_ref(job);
    job_queue_.enqueue(job);
-   wakeup_worker();
+   notifier_.wake_up();
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -30,19 +30,8 @@ auto worker::wait_done() noexcept -> void {
 
 ////////////////////////////////////////////////////////////////////
 auto worker::stop() noexcept -> void {
-   struct shutdown : resumable {
-      auto resume() noexcept -> result override {
-         return result::shutdown_execution_unit;
-      }
-
-      auto intrusive_ptr_add_ref_impl() noexcept -> void override {}
-      auto intrusive_ptr_release_impl() noexcept -> void override {
-         delete this;
-      }
-   };
-
-      cmd_queue_.enqueue(new shutdown{});
-   wakeup_worker();
+   shutdown_.store(true, std::memory_order_relaxed);
+   notifier_.wake_up();
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -68,25 +57,14 @@ auto worker::goto_bed() noexcept -> void {
       tried_times_ = 0;
    }
 
-   std::unique_lock<std::mutex> guard(lock_);
-   sleeping = true;
-   cv_.wait_for(guard, config[strategy_].sleep_durations,
-                [&] { return !job_queue_.empty(); });
-   sleeping = false;
-}
-
-////////////////////////////////////////////////////////////////////
-auto worker::wakeup_worker() noexcept -> void {
-   std::unique_lock<std::mutex> guard(lock_);
-   if (sleeping && (!job_queue_.empty() || !cmd_queue_.empty()))
-      cv_.notify_one();
+   notifier_.wait_for(config[strategy_].sleep_durations, [&] {
+      return !job_queue_.empty() || shutdown_.load(std::memory_order_relaxed);
+   });
 }
 
 ////////////////////////////////////////////////////////////////////
 auto worker::get_a_job() noexcept -> resumable* {
-   if(auto job = cmd_queue_.dequeue<resumable>(); __unlikely(job != nullptr)) return job;
    if(auto job = job_queue_.dequeue<resumable>(); __likely(job != nullptr)) return job;
-
    if(__unlikely((tried_times_ % config[strategy_].intervals) == 0)) {
       return coordinator_.try_steal(id_);
    }
@@ -97,6 +75,7 @@ auto worker::get_a_job() noexcept -> resumable* {
 ////////////////////////////////////////////////////////////////////
 auto worker::run() noexcept -> void {
    while (1) {
+      if(__unlikely(shutdown_.load(std::memory_order_relaxed))) return;
       auto job = get_a_job();
       if(job != nullptr) {
          sched_jobs_++;
