@@ -43,7 +43,7 @@ private:
 
 public:
    static_assert(sizeof(actor_control_block) <= CACHE_LINE_SIZE);
-   actor_control_block control;
+   alignas(CACHE_LINE_SIZE) actor_control_block control;
 
 private:
    char padding[CACHE_LINE_SIZE - sizeof(control)];
