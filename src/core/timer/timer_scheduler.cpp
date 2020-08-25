@@ -26,6 +26,7 @@ auto timer_scheduler::handle_msgs(message* msgs) -> void {
       std::unique_ptr<message>head{msgs};
       msgs = head->next_;
       head->next_ = nullptr;
+
       switch(head->msg_type_id_) {
       case start_timer_msg::type_id:
          timer_set::add_timer(std::move(head));
@@ -43,7 +44,7 @@ auto timer_scheduler::handle_msgs(message* msgs) -> void {
       default: break;
       }
 
-      if(__unlikely(!shutdown.load())) {
+      if(__unlikely(shutdown.load())) {
          while(msgs != nullptr) {
             std::unique_ptr<message> head{msgs};
             msgs = head->next_;
@@ -66,6 +67,9 @@ auto timer_scheduler::schedule() -> void {
          timer_set::on_timeout(shutdown);
       }
    }
+
+   msg_queue_.close();
+   timer_set::reset();
 }
 
 auto timer_scheduler::start() -> void {
@@ -76,10 +80,6 @@ auto timer_scheduler::stop() -> void {
    shutdown.store(true, std::memory_order_relaxed);
    notifier_.wake_up();
    thread_.join();
-}
-
-auto make_msg() {
-
 }
 
 auto timer_scheduler::send_start_timer_msg(timer_id_t id, message* msg) -> result_t<timer_id_t> {
@@ -115,10 +115,16 @@ auto timer_scheduler::stop_timer(const intrusive_actor_ptr& self, timer_id_t id)
 }
 
 auto timer_scheduler::clear_actor_timer(const intrusive_actor_ptr& sender) -> void {
-   if(__unlikely(!sender)) return;
-   switch(msg_queue_.enqueue(make_message<clear_actor_timer_msg>(sender.actor_id()))) {
-      case enq_result::blocked: notifier_.wake_up(); break;
-      default: break;
+   if(__unlikely(!sender)) { return; }
+   auto status = msg_queue_.enqueue(make_message<clear_actor_timer_msg>(sender.actor_id()));
+   switch(status) {
+      case enq_result::blocked: {
+         notifier_.wake_up();
+         break;
+      }
+      default: {
+         break;
+      }
    }
 }
 

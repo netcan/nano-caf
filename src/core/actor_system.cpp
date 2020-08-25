@@ -14,12 +14,13 @@ auto actor_system::start(size_t num_of_workers) noexcept -> void {
 
 auto actor_system::shutdown() noexcept -> void{
    wait_actors_done();
-   power_off();
+   coordinator::shutdown();
+   timer_scheduler::stop();
 }
 
 auto actor_system::power_off() noexcept -> void {
-   coordinator::shutdown();
    timer_scheduler::stop();
+   coordinator::shutdown();
 }
 
 NANO_CAF_NS_END

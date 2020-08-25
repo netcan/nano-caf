@@ -44,7 +44,9 @@ auto sched_actor::resume() noexcept  -> resumable::result {
       });
 
       if(__unlikely(!result)) {
-         if(timer_created_) to_ctl()->context().clear_actor_timer(to_ctl());;
+         if(timer_created_) {
+            to_ctl()->context().clear_actor_timer(to_ctl());;
+         }
          to_ctl()->on_exit(reason_);
          return result::done;
       }
@@ -64,6 +66,8 @@ auto sched_actor::handle_message_internal(message& msg) noexcept -> task_result 
    auto result = user_defined_handle_msg(msg);
    if(__unlikely(msg.msg_type_id_ == exit_msg::type_id)) {
       exit_(msg.body<exit_msg>()->reason);
+   } else if(__unlikely(result == task_result::done)) {
+      exit_(exit_reason::normal);
    }
 
    if(__unlikely(flags_ & exiting_flag)) {

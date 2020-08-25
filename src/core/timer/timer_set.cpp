@@ -5,6 +5,7 @@
 #include <nano-caf/core/timer/timer_set.h>
 #include <nano-caf/util/likely.h>
 #include <nano-caf/core/actor/actor_handle.h>
+#include <spdlog/spdlog.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -74,6 +75,11 @@ auto timer_set::on_timeout(std::atomic_bool& shutdown) -> void {
          timers_.erase(timer);
       }
    }
+}
+
+auto timer_set::reset() -> void {
+   actor_indexer_.clear();
+   timers_.clear();
 }
 
 NANO_CAF_NS_END

@@ -3,7 +3,7 @@
 //
 
 #include <nano-caf/core/system_actor_context.h>
-#include <iostream>
+#include <spdlog/spdlog.h>
 
 NANO_CAF_NS_BEGIN
 

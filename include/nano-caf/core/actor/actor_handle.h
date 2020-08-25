@@ -36,14 +36,21 @@ struct actor_handle {
    }
 
    template<message::category CATEGORY = message::urgent>
+   auto exit_and_release(exit_reason reason = exit_reason::normal) noexcept {
+      if(auto status = exit<CATEGORY>(reason); __unlikely(status != status_t::ok)) {
+         return status;
+      }
+      release();
+      return status_t::ok;
+   }
+
+   template<message::category CATEGORY = message::urgent>
    auto exit_and_wait(exit_reason reason = exit_reason::normal) noexcept -> result_t<exit_reason> {
       if(auto status = exit<CATEGORY>(reason); __unlikely(status != status_t::ok)) {
          return status;
       }
       auto result = wait_for_exit();
-      if(__likely(result.is_ok())) {
-         release();
-      }
+      release();
       return result;
    }
 
