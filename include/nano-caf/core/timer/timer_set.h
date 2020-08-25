@@ -5,7 +5,6 @@
 #ifndef NANO_CAF_TIMER_SET_H
 #define NANO_CAF_TIMER_SET_H
 
-#include <nano-caf/core/timer/actor_timer.h>
 #include <nano-caf/core/actor/lifo_inbox.h>
 #include <nano-caf/util/ipc_notifier.h>
 #include <nano-caf/util/status_t.h>

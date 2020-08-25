@@ -9,6 +9,7 @@
 
 NANO_CAF_NS_BEGIN
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_scheduler::go_sleep() -> void {
    if(timers_.empty()) {
       notifier_.wait([this]() {
@@ -21,6 +22,7 @@ auto timer_scheduler::go_sleep() -> void {
    }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_scheduler::handle_msgs(message* msgs) -> void {
    while(msgs != nullptr) {
       std::unique_ptr<message>head{msgs};
@@ -54,6 +56,7 @@ auto timer_scheduler::handle_msgs(message* msgs) -> void {
    }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_scheduler::schedule() -> void {
    while(1) {
       if(shutdown.load(std::memory_order_relaxed)) break;
@@ -72,60 +75,54 @@ auto timer_scheduler::schedule() -> void {
    timer_set::reset();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_scheduler::start() -> void {
    thread_ = std::thread([this]{ schedule(); });
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_scheduler::stop() -> void {
    shutdown.store(true, std::memory_order_relaxed);
    notifier_.wake_up();
    thread_.join();
 }
 
-auto timer_scheduler::send_start_timer_msg(timer_id_t id, message* msg) -> result_t<timer_id_t> {
+/////////////////////////////////////////////////////////////////////////////////////////////
+auto timer_scheduler::send_msg(message* msg) -> status_t {
    switch(msg_queue_.enqueue(msg)) {
-      case enq_result::ok: return id;
-      case enq_result::blocked: notifier_.wake_up(); return id;
+      case enq_result::ok: return status_t::ok;
+      case enq_result::blocked: notifier_.wake_up(); return status_t::ok;
       case enq_result::null_msg: return status_t::null_msg;
       case enq_result::closed:   return status_t::msg_queue_closed;
       default: return status_t::failed;
    }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_scheduler::start_timer
    ( intrusive_actor_ptr sender
    , timer_spec const& spec
    , bool periodic
    , std::shared_ptr<timer_callback> callback ) -> result_t<timer_id_t> {
-
-   if(__unlikely(!sender)) {
-      return status_t::null_sender;
-   }
+   if(__unlikely(!sender)) { return status_t::null_sender; }
 
    timer_id_t id{timer_id_.fetch_add(1, std::memory_order_relaxed)};
-   return send_start_timer_msg(id, make_message<start_timer_msg>(
+   auto status = send_msg(make_message<start_timer_msg>(
       id, std::move(sender), spec, std::chrono::system_clock::now(), periodic, std::move(callback)));
+   if(status != status_t::ok) return status;
+   return id;
 }
 
-auto timer_scheduler::stop_timer(const intrusive_actor_ptr& self, timer_id_t id) -> void {
-   switch(msg_queue_.enqueue(make_message<stop_timer_msg>(self.actor_id(), id))) {
-      case enq_result::blocked: notifier_.wake_up(); break;
-      default: break;
-   }
+/////////////////////////////////////////////////////////////////////////////////////////////
+auto timer_scheduler::stop_timer(const intrusive_actor_ptr& self, timer_id_t id) -> status_t {
+   if(__unlikely(!self)) { return status_t::null_sender; }
+   return send_msg(make_message<stop_timer_msg>(self.actor_id(), id));
 }
 
-auto timer_scheduler::clear_actor_timer(const intrusive_actor_ptr& sender) -> void {
-   if(__unlikely(!sender)) { return; }
-   auto status = msg_queue_.enqueue(make_message<clear_actor_timer_msg>(sender.actor_id()));
-   switch(status) {
-      case enq_result::blocked: {
-         notifier_.wake_up();
-         break;
-      }
-      default: {
-         break;
-      }
-   }
+/////////////////////////////////////////////////////////////////////////////////////////////
+auto timer_scheduler::clear_actor_timer(const intrusive_actor_ptr& self) -> status_t {
+   if(__unlikely(!self)) { return status_t::null_sender; }
+   return send_msg(make_message<clear_actor_timer_msg>(self.actor_id()));
 }
 
 NANO_CAF_NS_END
