@@ -11,7 +11,6 @@
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/await/future_callback.h>
-#include <nano-caf/core/timer/timer_callback.h>
 #include <vector>
 #include <unordered_map>
 
@@ -82,7 +81,7 @@ private:
          } else if(msg.msg_type_id_ == timeout_msg::type_id) {
             auto timeout = msg.body<timeout_msg>();
             if(timeout->callback) {
-               timeout->callback->on_timeout();
+               (*timeout->callback)();
                return task_result::resume;
             }
             return T::handle_message(msg);
