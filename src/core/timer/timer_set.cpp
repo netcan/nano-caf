@@ -6,6 +6,7 @@
 #include <nano-caf/util/likely.h>
 #include <nano-caf/core/actor/actor_handle.h>
 #include <spdlog/spdlog.h>
+#include <nano-caf/core/actor/shutdown_notifier.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -52,9 +53,9 @@ auto timer_set::clear_actor_timers(intptr_t actor_id) -> void {
    actor_indexer_.erase(range.first, range.second);
 }
 
-auto timer_set::on_timeout(std::atomic_bool& shutdown) -> void {
+auto timer_set::on_timeout(const shutdown_notifier& shutdown) -> void {
    while(!timers_.empty()) {
-      if(__unlikely(shutdown.load(std::memory_order_relaxed))) break;
+      if(__unlikely(shutdown.shutdown_notified())) break;
 
       auto timer = timers_.begin();
       if(timer->first > std::chrono::system_clock::now()) {

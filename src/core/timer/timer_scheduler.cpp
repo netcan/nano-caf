@@ -12,12 +12,22 @@ NANO_CAF_NS_BEGIN
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_scheduler::go_sleep() -> void {
    if(timers_.empty()) {
-      notifier_.wait([this]() {
-         return shutdown.load(std::memory_order_relaxed) || !msg_queue_.blocked();
+      cv_.wait([this]() {
+         return shutdown_.shutdown_notified() || !msg_queue_.blocked();
       });
    } else {
-      if(notifier_.wait_until(timers_.begin()->first) == std::cv_status::timeout) {
-         timer_set::on_timeout(shutdown);
+      if(cv_.wait_until(timers_.begin()->first) == std::cv_status::timeout) {
+         timer_set::on_timeout(shutdown_);
+      }
+   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+namespace {
+   inline auto cleanup_msgs(message* msgs) {
+      while(msgs != nullptr) {
+         std::unique_ptr<message> head{msgs};
+         msgs = head->next_;
       }
    }
 }
@@ -46,12 +56,9 @@ auto timer_scheduler::handle_msgs(message* msgs) -> void {
       default: break;
       }
 
-      if(__unlikely(shutdown.load())) {
-         while(msgs != nullptr) {
-            std::unique_ptr<message> head{msgs};
-            msgs = head->next_;
-         }
-         break;
+      if(__unlikely(shutdown_.shutdown_notified())) {
+         cleanup_msgs(msgs);
+         return;
       }
    }
 }
@@ -59,7 +66,7 @@ auto timer_scheduler::handle_msgs(message* msgs) -> void {
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_scheduler::schedule() -> void {
    while(1) {
-      if(shutdown.load(std::memory_order_relaxed)) break;
+      if(shutdown_.shutdown_notified()) break;
       auto msgs = msg_queue_.take_all();
       if(msgs == nullptr) {
          if(msg_queue_.try_block()) {
@@ -67,7 +74,7 @@ auto timer_scheduler::schedule() -> void {
          }
       } else {
          handle_msgs(msgs);
-         timer_set::on_timeout(shutdown);
+         timer_set::on_timeout(shutdown_);
       }
    }
 
@@ -82,8 +89,8 @@ auto timer_scheduler::start() -> void {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_scheduler::stop() -> void {
-   shutdown.store(true, std::memory_order_relaxed);
-   notifier_.wake_up();
+   shutdown_.notify_shutdown();
+   cv_.wake_up();
    thread_.join();
 }
 
@@ -91,7 +98,7 @@ auto timer_scheduler::stop() -> void {
 auto timer_scheduler::send_msg(message* msg) -> status_t {
    switch(msg_queue_.enqueue(msg)) {
       case enq_result::ok: return status_t::ok;
-      case enq_result::blocked: notifier_.wake_up(); return status_t::ok;
+      case enq_result::blocked: cv_.wake_up(); return status_t::ok;
       case enq_result::null_msg: return status_t::null_msg;
       case enq_result::closed:   return status_t::msg_queue_closed;
       default: return status_t::failed;
@@ -100,10 +107,10 @@ auto timer_scheduler::send_msg(message* msg) -> status_t {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_scheduler::start_timer
-   ( intrusive_actor_ptr sender
-   , timer_spec const& spec
-   , bool periodic
-   , std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t> {
+      ( intrusive_actor_ptr sender
+      , timer_spec const& spec
+      , bool periodic
+      , std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t> {
    if(__unlikely(!sender)) { return status_t::null_sender; }
 
    timer_id_t id{timer_id_.fetch_add(1, std::memory_order_relaxed)};

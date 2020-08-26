@@ -19,7 +19,7 @@ auto worker::take_one() noexcept -> resumable* {
 auto worker::external_enqueue(resumable* job) noexcept -> void {
    intrusive_ptr_add_ref(job);
    job_queue_.enqueue(job);
-   notifier_.wake_up();
+   cv_.wake_up();
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -30,8 +30,8 @@ auto worker::wait_done() noexcept -> void {
 
 ////////////////////////////////////////////////////////////////////
 auto worker::stop() noexcept -> void {
-   shutdown_.store(true, std::memory_order_relaxed);
-   notifier_.wake_up();
+   shutdown_.notify_shutdown();
+   cv_.wake_up();
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -57,8 +57,8 @@ auto worker::goto_bed() noexcept -> void {
       tried_times_ = 0;
    }
 
-   notifier_.wait_for(config[strategy_].sleep_durations, [&] {
-      return !job_queue_.empty() || shutdown_.load(std::memory_order_relaxed);
+   cv_.wait_for(config[strategy_].sleep_durations, [&] {
+      return !job_queue_.empty() || shutdown_.shutdown_notified();
    });
 }
 
@@ -75,7 +75,7 @@ auto worker::get_a_job() noexcept -> resumable* {
 ////////////////////////////////////////////////////////////////////
 auto worker::run() noexcept -> void {
    while (1) {
-      if(__unlikely(shutdown_.load(std::memory_order_relaxed))) return;
+      if(__unlikely(shutdown_.shutdown_notified())) return;
       auto job = get_a_job();
       if(job != nullptr) {
          sched_jobs_++;

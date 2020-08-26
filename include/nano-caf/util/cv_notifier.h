@@ -2,14 +2,14 @@
 // Created by Darwin Yuan on 2020/8/22.
 //
 
-#ifndef NANO_CAF_IPC_NOTIFIER_H
-#define NANO_CAF_IPC_NOTIFIER_H
+#ifndef NANO_CAF_CV_NOTIFIER_H
+#define NANO_CAF_CV_NOTIFIER_H
 
 #include <mutex>
 #include <condition_variable>
 #include <chrono>
 
-struct ipc_notifier {
+struct cv_notifier {
    template<typename F>
    auto wait(F&& f) {
       std::unique_lock lock(mutex_);
@@ -65,4 +65,4 @@ private:
    bool sleeping_{false};
 };
 
-#endif //NANO_CAF_IPC_NOTIFIER_H
+#endif //NANO_CAF_CV_NOTIFIER_H

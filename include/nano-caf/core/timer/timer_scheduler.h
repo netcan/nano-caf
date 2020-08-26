@@ -7,16 +7,15 @@
 
 #include <nano-caf/core/actor/lifo_inbox.h>
 #include <nano-caf/core/timer/timer_set.h>
-#include <nano-caf/util/ipc_notifier.h>
+#include <nano-caf/util/cv_notifier.h>
 #include <nano-caf/util/result_t.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
 #include <thread>
+#include <nano-caf/core/actor/shutdown_notifier.h>
 
 NANO_CAF_NS_BEGIN
 
-struct timer_scheduler
-   : protected timer_set
-{
+struct timer_scheduler : protected timer_set {
    auto start() -> void;
    auto stop() -> void;
 
@@ -35,11 +34,13 @@ private:
    auto send_msg(message* msg) -> status_t;
 
 private:
-   lifo_inbox msg_queue_{};
-   std::atomic<uint64_t> timer_id_{0};
-   std::atomic_bool shutdown{false};
-   ipc_notifier notifier_{};
    std::thread thread_;
+
+   lifo_inbox msg_queue_{};
+   cv_notifier cv_{};
+   shutdown_notifier shutdown_{};
+
+   std::atomic<uint64_t> timer_id_{0};
 };
 
 NANO_CAF_NS_END

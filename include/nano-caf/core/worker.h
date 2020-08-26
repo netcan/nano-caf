@@ -14,7 +14,8 @@
 #include <cstddef>
 #include <memory>
 #include <mutex>
-#include <nano-caf/util/ipc_notifier.h>
+#include <nano-caf/util/cv_notifier.h>
+#include <nano-caf/core/actor/shutdown_notifier.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -53,10 +54,11 @@ private:
    auto get_a_job() noexcept -> resumable*;
 
 private:
-   job_list_t job_queue_{};
-   std::atomic_bool shutdown_{false};
    size_t id_{};
-   ipc_notifier notifier_{};
+
+   job_list_t job_queue_{};
+   shutdown_notifier shutdown_{};
+   cv_notifier cv_{};
 
    coordinator& coordinator_;
    size_t strategy_{};
