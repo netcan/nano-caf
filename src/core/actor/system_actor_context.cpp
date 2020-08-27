@@ -13,6 +13,7 @@ auto system_actor_context::schedule_job(resumable& job) noexcept -> void {
 
 auto system_actor_context::wait_actors_done() -> void {
    while(actor_registry::get_num_of_actors() > 0) {
+      spdlog::info("{} -", actor_registry::get_num_of_actors());
       std::this_thread::yield();
    }
 }

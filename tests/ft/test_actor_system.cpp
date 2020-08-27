@@ -6,6 +6,7 @@
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/actor/actor.h>
 #include <iostream>
+#include <spdlog/spdlog.h>
 #include "../ut/test_msgs.h"
 
 using namespace NANO_CAF_NS;
@@ -52,5 +53,6 @@ int main() {
     actor.wait_for_exit();
     actor.release();
 
+    spdlog::info("shutdown");
     system.shutdown();
 }

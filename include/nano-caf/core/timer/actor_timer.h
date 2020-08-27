@@ -2,20 +2,20 @@
 // Created by Darwin Yuan on 2020/8/22.
 //
 
-#ifndef NANO_CAF_TIMER_SCHEDULER_H
-#define NANO_CAF_TIMER_SCHEDULER_H
+#ifndef NANO_CAF_ACTOR_TIMER_H
+#define NANO_CAF_ACTOR_TIMER_H
 
 #include <nano-caf/core/actor/lifo_inbox.h>
 #include <nano-caf/core/timer/timer_set.h>
 #include <nano-caf/util/cv_notifier.h>
 #include <nano-caf/util/result_t.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
-#include <thread>
 #include <nano-caf/core/actor/shutdown_notifier.h>
+#include <thread>
 
 NANO_CAF_NS_BEGIN
 
-struct timer_scheduler : protected timer_set {
+struct actor_timer {
    auto start() -> void;
    auto stop() -> void;
 
@@ -29,15 +29,18 @@ struct timer_scheduler : protected timer_set {
 
 private:
    auto schedule() -> void;
-   auto go_sleep() -> void;
-   auto handle_msgs(message* msgs) -> void;
+   auto go_sleep() -> status_t;
    auto send_msg(message* msg) -> status_t;
+   auto try_go_sleep() -> status_t;
+   auto process(message* msgs) -> status_t;
 
 private:
    std::thread thread_;
+   timer_set timers_{};
 
    lifo_inbox msg_queue_{};
    cv_notifier cv_{};
+
    shutdown_notifier shutdown_{};
 
    std::atomic<uint64_t> timer_id_{0};
@@ -45,4 +48,4 @@ private:
 
 NANO_CAF_NS_END
 
-#endif //NANO_CAF_TIMER_SCHEDULER_H
+#endif //NANO_CAF_ACTOR_TIMER_H

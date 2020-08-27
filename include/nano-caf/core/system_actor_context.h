@@ -10,7 +10,7 @@
 #include <nano-caf/util/disable_copy.h>
 #include <nano-caf/core/coordinator.h>
 #include <nano-caf/core/actor/typed_actor_handle.h>
-#include <nano-caf/core/timer/timer_scheduler.h>
+#include <nano-caf/core/timer/actor_timer.h>
 #include <nano-caf/core/actor_registry.h>
 
 NANO_CAF_NS_BEGIN
@@ -18,7 +18,7 @@ NANO_CAF_NS_BEGIN
 struct system_actor_context
    : protected coordinator
    , public actor_registry
-   , protected timer_scheduler
+   , protected actor_timer
    , private disable_copy {
 
    template<typename T, typename ... Ts>
@@ -34,9 +34,9 @@ struct system_actor_context
    auto schedule_job(resumable& job) noexcept -> void;
 
    using coordinator::sched_jobs;
-   using timer_scheduler::start_timer;
-   using timer_scheduler::stop_timer;
-   using timer_scheduler::clear_actor_timer;
+   using actor_timer::start_timer;
+   using actor_timer::stop_timer;
+   using actor_timer::clear_actor_timer;
 
 protected:
    auto wait_actors_done() -> void;
