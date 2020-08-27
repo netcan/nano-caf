@@ -25,6 +25,11 @@ struct actor_context {
       return to.send<T, CATEGORY>(self_handle(), std::forward<Args>(args)...);
    }
 
+   template<typename METHOD_ATOM, message::category CATEGORY = message::normal, typename INTERFACE_TYPE, typename ... Args>
+   inline auto send(typed_actor_handle<INTERFACE_TYPE>& to, Args&& ... args) noexcept {
+      return to.template send<METHOD_ATOM, CATEGORY>(self_handle(), std::forward<Args>(args)...);
+   }
+
    virtual ~actor_context() = default;
 
 private:

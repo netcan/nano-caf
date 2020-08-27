@@ -17,29 +17,35 @@ struct typed_actor_handle : private actor_handle {
    using actor_handle::release;
    using actor_handle::exit;
 
-   template<typename METHOD_ATOM, typename ... Args,
+   template<typename METHOD_ATOM, message::category CATEGORY = message::normal, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
    auto send(Args&& ... args) {
-      return actor_handle::send<typename METHOD_ATOM::msg_type>(std::forward<Args>(args)...);
+      return actor_handle::send<typename METHOD_ATOM::msg_type, CATEGORY>(std::forward<Args>(args)...);
    }
 
-   template<typename METHOD_ATOM, typename ... Args,
+   template<typename METHOD_ATOM, message::category CATEGORY = message::normal, typename ... Args,
+      typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
+   auto send(intrusive_actor_ptr sender, Args&& ... args) {
+      return actor_handle::send<typename METHOD_ATOM::msg_type, CATEGORY>(sender, std::forward<Args>(args)...);
+   }
+
+   template<typename METHOD_ATOM, message::category CATEGORY = message::normal, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
    auto request(Args&& ... args) {
       auto l = [&](auto&& handler) {
-         return actor_handle::request<typename METHOD_ATOM::msg_type>(
+         return actor_handle::request<typename METHOD_ATOM::msg_type, CATEGORY>(
                std::forward<decltype(handler)>(handler),
                std::forward<Args>(args)...);
       };
       return requester::then_rsp<METHOD_ATOM, decltype(l)>(std::move(l));
    }
 
-   template<typename METHOD_ATOM, typename ... Args,
+   template<typename METHOD_ATOM, message::category CATEGORY = message::normal, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
    auto request(intrusive_actor_ptr from, Args&& ... args) -> result_t<requester::future_type<METHOD_ATOM>> {
       requester::inter_actor_promise_handler<requester::result_type<METHOD_ATOM>> promise{ from };
       auto future = promise.promise_.get_future();
-      if(auto result = actor_handle::request<typename METHOD_ATOM::msg_type>(
+      if(auto result = actor_handle::request<typename METHOD_ATOM::msg_type, CATEGORY>(
          from,
          promise,
          std::forward<Args>(args)...); result != status_t::ok) {
