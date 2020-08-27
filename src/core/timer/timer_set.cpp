@@ -172,7 +172,7 @@ auto timer_set::wait_for_timer_due(cv_notifier& cv, shutdown_notifier& shutdown)
    if(cv.wait_until(get_recent_due()) == std::cv_status::timeout) {
       return check_timer_due(shutdown);
    }
-   return status_t::ok;
+   return shutdown.shutdown_notified() ? status_t::system_shutdown : status_t::ok;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
