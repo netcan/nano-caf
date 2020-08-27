@@ -11,11 +11,13 @@
 #include <nano-caf/core/coordinator.h>
 #include <nano-caf/core/actor/typed_actor_handle.h>
 #include <nano-caf/core/timer/timer_scheduler.h>
+#include <nano-caf/core/actor_registry.h>
 
 NANO_CAF_NS_BEGIN
 
 struct system_actor_context
    : protected coordinator
+   , public actor_registry
    , protected timer_scheduler
    , private disable_copy {
 
@@ -31,9 +33,6 @@ struct system_actor_context
 
    auto schedule_job(resumable& job) noexcept -> void;
 
-   auto register_actor() -> void;
-   auto deregister_actor() -> void;
-
    using coordinator::sched_jobs;
    using timer_scheduler::start_timer;
    using timer_scheduler::stop_timer;
@@ -41,11 +40,6 @@ struct system_actor_context
 
 protected:
    auto wait_actors_done() -> void;
-
-   auto get_num_of_actors() const -> size_t;
-
-private:
-   std::atomic<size_t> num_of_actors_{};
 };
 
 NANO_CAF_NS_END
