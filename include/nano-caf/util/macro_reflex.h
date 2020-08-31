@@ -28,7 +28,7 @@ namespace detail {
 NANO_CAF_NS_END
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-#define __CUB_field_def__(n, x)                 \
+#define __REFLEX_field_def__(n, x)                 \
 __MACO_var_full(x);                              \
 template <typename T>                           \
 struct __SeCrEtE_field<n, T> {                  \
@@ -39,15 +39,15 @@ struct __SeCrEtE_field<n, T> {                  \
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-#define __CUB_fields(...) \
-constexpr static size_t NuM_oF_fIeLdS = __CUB_pp_size(__VA_ARGS__); \
+#define __REFLEX_fields(...) \
+constexpr static size_t NuM_oF_fIeLdS = __MACO_pp_size(__VA_ARGS__); \
 template<size_t N, typename T> struct __SeCrEtE_field; \
-__MACO_foreach(__CUB_field_def__, 0, __VA_ARGS__)
+__MACO_foreach(__REFLEX_field_def__, 0, __VA_ARGS__)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-#define __CUB_field_def_only__(n, x) __MACO_var_full(x);
+#define __REFLEX_field_def_only__(n, x) __MACO_var_full(x);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-#define __CUB_fields_only(...) __MACO_foreach(__CUB_field_def_only__, __VA_ARGS__)
+#define __REFLEX_fields_only(...) __MACO_foreach(__REFLEX_field_def_only__, __VA_ARGS__)
 
 #endif //NANO_CAF_MACRO_REFLEX_H

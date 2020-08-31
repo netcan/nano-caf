@@ -21,7 +21,7 @@ struct name##_atom : NANO_CAF_NS::atom_signature {           \
 };                                                           \
 struct name {                                                \
    constexpr static NANO_CAF_NS::type_id_t type_id = id;     \
-   __CUB_fields_only(__VA_ARGS__)                            \
+   __REFLEX_fields_only(__VA_ARGS__)                         \
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
