@@ -111,6 +111,21 @@ namespace detail {
          }
          return status;
       }
+
+      template<typename F_HANDLER>
+      auto on_success(F_HANDLER&& f_handler) -> status_t {
+         return then_(std::forward<F_HANDLER>(f_handler), [](status_t){});
+      }
+
+      template<typename F_FAIL>
+      auto on_fail(F_FAIL&& f_fail) -> status_t {
+         auto status = then_([](auto){}, std::forward<F_FAIL>(f_fail));
+         if(status != status_t::ok) {
+            f_fail(status);
+         }
+         return status;
+      }
+
    private:
       T registry_;
       FUTURE either_future_;

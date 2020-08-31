@@ -12,12 +12,12 @@ NANO_CAF_NS_BEGIN
 struct actor_context {
    template<typename T, typename ... Ts>
    auto spawn(Ts&& ... args) noexcept -> actor_handle {
-      return get_system_actor_context().spawn<T>(std::forward<Ts>(args)...);
+      return get_system_actor_context().template spawn<T>(std::forward<Ts>(args)...);
    }
 
    template<typename A, typename T, typename ... Ts>
    auto spawn_typed_actor(Ts&& ... args) noexcept -> typed_actor_handle<A> {
-      return get_system_actor_context().spawn_typed_actor<A, T>(std::forward<Ts>(args)...);
+      return get_system_actor_context().template spawn_typed_actor<A, T>(std::forward<Ts>(args)...);
    }
 
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>

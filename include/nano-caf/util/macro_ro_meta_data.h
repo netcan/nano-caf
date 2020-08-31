@@ -6,10 +6,8 @@
 #define NANO_CAF_MACRO_RO_META_DATA_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/util/macro_basic.h>
-#include <nano-caf/util/macro_pp_size.h>
-#include <nano-caf/util/macro_reflex_call.h>
-#include <nano-caf/util/macro_struct.h>
+#include <maco/foreach.h>
+#include <maco/aggregate.h>
 #include <nano-caf/util/macro_meta_common.h>
 #include <type_traits>
 #include <algorithm>
@@ -127,7 +125,7 @@ namespace ro_meta_data {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __RO_Meta_ns NANO_CAF_NS::ro_meta_data
-#define __RO_MeTa(x) __RO_Meta_ns::meta_type_trait<__CUB_var_type(x)>
+#define __RO_MeTa(x) __RO_Meta_ns::meta_type_trait<__MACO_var_type(x)>
 #define __RO_Meta_value_type(x) typename __RO_MeTa(x)::value_type
 #define __RO_Meta_result(x) typename __RO_MeTa(x)::return_type
 #define __RO_Meta_para(x) typename __RO_MeTa(x)::parameter_type
@@ -141,12 +139,12 @@ private:                                                                        
 private:                                                                              \
    __RO_Meta_value_type(x) __MeTa_var(x);                                             \
 public:                                                                               \
-   inline constexpr auto __CUB_var_name(x)() const noexcept -> __RO_Meta_result(x) {  \
+   inline constexpr auto __MACO_var_name(x)() const noexcept -> __RO_Meta_result(x) {  \
        return __RO_MeTa(x)::get(__MeTa_var(x));                                       \
    }                                                                                  \
    template<typename F,                                                               \
             typename = std::enable_if_t<__RO_MeTa(x)::template is_void_visitable<F>>> \
-   inline constexpr auto __CUB_var_name(x)(F&& f_some) const noexcept -> void {       \
+   inline constexpr auto __MACO_var_name(x)(F&& f_some) const noexcept -> void {       \
        if(__Meta_present_name(x)())                                                   \
           __RO_MeTa(x)::visit(__MeTa_var(x), std::forward<F>(f_some));                \
    }                                                                                  \
@@ -155,7 +153,7 @@ public:                                                                         
             typename = std::enable_if_t<__Meta_ns::is_none_invokable<F_NONE>>,        \
             typename = std::enable_if_t<__RO_Meta_ns::same_result<F_SOME, F_NONE>>>   \
    inline constexpr                                                                   \
-   auto __CUB_var_name(x)(F_SOME&& f_some, F_NONE&& f_none) const noexcept {          \
+   auto __MACO_var_name(x)(F_SOME&& f_some, F_NONE&& f_none) const noexcept {          \
        if(__Meta_present_name(x)())                                                   \
           return __RO_MeTa(x)::visit(__MeTa_var(x), std::forward<F_SOME>(f_some));    \
        else                                                                           \
@@ -172,10 +170,10 @@ set_visibility:                                                                 
       __secrete_ro_flags.flags_[__MeTa_byte(x)] |= __MeTa_mask(x);                    \
    }                                                                                  \
    template<size_t SIZE> inline                                                       \
-   auto __CUB_var_name(x)(const __RO_Meta_elem(x) (&array)[SIZE]) noexcept -> void {  \
-      __CUB_var_name(x)({array, SIZE});                                               \
+   auto __MACO_var_name(x)(const __RO_Meta_elem(x) (&array)[SIZE]) noexcept -> void {  \
+      __MACO_var_name(x)({array, SIZE});                                               \
    }                                                                                  \
-   inline auto __CUB_var_name(x)(__RO_Meta_para(x) pair) noexcept -> void {           \
+   inline auto __MACO_var_name(x)(__RO_Meta_para(x) pair) noexcept -> void {           \
       __RO_MeTa(x)::set(__MeTa_var(x), pair);                                         \
       __secrete_ro_flags.flags_[__MeTa_byte(x)] |= __MeTa_mask(x);                    \
    }
@@ -185,14 +183,14 @@ set_visibility:                                                                 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_ro_meta_data(...)                                                \
-   __CUB_all_fields__(__CUB_ro_field__, __VA_ARGS__)                           \
+   __MACO_foreach(__CUB_ro_field__, __VA_ARGS__)                               \
 private:                                                                       \
-   __RO_Meta_ns::meta_flags<__CUB_pp_size(__VA_ARGS__)> __secrete_ro_flags
+   __RO_Meta_ns::meta_flags<__MACO_pp_size(__VA_ARGS__)> __secrete_ro_flags
 
 ////////////////////////////////////////////////////////////////////////
 #define __CUB_export_meta_w__(n, x)                 \
 using __secrete_parent__::__Meta_modify_name(x);  \
-using __secrete_parent__::__CUB_var_name(x);
+using __secrete_parent__::__MACO_var_name(x);
 
 ////////////////////////////////////////////////////////////////////////
 #define __CUB_2_stage_meta_table(rw_stage, ro_stage, ...)    \
@@ -204,7 +202,7 @@ struct rw_stage : RO {                                       \
 private:                                                     \
   using __secrete_parent__ = RO;                             \
 public:                                                      \
-  __CUB_all_fields__(__CUB_export_meta_w__, __VA_ARGS__);    \
+  __MACO_foreach(__CUB_export_meta_w__, __VA_ARGS__);    \
 }
 
 NANO_CAF_NS_END

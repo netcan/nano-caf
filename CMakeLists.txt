@@ -30,6 +30,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
 include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/third-party"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../maco/include"
 )
 
 add_library(nano_caf
@@ -79,9 +80,7 @@ add_library(nano_caf
         include/nano-caf/core/msg/predefined-msgs.h
         include/nano-caf/core/actor/behavior.h
         include/nano-caf/util/macro_reflex.h
-        include/nano-caf/util/macro_pp_size.h
         include/nano-caf/core/actor/behavior_based_actor.h
-        include/nano-caf/util/macro_basic.h
         include/nano-caf/util/aggregate_fields_type.h
         include/nano-caf/util/aggregate_reflex.h
         include/nano-caf/core/msg/make_message.h
@@ -100,7 +99,6 @@ add_library(nano_caf
         include/nano-caf/core/actor/task_result.h
         src/core/actor/task_stack.cpp
         include/nano-caf/util/macro_ro_meta_data.h
-        include/nano-caf/util/macro_struct.h
         include/nano-caf/util/macro_lock_meta_data.h
         include/nano-caf/util/macro_meta_common.h
         include/nano-caf/util/maybe.h

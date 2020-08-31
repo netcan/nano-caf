@@ -6,10 +6,9 @@
 #define NANO_CAF_MACRO_LOCK_META_DATA_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/util/macro_basic.h>
-#include <nano-caf/util/macro_pp_size.h>
-#include <nano-caf/util/macro_reflex_call.h>
-#include <nano-caf/util/macro_struct.h>
+#include <maco/basic.h>
+#include <maco/foreach.h>
+#include <maco/aggregate.h>
 #include <nano-caf/util/macro_meta_common.h>
 #include <nano-caf/util/likely.h>
 #include <type_traits>
@@ -194,13 +193,13 @@ namespace lock_meta_data {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __Lock_Meta_ns NANO_CAF_NS::lock_meta_data
-#define __Lock_MeTa(x) __Lock_Meta_ns::meta_type_trait<__CUB_var_type(x)>
+#define __Lock_MeTa(x) __Lock_Meta_ns::meta_type_trait<__MACO_var_type(x)>
 #define __Lock_Meta_value_type(x) typename __Lock_MeTa(x)::value_type
 #define __Lock_Meta_result(x) typename __Lock_MeTa(x)::return_type
 #define __Lock_Meta_para(x) typename __Lock_MeTa(x)::parameter_type
 #define __Lock_Meta_elem(x) typename __Lock_MeTa(x)::element_type
-#define __Lock_Meta_set_flag(x) __CUB_paste(__CUB_var_name(x), _set_flag)
-#define __Lock_Meta_clear(x) __CUB_paste(clear_, __CUB_var_name(x))
+#define __Lock_Meta_set_flag(x) __MACO_paste(__MACO_var_name(x), _set_flag)
+#define __Lock_Meta_clear(x) __MACO_paste(clear_, __MACO_var_name(x))
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_lock_meta_field__(n, x)                                                       \
 private:                                                                                    \
@@ -231,7 +230,7 @@ public:                                                                         
                   .compare_exchange_strong(flags, new_flags,                                \
                               std::memory_order_release, std::memory_order_relaxed));       \
    }                                                                                        \
-   inline auto __CUB_var_name(x)() const noexcept -> __Lock_Meta_result(x) {                \
+   inline auto __MACO_var_name(x)() const noexcept -> __Lock_Meta_result(x) {                \
        return __Lock_MeTa(x)::get(__MeTa_var(x));                                           \
    }                                                                                        \
    inline auto __Meta_present_name(x)() const noexcept -> bool {                            \
@@ -240,7 +239,7 @@ public:                                                                         
    }                                                                                        \
    template<typename F,                                                                     \
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_void_visitable<F>>>     \
-   inline auto __CUB_var_name(x)(F&& f_some) const noexcept -> void {                       \
+   inline auto __MACO_var_name(x)(F&& f_some) const noexcept -> void {                       \
        if(__Meta_present_name(x)())                                                         \
           __Lock_MeTa(x)::visit(__MeTa_var(x), std::forward<F>(f_some));                    \
    }                                                                                        \
@@ -248,7 +247,7 @@ public:                                                                         
             typename = std::enable_if_t<__Lock_MeTa(x)::template is_visitable<F_SOME>>,     \
             typename = std::enable_if_t<__Meta_ns::is_none_invokable<F_NONE>>,              \
             typename = std::enable_if_t<__Lock_Meta_ns::same_result<F_SOME, F_NONE>>>       \
-   inline auto __CUB_var_name(x)(F_SOME&& f_some, F_NONE&& f_none) const noexcept {         \
+   inline auto __MACO_var_name(x)(F_SOME&& f_some, F_NONE&& f_none) const noexcept {         \
        if(__Meta_present_name(x)())                                                         \
           return __Lock_MeTa(x)::visit(__MeTa_var(x), std::forward<F_SOME>(f_some));        \
        else                                                                                 \
@@ -261,10 +260,10 @@ public:                                                                         
       __Lock_Meta_set_flag(x)();                                                            \
    }                                                                                        \
    template<size_t I>                                                                       \
-   inline auto __CUB_var_name(x)(const __Lock_Meta_elem(x) (&array)[I]) noexcept -> void {  \
-      __CUB_var_name(x)({array, I});                                                        \
+   inline auto __MACO_var_name(x)(const __Lock_Meta_elem(x) (&array)[I]) noexcept -> void {  \
+      __MACO_var_name(x)({array, I});                                                        \
    }                                                                                        \
-   inline auto __CUB_var_name(x)(__Lock_Meta_para(x) pair) noexcept -> void {               \
+   inline auto __MACO_var_name(x)(__Lock_Meta_para(x) pair) noexcept -> void {               \
       __Lock_MeTa(x)::set(__MeTa_var(x), pair);                                             \
       __Lock_Meta_set_flag(x)();                                                            \
    }
@@ -272,9 +271,9 @@ public:                                                                         
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_lock_meta_data(...)                                                \
-   __CUB_all_fields__(__CUB_lock_meta_field__, __VA_ARGS__)                      \
+   __MACO_foreach(__CUB_lock_meta_field__, __VA_ARGS__)                          \
 private:                                                                         \
-   __Lock_Meta_ns::meta_flags<__CUB_pp_size(__VA_ARGS__)> __secrete_lk_flags
+   __Lock_Meta_ns::meta_flags<__MACO_pp_size(__VA_ARGS__)> __secrete_lk_flags
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_lock_meta_table(name, ...)       \
