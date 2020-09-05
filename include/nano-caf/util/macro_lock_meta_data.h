@@ -7,7 +7,7 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <maco/basic.h>
-#include <maco/foreach.h>
+#include <maco/map.h>
 #include <maco/aggregate.h>
 #include <nano-caf/util/macro_meta_common.h>
 #include <nano-caf/util/likely.h>
@@ -101,6 +101,7 @@ namespace lock_meta_data {
          return f(self.load(std::memory_order_relaxed));
       }
 
+      // probably has a problem
       template<typename F>
       inline static auto modify(value_type& self, F&& f) -> void {
          auto value = self.load(std::memory_order_relaxed);
@@ -271,9 +272,9 @@ public:                                                                         
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_lock_meta_data(...)                                                \
-   __MACO_foreach(__CUB_lock_meta_field__, __VA_ARGS__)                          \
+   __MACO_map_i(__CUB_lock_meta_field__, __VA_ARGS__)                            \
 private:                                                                         \
-   __Lock_Meta_ns::meta_flags<__MACO_pp_size(__VA_ARGS__)> __secrete_lk_flags
+   __Lock_Meta_ns::meta_flags<__MACO_num_of_args(__VA_ARGS__)> __secrete_lk_flags
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_lock_meta_table(name, ...)       \

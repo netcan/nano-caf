@@ -6,7 +6,7 @@
 #define NANO_CAF_MACRO_RO_META_DATA_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <maco/foreach.h>
+#include <maco/map.h>
 #include <maco/aggregate.h>
 #include <nano-caf/util/macro_meta_common.h>
 #include <type_traits>
@@ -183,12 +183,12 @@ set_visibility:                                                                 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 #define __CUB_ro_meta_data(...)                                                \
-   __MACO_foreach(__CUB_ro_field__, __VA_ARGS__)                               \
+   __MACO_map_i(__CUB_ro_field__, __VA_ARGS__)                                 \
 private:                                                                       \
-   __RO_Meta_ns::meta_flags<__MACO_pp_size(__VA_ARGS__)> __secrete_ro_flags
+   __RO_Meta_ns::meta_flags<__MACO_num_of_args(__VA_ARGS__)> __secrete_ro_flags
 
 ////////////////////////////////////////////////////////////////////////
-#define __CUB_export_meta_w__(n, x)                 \
+#define __CUB_export_meta_w__(x)                  \
 using __secrete_parent__::__Meta_modify_name(x);  \
 using __secrete_parent__::__MACO_var_name(x);
 
@@ -202,7 +202,7 @@ struct rw_stage : RO {                                       \
 private:                                                     \
   using __secrete_parent__ = RO;                             \
 public:                                                      \
-  __MACO_foreach(__CUB_export_meta_w__, __VA_ARGS__);    \
+  __MACO_map(__CUB_export_meta_w__, __VA_ARGS__);            \
 }
 
 NANO_CAF_NS_END

@@ -7,10 +7,10 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/msg/atom.h>
-#include <maco/foreach.h>
 #include <nano-caf/util/callable_trait.h>
 #include <nano-caf/util/type_list.h>
 #include <nano-caf/util/type_id_t.h>
+#include <maco/map.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -32,20 +32,20 @@ namespace detail {
    };
 }
 
-#define __CUB_method_name(x)      __MACO_1st   x
-#define __CUB_method_signature(x) __MACO_rest  x
+#define __CAF_method_name(x)      __MACO_1st   x
+#define __CAF_method_signature(x) __MACO_rest  x
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-#define __CUB_actor_method(n, x)                                           \
-struct __CUB_method_name(x);                                               \
+#define __CAF_actor_method(n, x)                                           \
+struct __CAF_method_name(x);                                               \
 template <typename T> struct __SeCrEtE_method<n, T>                        \
    : NANO_CAF_NS::detail::request_type                                     \
-           < __CUB_method_name(x), auto __CUB_method_signature(x)> {       \
+           < __CAF_method_name(x), auto __CAF_method_signature(x)> {       \
    constexpr static auto name() -> const char* {                           \
-       return __MACO_stringify(__CUB_method_name(x));                       \
+       return __MACO_stringify(__CAF_method_name(x));                      \
    }                                                                       \
 };                                                                         \
-struct __CUB_method_name(x) : NANO_CAF_NS::atom_signature {                \
+struct __CAF_method_name(x) : NANO_CAF_NS::atom_signature {                \
    using type = __SeCrEtE_method<n, __SeCrEtE_tHiS_tYpe>;                  \
    struct msg_type : type::msg_type {                                      \
       using tuple_parent = type::msg_type;                                 \
@@ -68,8 +68,8 @@ private:                                                                        
            static_cast<type_id_t>(i_type_id) << 32;                                      \
 public:                                                                                  \
    template <size_t, typename> struct __SeCrEtE_method;                                  \
-   constexpr static size_t total_methods = __MACO_pp_size(__VA_ARGS__);                  \
-   __MACO_foreach(__CUB_actor_method, __VA_ARGS__);                                      \
+   constexpr static size_t total_methods = __MACO_num_of_args(__VA_ARGS__);              \
+   __MACO_map_i(__CAF_actor_method, __VA_ARGS__);                                        \
 }
 
 NANO_CAF_NS_END

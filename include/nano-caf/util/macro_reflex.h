@@ -6,7 +6,7 @@
 #define NANO_CAF_MACRO_REFLEX_H
 
 #include <maco/basic.h>
-#include <maco/foreach.h>
+#include <maco/map.h>
 #include <maco/aggregate.h>
 #include <nano-caf/util/type_list.h>
 #include <cstddef>
@@ -45,9 +45,9 @@ template<size_t N, typename T> struct __SeCrEtE_field; \
 __MACO_foreach(__REFLEX_field_def__, 0, __VA_ARGS__)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-#define __REFLEX_field_def_only__(n, x) __MACO_var_full(x);
+#define __REFLEX_field_def_only__(x) __MACO_var_full(x);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-#define __REFLEX_fields_only(...) __MACO_foreach(__REFLEX_field_def_only__, __VA_ARGS__)
+#define __REFLEX_fields_only(...) __MACO_map(__REFLEX_field_def_only__, __VA_ARGS__)
 
 #endif //NANO_CAF_MACRO_REFLEX_H
