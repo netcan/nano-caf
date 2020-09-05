@@ -42,7 +42,7 @@ struct __SeCrEtE_field<n, T> {                  \
 #define __REFLEX_fields(...) \
 constexpr static size_t NuM_oF_fIeLdS = __MACO_pp_size(__VA_ARGS__); \
 template<size_t N, typename T> struct __SeCrEtE_field; \
-__MACO_foreach(__REFLEX_field_def__, 0, __VA_ARGS__)
+__MACO_map_i(__REFLEX_field_def__, 0, __VA_ARGS__)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #define __REFLEX_field_def_only__(x) __MACO_var_full(x);
