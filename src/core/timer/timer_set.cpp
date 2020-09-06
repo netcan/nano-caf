@@ -31,7 +31,7 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    if(__unlikely(start_msg == nullptr)) return status_t::failed;
 
    auto due = get_due(start_msg);
-   if(__unlikely(due < std::chrono::system_clock::now())) {
+   if(__unlikely(due < std::chrono::steady_clock::now())) {
       send_timeout_msg_to_actor(start_msg);
       if(!start_msg->is_periodic) {
          return status_t::ok;
@@ -143,7 +143,7 @@ auto timer_set::check_timer_due(const shutdown_notifier& shutdown) -> status_t {
       }
 
       auto timer = timers_.begin();
-      if(timer_due(timer) > std::chrono::system_clock::now()) {
+      if(timer_due(timer) > std::chrono::steady_clock::now()) {
          break;
       }
 

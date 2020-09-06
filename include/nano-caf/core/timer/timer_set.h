@@ -16,7 +16,7 @@ NANO_CAF_NS_BEGIN
 
 struct timer_set {
 private:
-   using time_point = std::chrono::system_clock::time_point;
+   using time_point = std::chrono::steady_clock::time_point;
 
 public:
    auto handle_msgs(message* msgs, const shutdown_notifier&) -> status_t;

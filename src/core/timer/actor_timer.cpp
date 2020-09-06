@@ -73,7 +73,7 @@ auto actor_timer::start_timer
 
    timer_id_t id{timer_id_.fetch_add(1, std::memory_order_relaxed)};
    auto status = send_msg(make_message<start_timer_msg>(
-      id, std::move(sender), spec, std::chrono::system_clock::now(), periodic, std::move(callback)));
+      id, std::move(sender), spec, std::chrono::steady_clock::now(), periodic, std::move(callback)));
    if(status != status_t::ok) return status;
    return id;
 }

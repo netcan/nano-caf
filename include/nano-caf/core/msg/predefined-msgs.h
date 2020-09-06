@@ -20,7 +20,7 @@ CAF_def_message(future_done);
 
 using duration = uint64_t ;
 
-using timer_spec = either<duration, std::chrono::system_clock::time_point>;
+using timer_spec = either<duration, std::chrono::steady_clock::time_point>;
 
 struct timer_id_t {
    explicit timer_id_t(uint64_t id) : id_{id} {}
@@ -39,7 +39,7 @@ CAF_def_message(start_timer_msg,
     (id, timer_id_t),
     (actor, intrusive_actor_ptr),
     (spec, timer_spec),
-    (issue_time_point, std::chrono::system_clock::time_point),
+    (issue_time_point, std::chrono::steady_clock::time_point),
     (is_periodic, bool),
     (callback, std::shared_ptr<timeout_callback_t>));
 
