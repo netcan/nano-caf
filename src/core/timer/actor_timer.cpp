@@ -6,7 +6,6 @@
 #include <nano-caf/core/msg/make_message.h>
 #include <nano-caf/util/likely.h>
 #include <nano-caf/core/actor/actor_handle.h>
-#include <spdlog/spdlog.h>
 
 NANO_CAF_NS_BEGIN
 
