@@ -7,13 +7,16 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/actor/enq_result.h>
+#include <nano-caf/core/cache_line_size.h>
 #include <atomic>
 
 NANO_CAF_NS_BEGIN
 
 struct message;
 
-struct lifo_inbox {
+struct
+alignas(CACHE_LINE_SIZE)
+lifo_inbox {
    lifo_inbox();
    auto enqueue(message* msg) noexcept -> enq_result;
    auto take_all() noexcept -> message*;

@@ -16,8 +16,8 @@
 NANO_CAF_NS_BEGIN
 
 struct sched_actor
-   : resumable
-   , private actor_inbox {
+   : private actor_inbox
+   , resumable {
 
    sched_actor(bool register_to_context = false);
    ~sched_actor();
