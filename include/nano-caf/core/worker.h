@@ -24,7 +24,7 @@ struct resumable;
 struct coordinator;
 
 struct
-//alignas(CACHE_LINE_SIZE)
+alignas(CACHE_LINE_SIZE)
 worker : disable_copy {
    worker(coordinator& coordinator, size_t id)
     : id_(id), coordinator_(coordinator) {}
@@ -54,12 +54,12 @@ private:
    auto get_a_job() noexcept -> resumable*;
 
 private:
-   size_t id_{};
-
    job_list_t job_queue_{};
-   shutdown_notifier shutdown_{};
    cv_notifier cv_{};
 
+   alignas(CACHE_LINE_SIZE)
+   size_t id_{};
+   shutdown_notifier shutdown_{};
    coordinator& coordinator_;
    size_t strategy_{};
    size_t tried_times_{};
