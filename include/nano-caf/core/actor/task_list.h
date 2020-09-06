@@ -18,6 +18,7 @@ struct task_list {
    auto push_front(message* ptr) noexcept -> void;
    auto append_list(task_list& list) noexcept -> void;
    auto prepend_list(task_list& list) noexcept -> void;
+   auto clear() noexcept -> void;
    ~task_list() noexcept;
 
    auto total_task_size() const noexcept -> size_t {

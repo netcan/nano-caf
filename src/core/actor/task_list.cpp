@@ -87,12 +87,16 @@ auto task_list::reset() noexcept -> void {
 }
 
 ///////////////////////////////////////////////////////////
-task_list::~task_list() noexcept {
+auto task_list::clear() noexcept -> void {
    while(head_ != nullptr) {
-      auto ptr = head_;
+      std::unique_ptr<message> ptr{head_};
       head_ = head_->next_;
-      delete ptr;
    }
+}
+
+///////////////////////////////////////////////////////////
+task_list::~task_list() noexcept {
+   clear();
 }
 
 NANO_CAF_NS_END

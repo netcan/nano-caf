@@ -11,7 +11,10 @@
 
 using namespace NANO_CAF_NS;
 
-constexpr size_t total_actors = 10;
+CAF_def_message(forward_msg,
+                (actor,     actor_handle));
+
+constexpr size_t total_actors = 2;
 size_t pong_times[total_actors] = {0};
 
 struct pong_actor_1 : behavior_based_actor {
@@ -19,9 +22,13 @@ struct pong_actor_1 : behavior_based_actor {
 
     auto get_behavior() -> behavior override {
         return {
-            [&](shared_buf_msg_atom, std::shared_ptr<big_msg> msg) {
-                reply<shared_buf_msg>(msg);
+            [&](forward_msg_atom, actor_handle actor) {
+                send<shared_buf_msg>(actor, std::make_shared<big_msg>());
                 pong_times[index]++;
+            },
+            [&](shared_buf_msg_atom, std::shared_ptr<big_msg> msg) {
+               reply<shared_buf_msg>(msg);
+               pong_times[index]++;
             },
             [&](exit_msg_atom, exit_reason) {
             }
@@ -33,13 +40,18 @@ struct pong_actor_1 : behavior_based_actor {
 using namespace std::chrono_literals;
 
 struct ping_actor_1 : behavior_based_actor {
-    actor_handle pong[10];
+    actor_handle pong[total_actors];
 
     auto on_init() noexcept -> void override {
        for(size_t i=0; i<total_actors; i++) {
           pong[i] = spawn<pong_actor_1>(i);
-          send<shared_buf_msg>(pong[i], std::make_shared<big_msg>());
        }
+
+       repeat(1ms, [&]{
+          for(size_t i=0; i<total_actors; i++) {
+             send<forward_msg>(pong[i], pong[(i+1) % total_actors]);
+          }
+       });
     }
 
     auto get_behavior() -> behavior override {
@@ -49,7 +61,7 @@ struct ping_actor_1 : behavior_based_actor {
                 },
                 [&](exit_msg_atom, exit_reason reason) {
                    for(size_t i=0; i<total_actors; i++) {
-                      send<exit_msg>(pong[i], reason);
+                      pong[i].exit_and_release(reason);
                    }
                 }
         };

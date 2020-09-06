@@ -3,6 +3,7 @@
 //
 
 #include <nano-caf/core/system_actor_context.h>
+#include <spdlog/spdlog.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -12,6 +13,7 @@ auto system_actor_context::schedule_job(resumable& job) noexcept -> void {
 
 auto system_actor_context::wait_actors_done() -> void {
    while(actor_registry::get_num_of_actors() > 0) {
+      //spdlog::info("system_actor_context: {} remain", actor_registry::get_num_of_actors());
       std::this_thread::yield();
    }
 }

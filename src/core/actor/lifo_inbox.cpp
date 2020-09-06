@@ -84,9 +84,8 @@ lifo_inbox::~lifo_inbox() noexcept {
 //////////////////////////////////////////////////////////////////
 auto lifo_inbox::destroy(message* result) noexcept -> void {
    while(result != nullptr) {
-      auto p = result;
+      std::unique_ptr<message> p{result};
       result = result->next_;
-      delete p;
    }
 }
 

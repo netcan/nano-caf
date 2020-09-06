@@ -20,6 +20,8 @@ using message_consumer = std::function<auto (message&) -> task_result>;
 
 struct drr_queue : private task_list {
    using task_list::append_list;
+   using task_list::clear;
+
    auto new_round(size_t quota, message_consumer f) noexcept -> new_round_result;
    auto inc_deficit(size_t quota) noexcept -> void;
    auto empty() const noexcept -> bool {
