@@ -10,12 +10,12 @@
 #include <nano-caf/util/disable_copy.h>
 #include <nano-caf/core/cache_line_size.h>
 #include <nano-caf/core/double_end_list.h>
+#include <nano-caf/util/cv_notifier.h>
+#include <nano-caf/core/actor/shutdown_notifier.h>
 #include <condition_variable>
 #include <cstddef>
 #include <memory>
 #include <mutex>
-#include <nano-caf/util/cv_notifier.h>
-#include <nano-caf/core/actor/shutdown_notifier.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -57,7 +57,6 @@ private:
    job_list_t job_queue_{};
    cv_notifier cv_{};
 
-   alignas(CACHE_LINE_SIZE)
    size_t id_{};
    shutdown_notifier shutdown_{};
    coordinator& coordinator_;
