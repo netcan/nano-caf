@@ -4,49 +4,62 @@
 #include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor_system.h>
-#include <nano-caf/core/actor/actor.h>
 #include <iostream>
+#include <spdlog/spdlog.h>
 #include <nano-caf/core/actor/behavior_based_actor.h>
 #include "../ut/test_msgs.h"
 
 using namespace NANO_CAF_NS;
 
-int pong_times_2 = 0;
+constexpr size_t total_actors = 10;
+size_t pong_times[total_actors] = {0};
+
 struct pong_actor_1 : behavior_based_actor {
+   pong_actor_1(size_t i) : index(i) {}
+
     auto get_behavior() -> behavior override {
         return {
             [&](shared_buf_msg_atom, std::shared_ptr<big_msg> msg) {
                 reply<shared_buf_msg>(msg);
-                pong_times_2++;
+                pong_times[index]++;
             },
             [&](exit_msg_atom, exit_reason) {
             }
         };
     }
+   size_t index;
 };
 
+using namespace std::chrono_literals;
+
 struct ping_actor_1 : behavior_based_actor {
-    actor_handle pong;
+    actor_handle pong[10];
 
     auto on_init() noexcept -> void override {
-        pong = spawn<pong_actor_1>();
-        send<shared_buf_msg>(pong, std::make_shared<big_msg>());
+       for(size_t i=0; i<total_actors; i++) {
+          pong[i] = spawn<pong_actor_1>(i);
+          send<shared_buf_msg>(pong[i], std::make_shared<big_msg>());
+       }
     }
 
     auto get_behavior() -> behavior override {
         return {
                 [&](shared_buf_msg_atom, std::shared_ptr<big_msg>) {
-                    send<shared_buf_msg>(pong, std::make_shared<big_msg>());
+                   reply<shared_buf_msg>(std::make_shared<big_msg>());
                 },
                 [&](exit_msg_atom, exit_reason reason) {
-                    send<exit_msg>(pong, reason);
+                   for(size_t i=0; i<total_actors; i++) {
+                      send<exit_msg>(pong[i], reason);
+                   }
                 }
         };
     }
 };
 
 auto run(size_t num_of_worker) {
-   pong_times_2 = 0;
+   for(size_t i=0; i<total_actors; i++) {
+      pong_times[i] = 0;
+   }
 
    actor_system system;
    system.start(num_of_worker);
@@ -59,7 +72,13 @@ auto run(size_t num_of_worker) {
 
    system.shutdown();
 
-   std::cout << "[" << num_of_worker << " threads] ping pong times = " << pong_times_2 * 2 << std::endl;
+   size_t total = 0;
+   for(size_t i=0; i<total_actors; i++) {
+      total += pong_times[i] * 2;
+   }
+
+   std::cout << "[" << num_of_worker << " threads] ping pong times = "
+      << total << std::endl;
 
    for(size_t i=0; i<num_of_worker; i++) {
       std::cout << "worker[" <<i<<"] = " << system.sched_jobs(i) << " jobs" << std::endl;

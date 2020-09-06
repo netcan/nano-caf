@@ -15,7 +15,6 @@
 #include <atomic>
 #include <future>
 
-
 NANO_CAF_NS_BEGIN
 
 struct sched_actor;

@@ -3,7 +3,6 @@
 //
 
 #include <nano-caf/core/lock_free_list.h>
-#include <iostream>
 #include <nano-caf/util/likely.h>
 
 NANO_CAF_NS_BEGIN

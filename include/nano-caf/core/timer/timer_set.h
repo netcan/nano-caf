@@ -9,8 +9,8 @@
 #include <nano-caf/util/cv_notifier.h>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
-#include <map>
 #include <nano-caf/core/actor/shutdown_notifier.h>
+#include <map>
 
 NANO_CAF_NS_BEGIN
 
