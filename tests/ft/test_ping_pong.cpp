@@ -14,7 +14,7 @@ using namespace NANO_CAF_NS;
 CAF_def_message(forward_msg,
                 (actor,     actor_handle));
 
-constexpr size_t total_actors = 2;
+constexpr size_t total_actors = 20;
 size_t pong_times[total_actors] = {0};
 
 struct pong_actor_1 : behavior_based_actor {
@@ -41,6 +41,7 @@ using namespace std::chrono_literals;
 
 struct ping_actor_1 : behavior_based_actor {
     actor_handle pong[total_actors];
+    size_t n = 1;
 
     auto on_init() noexcept -> void override {
        for(size_t i=0; i<total_actors; i++) {
@@ -49,7 +50,10 @@ struct ping_actor_1 : behavior_based_actor {
 
        repeat(1ms, [&]{
           for(size_t i=0; i<total_actors; i++) {
-             send<forward_msg>(pong[i], pong[(i+1) % total_actors]);
+             send<forward_msg>(pong[i], pong[(i+n) % total_actors]);
+          }
+          if(++n == total_actors) {
+             n = 1;
           }
        });
     }
@@ -103,4 +107,7 @@ int main() {
    run(3);
    run(4);
    run(5);
+   run(6);
+   run(7);
+   run(8);
 }

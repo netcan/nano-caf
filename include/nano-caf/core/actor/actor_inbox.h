@@ -27,7 +27,7 @@ private:
    auto reload() noexcept -> void;
 
 private:
-   alignas(CACHE_LINE_SIZE)
+   //alignas(CACHE_LINE_SIZE)
    drr_queue urgent_queue{};
    drr_queue normal_queue{};
 };

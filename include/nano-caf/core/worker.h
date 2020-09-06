@@ -57,6 +57,7 @@ private:
    job_list_t job_queue_{};
    cv_notifier cv_{};
 
+   //alignas(CACHE_LINE_SIZE)
    size_t id_{};
    shutdown_notifier shutdown_{};
    coordinator& coordinator_;
