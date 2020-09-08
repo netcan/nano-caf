@@ -43,6 +43,8 @@ private:
       return task_result::done;
    }
 
+   virtual auto exit_handler() noexcept -> void {}
+
 private:
    auto intrusive_ptr_add_ref_impl() noexcept -> void override {
       intrusive_ptr_add_ref(to_ctl());

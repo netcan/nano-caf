@@ -32,7 +32,6 @@ struct actor_storage  {
 private:
    static auto data_dtor(sched_actor* ptr) -> void {
       auto p = static_cast<internal_actor*>(ptr);
-      p->exit_handler();
       p->~internal_actor();
    }
 
@@ -62,7 +61,7 @@ private:
       }
 
       auto init_handler() noexcept -> void { T::on_init(); }
-      auto exit_handler() noexcept -> void { T::on_exit(); }
+      auto exit_handler() noexcept -> void override { T::on_exit(); }
 
       auto check_futures() {
          for (auto it = futures_.begin(); it != futures_.end(); ) {
