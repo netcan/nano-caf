@@ -9,6 +9,7 @@
 #include <iostream>
 #include <nanobench.h>
 #include <random>
+#include <nano-caf/util/caf_log.h>
 #include "../ut/test_msgs.h"
 
 using namespace NANO_CAF_NS;
@@ -18,7 +19,7 @@ struct future_actor : actor {
    size_t final_result = 0;
 
    auto add(size_t a, size_t b) {
-      //std::cout << "calc future 1" << std::endl;
+      CAF_DEBUG("calc future 1");
       std::random_device r;
       std::default_random_engine regen{r()};
       std::uniform_int_distribution<size_t> uniform(0, 1000);
@@ -34,12 +35,12 @@ struct future_actor : actor {
    auto on_init() noexcept -> void override {
       auto future1 = async(&future_actor::add, this, 5, 3);
       if(!future1.is_ok()) {
-         spdlog::error("future1 failed = {}", future1.failure());
+         CAF_ERROR("future1 failed = {}", future1.failure());
          exit(exit_reason::unhandled_exception);
       }
 
       auto future2 = async([this]() {
-         //std::cout << "calc future 2" << std::endl;
+         CAF_DEBUG("calc future 2");
          size_t result = 0;
           size_t a = 20;
           size_t b = 4;
@@ -54,12 +55,12 @@ struct future_actor : actor {
          return result;
       });
       if(!future2.is_ok()) {
-         spdlog::error("future2 failed = {}", future2.failure());
+         CAF_ERROR("future2 failed = {}", future2.failure());
          exit(exit_reason::unhandled_exception);
       }
 
       auto future3 = async([this]() {
-         //std::cout << "calc future 3" << std::endl;
+         CAF_DEBUG("calc future 3");
          size_t result = 0;
           size_t a = 20;
           size_t b = 42;
@@ -75,46 +76,46 @@ struct future_actor : actor {
       });
 
       if(!future3.is_ok()) {
-         spdlog::error("future3 failed = {}", future3.failure());
+         CAF_ERROR("future3 failed = {}", future3.failure());
          exit(exit_reason::unhandled_exception);
       }
 
       auto result4 = with(future1, future2, future3)(
          [this](auto r1, auto  r2, auto r3) {
             final_result = r1 + r2 + r3;
-            //std::cout << "all futures done = " << final_result << std::endl;
+            CAF_DEBUG("all futures done = {}", final_result);
             exit(exit_reason::normal);
          });
 
       if(result4 != status_t::ok) {
-         spdlog::error("result4 failed = {}", result4);
+         CAF_ERROR("result4 failed = {}", result4);
          exit(exit_reason::unhandled_exception);
       }
 
       auto result1 = with(future1)([]([[maybe_unused]]auto r1) {
-         //std::cout << "async future1 done = " << r1 << std::endl;
+         CAF_DEBUG("async future1 done = {}", r1);
       });
 
       if(result1 != status_t::ok) {
-         spdlog::error("result1 failed = {}", result1);
+         CAF_ERROR("result1 failed = {}", result1);
          exit(exit_reason::unhandled_exception);
       }
 
       auto result2 = with(future2)([]([[maybe_unused]] auto r2) {
-         //std::cout << "async future2 done = " << r2 << std::endl;
+         CAF_DEBUG("async future2 done = {}", r2);
       });
 
       if(result2 != status_t::ok) {
-         spdlog::error("result2 failed = {}", result2);
+         CAF_ERROR("result2 failed = {}", result2);
          exit(exit_reason::unhandled_exception);
       }
 
       auto result3 = with(future3)([]([[maybe_unused]] auto r3) {
-         //std::cout << "async future3 done = " << r3 << std::endl;
+         CAF_DEBUG("async future3 done = {}", r3);
       });
 
       if(result3 != status_t::ok) {
-         spdlog::error("result3 failed = {}", result3);
+         CAF_ERROR("result3 failed = {}", result3);
          exit(exit_reason::unhandled_exception);
       }
 
@@ -152,6 +153,7 @@ void run_on_thread(size_t num_of_threads, char const*) {
 #define __(n) n, "3 tasks on " #n " threads"
 
 int main() {
+   //spdlog::set_level(spdlog::level::debug);
    run_on_thread(__(1));
    run_on_thread(__(2));
    run_on_thread(__(3));

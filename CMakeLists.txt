@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
       -Wcast-align -Wunused -Woverloaded-virtual -Wconversion \
       -Wsign-conversion -Wdouble-promotion -Wformat=2 \
-      -Wno-invalid-offsetof -fno-rtti -DSPDLOG_NO_EXCEPTIONS")
+      -Wno-invalid-offsetof -fno-rtti -DDEBUG=1 -DSPDLOG_NO_EXCEPTIONS \
+      -Wno-builtin-macro-redefined -D'__FILE__=\"$(subst $(realpath ${CMAKE_SOURCE_DIR})/,,$(abspath $<))\"'")
 
 #if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
@@ -113,7 +114,7 @@ add_library(nano_caf
         include/nano-caf/util/suppress_warning.h
         include/nano-caf/util/cpp_attribute.h
         include/nano-caf/util/ptr_trait.h
-        include/nano-caf/util/result_t.h include/nano-caf/core/system_actor_context.h include/nano-caf/core/timer/actor_timer.h src/core/timer/actor_timer.cpp include/nano-caf/util/cv_notifier.h include/nano-caf/core/timer/timer_set.h src/core/timer/timer_set.cpp include/nano-caf/core/actor/shutdown_notifier.h include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp)
+        include/nano-caf/util/result_t.h include/nano-caf/core/system_actor_context.h include/nano-caf/core/timer/actor_timer.h src/core/timer/actor_timer.cpp include/nano-caf/util/cv_notifier.h include/nano-caf/core/timer/timer_set.h src/core/timer/timer_set.cpp include/nano-caf/core/actor/shutdown_notifier.h include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp include/nano-caf/util/caf_log.h)
 
 add_executable(nano_caf-test
         third-party/catch.hpp
