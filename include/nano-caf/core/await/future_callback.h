@@ -34,7 +34,8 @@ private:
 
 template<typename ... Args>
 struct future_set {
-   future_set(Args& ... args) : futures_{std::move(args)...} {}
+   template<typename ... Futures>
+   future_set(Futures&& ... futures) : futures_{std::forward<Futures>(futures)...} {}
 
    template<typename Tp>
    static constexpr auto is_future_done(const Tp& future) noexcept -> bool {
@@ -95,7 +96,7 @@ namespace detail {
             auto l = [handler = std::move(f_handler), fail = std::move(f_fail)](auto result) {
                result.match(handler, fail);
             };
-            return with_futures(std::move(l), *either_future_)
+            return with_futures(std::move(l), std::move(*either_future_))
                .with_value([&](auto future_cb) { return registry_(future_cb); });
          } else {
             return either_future_.failure();
@@ -148,7 +149,7 @@ namespace async {
    }
 
    template<typename T>
-   auto is_future_valid(const either<T, status_t>& f) -> std::enable_if_t<is_future_type<T>, bool> {
+   auto is_future_valid(const result_t<T>& f) -> std::enable_if_t<is_future_type<T>, bool> {
       return f.match(
          [](auto& f) { return f.valid(); },
          [](auto) { return false; });
@@ -160,8 +161,8 @@ namespace async {
    }
 
    template<typename T>
-   auto get_future(either<T, status_t>& f) -> std::enable_if_t<is_future_type<T>, T&> {
-      return f.left();
+   auto get_future(result_t<T>& f) -> std::enable_if_t<is_future_type<T>, T&> {
+      return *f;
    }
 }
 

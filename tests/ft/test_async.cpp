@@ -33,7 +33,8 @@ struct future_actor : actor {
 
    auto on_init() noexcept -> void override {
       auto future1 = async(&future_actor::add, this, 5, 3);
-      if(!future1.is_left()) {
+      if(!future1.is_ok()) {
+         spdlog::error("future1 failed = {}", future1.failure());
          exit(exit_reason::unhandled_exception);
       }
 
@@ -52,7 +53,8 @@ struct future_actor : actor {
 
          return result;
       });
-      if(!future2.is_left()) {
+      if(!future2.is_ok()) {
+         spdlog::error("future2 failed = {}", future2.failure());
          exit(exit_reason::unhandled_exception);
       }
 
@@ -72,35 +74,51 @@ struct future_actor : actor {
          return result;
       });
 
-      if(!future3.is_left()) {
+      if(!future3.is_ok()) {
+         spdlog::error("future3 failed = {}", future3.failure());
          exit(exit_reason::unhandled_exception);
       }
 
-      auto result1 = with(future1)([](unsigned long) {
-         //std::cout << "async future1 done = " << r1 << std::endl;
-      });
-
-      if(!result1) {
-         exit(exit_reason::unhandled_exception);
-      }
-
-      auto result2 = with(future2)([](unsigned long) {
-         //std::cout << "async future2 done = " << r2 << std::endl;
-      });
-
-      if(!result2) {
-         exit(exit_reason::unhandled_exception);
-      }
-
-      auto result3 = with(future1, future2, future3)(
+      auto result4 = with(future1, future2, future3)(
          [this](auto r1, auto  r2, auto r3) {
             final_result = r1 + r2 + r3;
+            //std::cout << "all futures done = " << final_result << std::endl;
             exit(exit_reason::normal);
          });
 
-      if(!result3) {
+      if(result4 != status_t::ok) {
+         spdlog::error("result4 failed = {}", result4);
          exit(exit_reason::unhandled_exception);
       }
+
+      auto result1 = with(future1)([]([[maybe_unused]]auto r1) {
+         //std::cout << "async future1 done = " << r1 << std::endl;
+      });
+
+      if(result1 != status_t::ok) {
+         spdlog::error("result1 failed = {}", result1);
+         exit(exit_reason::unhandled_exception);
+      }
+
+      auto result2 = with(future2)([]([[maybe_unused]] auto r2) {
+         //std::cout << "async future2 done = " << r2 << std::endl;
+      });
+
+      if(result2 != status_t::ok) {
+         spdlog::error("result2 failed = {}", result2);
+         exit(exit_reason::unhandled_exception);
+      }
+
+      auto result3 = with(future3)([]([[maybe_unused]] auto r3) {
+         //std::cout << "async future3 done = " << r3 << std::endl;
+      });
+
+      if(result3 != status_t::ok) {
+         spdlog::error("result3 failed = {}", result3);
+         exit(exit_reason::unhandled_exception);
+      }
+
+
    }
 
    auto handle_message(message&) noexcept -> task_result override {
@@ -108,16 +126,19 @@ struct future_actor : actor {
    }
 };
 
-void run_on_thread(size_t num_of_threads, char const* name) {
+void run_on_thread(size_t num_of_threads, char const*) {
    actor_system system;
    system.start(num_of_threads);
 
-   ankerl::nanobench::Bench().minEpochIterations(109).run(name, [&] {
-      auto me = system.spawn<future_actor>();
-      me.send<test_message>(1);
-      me.wait_for_exit();
-      me.release();
-   });
+//   ankerl::nanobench::Bench().minEpochIterations(109).run(name, [&] {
+     for(size_t i=0; i<1000; i++) {
+        auto me = system.spawn<future_actor>();
+        //me.send<test_message>(1);
+        me.wait_for_exit();
+        me.release();
+     }
+
+//   });
 
    system.shutdown();
 

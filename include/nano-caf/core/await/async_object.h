@@ -16,27 +16,25 @@
 
 NANO_CAF_NS_BEGIN
 
-template <typename F, typename R>
+template <typename F, typename R, typename = std::enable_if_t<std::is_invocable_r_v<R, F>>>
 struct async_object : resumable {
    async_object(intrusive_actor_ptr sender, F&& f)
-      : f_{std::move(f)}
+      : task_{std::move(f)}
       , sender_{sender}
       {}
 
    virtual auto resume() noexcept -> result override {
-      auto result = f_();
-      promise_.set_value(result);
+      task_();
       sender_.send<future_done, static_cast<message::category>(message::future)>();
       return result::done;
    }
 
    auto get_future() {
-      return promise_.get_future();
+      return task_.get_future();
    }
 
 private:
-   std::promise<R> promise_;
-   F f_;
+   std::packaged_task<R()> task_;
    actor_handle sender_;
 };
 

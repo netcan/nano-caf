@@ -13,6 +13,7 @@
 #include <nano-caf/core/await/future_callback.h>
 #include <vector>
 #include <unordered_map>
+#include <spdlog/spdlog.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -64,6 +65,7 @@ private:
       auto exit_handler() noexcept -> void override { T::on_exit(); }
 
       auto check_futures() {
+
          for (auto it = futures_.begin(); it != futures_.end(); ) {
             if ((*it)->invoke()) {
                it = futures_.erase(it);
@@ -73,19 +75,22 @@ private:
          }
       }
 
+      auto handle_timeout(message& msg) {
+         auto timeout = msg.body<timeout_msg>();
+         if(timeout->callback) {
+            (*timeout->callback)();
+            return task_result::resume;
+         }
+         return T::handle_message(msg);
+      }
+
       auto user_defined_handle_msg(message& msg) noexcept -> task_result override {
          if(msg.is_future_response()) {
             check_futures();
             return task_result::resume;
          } else if(msg.msg_type_id_ == timeout_msg::type_id) {
-            auto timeout = msg.body<timeout_msg>();
-            if(timeout->callback) {
-               (*timeout->callback)();
-               return task_result::resume;
-            }
-            return T::handle_message(msg);
-         }
-         else {
+           return handle_timeout(msg);
+         } else {
             return T::handle_message(msg);
          }
       }

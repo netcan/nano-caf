@@ -67,6 +67,7 @@ auto sched_actor::handle_message_internal(message& msg) noexcept -> task_result 
    if(__unlikely(msg.msg_type_id_ == exit_msg::type_id)) {
       exit_(msg.body<exit_msg>()->reason);
    } else if(__unlikely(result == task_result::done)) {
+      spdlog::info("sched_actor exit");
       exit_(exit_reason::normal);
    }
 

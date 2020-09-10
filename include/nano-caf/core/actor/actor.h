@@ -24,7 +24,7 @@ private:
    using async_future_t = std::shared_future<typename callable_trait<std::decay_t<F>>::result_type>;
 
    template<typename F>
-   using async_future_type = either<async_future_t<F>, status_t>;
+   using async_future_type = result_t<async_future_t<F>>;
 
 private:
    inline auto self_handle() const noexcept -> intrusive_actor_ptr override { return &self(); }

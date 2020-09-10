@@ -82,11 +82,6 @@ private:
       return nullptr;
    }
 
-   template <typename F, typename R>
-   friend struct async_object;
-
-public:
-
 public:
    message* next_ {};
 

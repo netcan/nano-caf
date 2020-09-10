@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
       -Wcast-align -Wunused -Woverloaded-virtual -Wconversion \
-      -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 \
-      -Wno-invalid-offsetof  ")
+      -Wsign-conversion -Wdouble-promotion -Wformat=2 \
+      -Wno-invalid-offsetof -fno-rtti -DSPDLOG_NO_EXCEPTIONS")
 
 #if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
