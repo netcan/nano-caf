@@ -99,9 +99,6 @@ add_library(nano_caf
         include/nano-caf/core/actor/task_stack.h
         include/nano-caf/core/actor/task_result.h
         src/core/actor/task_stack.cpp
-        include/nano-caf/util/macro_ro_meta_data.h
-        include/nano-caf/util/macro_lock_meta_data.h
-        include/nano-caf/util/macro_meta_common.h
         include/nano-caf/util/maybe.h
         include/nano-caf/core/msg/request.h
         include/nano-caf/util/type_id_t.h
