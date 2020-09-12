@@ -36,6 +36,9 @@ private:
    auto check_timer_due(const shutdown_notifier& shutdown) -> status_t;
    auto handle_msg(std::unique_ptr<message> msg) -> void;
 
+   template<typename PRED, typename OP>
+   auto timer_find_and_modify(intptr_t actor_id, PRED&& pred, OP&& op) -> void;
+
 private:
    using timers = std::multimap<time_point, std::unique_ptr<message>>;
 

@@ -6,6 +6,7 @@
 #include <nano-caf/util/likely.h>
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/core/actor/shutdown_notifier.h>
+#include <nano-caf/util/caf_log.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -21,8 +22,6 @@ namespace {
    }
 }
 
-#define timer_due(timer) timer->first
-
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    if(__unlikely(msg == nullptr)) return status_t::null_msg;
@@ -31,10 +30,13 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    if(__unlikely(start_msg == nullptr)) return status_t::failed;
 
    auto due = get_due(start_msg);
-   if(__unlikely(due < std::chrono::steady_clock::now())) {
+   while(__unlikely(due < std::chrono::steady_clock::now())) {
       send_timeout_msg_to_actor(start_msg);
       if(!start_msg->is_periodic) {
          return status_t::ok;
+      } else {
+         start_msg->issue_time_point = due;
+         due = get_due(start_msg);
       }
    }
 
@@ -46,44 +48,48 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto timer_set::remove_timer(intptr_t actor_id, timer_id_t msg_id) -> void {
+template<typename PRED, typename OP>
+auto timer_set::timer_find_and_modify(intptr_t actor_id, PRED&& pred, OP&& op) -> void {
    auto range = actor_indexer_.equal_range(actor_id);
-   for(auto i = range.first; i != range.second; ++i) {
-      if(i->second->second->body<start_timer_msg>()->id == msg_id) {
-         timers_.erase(i->second);
-         actor_indexer_.erase(i);
-         break;
-      }
+   auto result = std::find_if(range.first, range.second, std::forward<PRED>(pred));
+   if(result != range.second) {
+      op(result);
    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+auto timer_set::remove_timer(intptr_t actor_id, timer_id_t msg_id) -> void {
+   timer_find_and_modify(actor_id,
+       [&](auto const& item) {
+          auto&& [_, msg] = *item.second;
+          return msg->template body<start_timer_msg>()->id == msg_id;
+       },
+       [&](auto const& result) {
+          timers_.erase(result->second);
+          actor_indexer_.erase(result);
+       });
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_set::remove_index(intptr_t actor_id, const timers::iterator& iterator) -> void {
-   auto range = actor_indexer_.equal_range(actor_id);
-   for(auto i = range.first; i != range.second; ++i) {
-      if(i->second == iterator) {
-         actor_indexer_.erase(i);
-         break;
-      }
-   }
+   timer_find_and_modify(actor_id,
+       [&](auto const& item)      { return item.second == iterator; },
+       [this](auto const& result) { actor_indexer_.erase(result); });
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_set::update_index(intptr_t actor_id, timers::iterator const& from, timers::iterator const& to) -> void {
-   auto range = actor_indexer_.equal_range(actor_id);
-   for(auto i = range.first; i != range.second; ++i) {
-      if(i->second == from) {
-         i->second = to;
-         break;
-      }
-   }
+   timer_find_and_modify(actor_id,
+       [&](auto const& item) { return item.second == from; },
+       [&](auto& result)     { result->second = to; });
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_set::clear_actor_timers(intptr_t actor_id) -> void {
    auto range = actor_indexer_.equal_range(actor_id);
-   for(auto i = range.first; i != range.second; ++i) {
-      timers_.erase(i->second);
-   }
+   std::for_each(range.first, range.second, [this](auto const& elem){
+      timers_.erase(elem.second);
+   });
    actor_indexer_.erase(range.first, range.second);
 }
 
@@ -142,25 +148,27 @@ auto timer_set::check_timer_due(const shutdown_notifier& shutdown) -> status_t {
          return status_t::system_shutdown;
       }
 
-      auto timer = timers_.begin();
-      if(timer_due(timer) > std::chrono::steady_clock::now()) {
+      auto timer_iter = timers_.begin();
+      auto&& [due, msg] = *timer_iter;
+
+      if(due > std::chrono::steady_clock::now()) {
          break;
       }
 
-      auto msg = timer->second->body<start_timer_msg>();
+      auto timer_msg = msg->body<start_timer_msg>();
 
-      send_timeout_msg_to_actor(msg);
+      send_timeout_msg_to_actor(timer_msg);
 
-      if(msg->is_periodic) {
-         msg->issue_time_point = timer_due(timer);
-         auto sched_msg = std::move(timer->second);
+      if(timer_msg->is_periodic) {
+         timer_msg->issue_time_point = due;
+         auto sched_msg = std::move(timer_iter->second);
 
-         timers_.erase(timer);
-         auto iterator = timers_.emplace(get_due(msg), std::move(sched_msg));
-         update_index(msg->actor.actor_id(), timer, iterator);
+         timers_.erase(timer_iter);
+         auto iterator = timers_.emplace(get_due(timer_msg), std::move(sched_msg));
+         update_index(timer_msg->actor.actor_id(), timer_iter, iterator);
       } else {
-         timers_.erase(timer);
-         remove_index(msg->actor.actor_id(), timer);
+         timers_.erase(timer_iter);
+         remove_index(timer_msg->actor.actor_id(), timer_iter);
       }
    }
 
