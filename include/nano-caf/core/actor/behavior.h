@@ -49,13 +49,13 @@ namespace detail {
             handler(*body, f_);
             auto callback = msg.get_request_result_handler<unit_t>();
             if(callback != nullptr) {
-               callback->handle(unit);
+               callback->handle(std::move(unit), msg.sender_);
             }
          } else {
             auto result = handler(*body, f_);
             auto callback = msg.get_request_result_handler<result_type>();
             if(callback != nullptr) {
-               callback->handle(result);
+               callback->handle(std::move(result), msg.sender_);
             }
          }
 

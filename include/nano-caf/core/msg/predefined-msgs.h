@@ -17,12 +17,13 @@ NANO_CAF_NS_BEGIN
 
 CAF_def_message(exit_msg, (reason, exit_reason));
 
-struct future_done_notifier {
-   virtual auto on_future_done() -> void = 0;
-   virtual ~future_done_notifier() = default;
+struct done_notifier {
+   virtual auto on_done() -> void = 0;
+   virtual ~done_notifier() = default;
 };
 
-CAF_def_message(future_done, (notifier, std::unique_ptr<future_done_notifier>));
+CAF_def_message(future_done, (notifier, std::unique_ptr<done_notifier>));
+CAF_def_message(reply_msg, (notifier, std::unique_ptr<done_notifier>));
 
 using duration = uint64_t ;
 

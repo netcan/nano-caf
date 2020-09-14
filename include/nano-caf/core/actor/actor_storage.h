@@ -11,6 +11,7 @@
 #include <nano-caf/core/actor/actor_control_block.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/await/future_callback.h>
+#include <nano-caf/util/caf_log.h>
 #include <vector>
 #include <unordered_map>
 #include <spdlog/spdlog.h>
@@ -84,12 +85,15 @@ private:
       }
 
       auto user_defined_handle_msg(message& msg) noexcept -> task_result override {
-         if(msg.is_future_response()) {
-            msg.body<future_done>()->notifier->on_future_done();
-            check_futures();
+         if(msg.is_reply()) {
+            msg.body<reply_msg>()->notifier->on_done();
             return task_result::resume;
          } else if(msg.msg_type_id_ == timeout_msg::type_id) {
            return handle_timeout(msg);
+         } else if(msg.is_future_response()) {
+            msg.body<future_done>()->notifier->on_done();
+            check_futures();
+            return task_result::resume;
          } else {
             return T::handle_message(msg);
          }

@@ -6,12 +6,13 @@
 #define NANO_CAF_REQUEST_RESULT_HANDLER_H
 
 #include <nano-caf/nano-caf-ns.h>
+#include <nano-caf/core/actor/intrusive_actor_ptr.h>
 
 NANO_CAF_NS_BEGIN
 
 template<typename T>
 struct request_result_handler {
-   virtual auto handle(const T&) -> void = 0;
+   virtual auto handle(T&&, intrusive_actor_ptr&) -> void = 0;
    virtual ~request_result_handler() = default;
 };
 

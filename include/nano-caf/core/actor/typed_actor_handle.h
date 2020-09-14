@@ -37,22 +37,19 @@ struct typed_actor_handle : private actor_handle {
                std::forward<decltype(handler)>(handler),
                std::forward<Args>(args)...);
       };
-      return requester::then_rsp<METHOD_ATOM, decltype(l)>(std::move(l));
+      return requester::then_rsp<METHOD_ATOM, decltype(l), requester::wait_rsp>(std::move(l));
    }
 
    template<typename METHOD_ATOM, message::category CATEGORY = message::normal, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
-   auto request(intrusive_actor_ptr from, Args&& ... args) -> result_t<requester::future_type<METHOD_ATOM>> {
-      requester::inter_actor_promise_handler<requester::result_type<METHOD_ATOM>> promise{ from };
-      auto future = promise.promise_.get_future();
-      if(auto result = actor_handle::request<typename METHOD_ATOM::msg_type, CATEGORY>(
-         from,
-         promise,
-         std::forward<Args>(args)...); result != status_t::ok) {
-         return result;
-      }
-
-      return future;
+   auto request(intrusive_actor_ptr from, Args&& ... args) {
+      auto l = [&, from](auto&& handler) {
+         return actor_handle::request<typename METHOD_ATOM::msg_type, CATEGORY>(
+            from,
+            std::forward<decltype(handler)>(handler),
+            std::forward<Args>(args)...);
+      };
+      return requester::then_rsp<METHOD_ATOM, decltype(l), requester::request_rsp_base>(std::move(l));
    }
 };
 

@@ -21,10 +21,12 @@ struct message {
       urgent_mask  = uint64_t(1) << 1,
       future_mask  = uint64_t(1) << 2,
       request_mask = uint64_t(1) << 3,
+      reply_mask   = uint64_t(1) << 4,
    };
 
    enum : uint64_t {
-      future = future_mask | normal_mask
+      future = future_mask | normal_mask,
+      reply  = reply_mask | normal_mask
    };
 
    enum category : uint64_t {
@@ -49,6 +51,10 @@ struct message {
 
    auto is_future_response() const noexcept -> bool {
       return (category_ & future_mask);
+   }
+
+   auto is_reply() const noexcept -> bool {
+      return (category_ & reply_mask);
    }
 
    auto is_request() const noexcept -> bool {

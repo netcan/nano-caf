@@ -3,11 +3,13 @@ project(nano_caf)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
-      -Wcast-align -Wunused -Woverloaded-virtual -Wconversion \
-      -Wsign-conversion -Wdouble-promotion -Wformat=2 \
-      -Wno-invalid-offsetof -fno-rtti -DDEBUG=1 -DSPDLOG_NO_EXCEPTIONS \
-      -Wno-builtin-macro-redefined -D'__FILE__=\"$(subst $(realpath ${CMAKE_SOURCE_DIR})/,,$(abspath $<))\"'")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
+#      -Wcast-align -Wunused -Woverloaded-virtual -Wconversion \
+#      -Wsign-conversion -Wdouble-promotion -Wformat=2 \
+#      -Wno-invalid-offsetof -fno-rtti -DDEBUG=1 -DSPDLOG_NO_EXCEPTIONS \
+#      -Wno-builtin-macro-redefined -D'__FILE__=\"$(subst $(realpath ${CMAKE_SOURCE_DIR})/,,$(abspath $<))\"'")
+
+set(CMAKE_CXX_FLAGS, "${CMAKE_CXX_FLAGS} -Wno-builtin-macro-redefined -D'__FILE__=\"$(subst $(realpath ${CMAKE_SOURCE_DIR})/,,$(abspath $<))\"'")
 
 #if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}

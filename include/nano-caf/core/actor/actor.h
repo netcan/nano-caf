@@ -51,9 +51,7 @@ protected:
 
    template<typename METHOD, typename A, typename ... Args>
    inline auto request(typed_actor_handle<A>& to, Args&&...args)  {
-      auto result = to.template request<METHOD>(self_handle(), std::forward<Args>(args)...);
-      auto l = [this](auto future_cb) { return register_future_callback(future_cb); };
-      return detail::request_then<decltype(l), decltype(result)>{l, result};
+      return to.template request<METHOD>(self_handle(), std::forward<Args>(args)...);
    }
 
    template<typename ... Args>

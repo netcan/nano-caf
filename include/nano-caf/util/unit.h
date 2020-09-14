@@ -15,7 +15,7 @@ struct unit_t {
    auto operator!=(const unit_t&) const -> bool { return false; }
 };
 
-inline constexpr unit_t unit{};
+inline unit_t unit{};
 
 NANO_CAF_NS_END
 
