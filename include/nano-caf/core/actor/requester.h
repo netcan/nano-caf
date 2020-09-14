@@ -173,11 +173,13 @@ public:
    using base::base;
 
    template<typename H_RESULT, typename H_FAIL>
-   auto then(H_RESULT&& h_result, H_FAIL&& h_fail) {
+   auto then(H_RESULT&& h_result, H_FAIL&& h_fail) -> status_t {
       delegate_request_handler<result_type<METHOD_ATOM>, H_RESULT> handler{ std::forward<H_RESULT>(h_result) };
-      if(auto status = base::invoke(std::move(handler)); status != status_t::ok) {
+      auto status = base::invoke(std::move(handler));
+      if(status != status_t::ok) {
          h_fail(status);
       }
+      return status;
    }
 
    template<typename H_RESULT>
