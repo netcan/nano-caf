@@ -24,11 +24,6 @@ struct message {
       reply_mask   = uint64_t(1) << 4,
    };
 
-   enum : uint64_t {
-      future = future_mask | normal_mask,
-      reply  = reply_mask | normal_mask
-   };
-
    enum category : uint64_t {
       normal = normal_mask,
       urgent = urgent_mask,
@@ -47,14 +42,6 @@ struct message {
 
    auto is_urgent() const noexcept -> bool {
       return (category_ & urgent_mask);
-   }
-
-   auto is_future_response() const noexcept -> bool {
-      return (category_ & future_mask);
-   }
-
-   auto is_reply() const noexcept -> bool {
-      return (category_ & reply_mask);
    }
 
    auto is_request() const noexcept -> bool {

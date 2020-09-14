@@ -90,7 +90,7 @@ struct delegate_request_handler : request_result_handler<T> {
 
    auto handle(T&& value, intrusive_actor_ptr& sender) -> void override {
       if(static_cast<bool>(sender)) {
-         actor_handle{sender}.send<reply_msg, static_cast<message::category>(message::reply)>(
+         actor_handle{sender}.send<reply_msg>(
             std::unique_ptr<done_notifier>(new reply_done_notifier{std::move(h_result_), std::move(value)}));
       } else {
          h_result_(value);

@@ -40,7 +40,7 @@ struct async_object : resumable, private done_notifier {
          delete this;
       } else {
          // has to be sent here, otherwise this message might has arrived at receiver side & been deleted already.
-         sender_.send<future_done, static_cast<message::category>(message::future)>(std::unique_ptr<done_notifier>(this));
+         sender_.send<future_done>(std::unique_ptr<done_notifier>(this));
       }
    }
 

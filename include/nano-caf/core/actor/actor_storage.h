@@ -85,17 +85,18 @@ private:
       }
 
       auto user_defined_handle_msg(message& msg) noexcept -> task_result override {
-         if(msg.is_reply()) {
-            msg.body<reply_msg>()->notifier->on_done();
-            return task_result::resume;
-         } else if(msg.msg_type_id_ == timeout_msg::type_id) {
-           return handle_timeout(msg);
-         } else if(msg.is_future_response()) {
-            msg.body<future_done>()->notifier->on_done();
-            check_futures();
-            return task_result::resume;
-         } else {
-            return T::handle_message(msg);
+         switch(msg.msg_type_id_) {
+            case reply_msg::type_id:
+               msg.body<reply_msg>()->notifier->on_done();
+               return task_result::resume;
+            case timeout_msg::type_id:
+               return handle_timeout(msg);
+            case future_done::type_id:
+               msg.body<future_done>()->notifier->on_done();
+               check_futures();
+               return task_result::resume;
+            default:
+               return T::handle_message(msg);
          }
       }
 
