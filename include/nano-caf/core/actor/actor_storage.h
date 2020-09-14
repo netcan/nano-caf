@@ -65,7 +65,6 @@ private:
       auto exit_handler() noexcept -> void override { T::on_exit(); }
 
       auto check_futures() {
-
          for (auto it = futures_.begin(); it != futures_.end(); ) {
             if ((*it)->invoke()) {
                it = futures_.erase(it);
@@ -86,6 +85,7 @@ private:
 
       auto user_defined_handle_msg(message& msg) noexcept -> task_result override {
          if(msg.is_future_response()) {
+            msg.body<future_done>()->notifier->on_future_done();
             check_futures();
             return task_result::resume;
          } else if(msg.msg_type_id_ == timeout_msg::type_id) {
@@ -110,7 +110,6 @@ private:
       }
 
       std::vector<std::unique_ptr<future_callback>> futures_{};
-
    };
 
    union { internal_actor value_; };

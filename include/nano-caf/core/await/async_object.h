@@ -17,24 +17,42 @@
 NANO_CAF_NS_BEGIN
 
 template <typename F, typename R, typename = std::enable_if_t<std::is_invocable_r_v<R, F>>>
-struct async_object : resumable {
+struct async_object : resumable, private future_done_notifier {
    async_object(intrusive_actor_ptr sender, F&& f)
-      : task_{std::move(f)}
+      : f_{std::move(f)}
       , sender_{sender}
       {}
 
    virtual auto resume() noexcept -> result override {
-      task_();
-      sender_.send<future_done, static_cast<message::category>(message::future)>();
+      result_.emplace(std::move(f_()));
       return result::done;
    }
 
    auto get_future() {
-      return task_.get_future();
+      if(future_ == nullptr) {
+         future_ = std::make_shared<std::optional<R>>(std::nullopt);
+      }
+      return future_;
+   }
+
+   virtual auto intrusive_ptr_release_impl() noexcept -> void override {
+      if(!result_) {
+         delete this;
+      } else {
+         // has to be sent here, otherwise this message might has arrived at receiver side & been deleted already.
+         sender_.send<future_done, static_cast<message::category>(message::future)>(std::unique_ptr<future_done_notifier>(this));
+      }
    }
 
 private:
-   std::packaged_task<R()> task_;
+   virtual auto on_future_done() -> void override {
+      *future_ = std::move(result_);
+   }
+
+private:
+   F f_;
+   std::optional<R> result_;
+   std::shared_ptr<std::optional<R>> future_;
    actor_handle sender_;
 };
 

@@ -11,8 +11,7 @@
 
 NANO_CAF_NS_BEGIN
 
-struct resumable : list_element_t
- {
+struct resumable : list_element_t {
    enum class result {
       resume_later,
       awaiting_message,
@@ -46,9 +45,7 @@ private:
 
 private:
    virtual auto intrusive_ptr_add_ref_impl() noexcept -> void {}
-   virtual auto intrusive_ptr_release_impl() noexcept -> void {
-      delete this;
-   }
+   virtual auto intrusive_ptr_release_impl() noexcept -> void = 0;
 
    size_t served_worker_{std::numeric_limits<size_t>::max()};
 };

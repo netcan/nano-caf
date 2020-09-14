@@ -21,7 +21,7 @@ struct actor : actor_context {
 
 private:
    template<typename F>
-   using async_future_t = std::shared_future<typename callable_trait<std::decay_t<F>>::result_type>;
+   using async_future_t = std::shared_ptr<std::optional<typename callable_trait<std::decay_t<F>>::result_type>>;
 
    template<typename F>
    using async_future_type = result_t<async_future_t<F>>;
@@ -44,7 +44,7 @@ protected:
       if(obj == nullptr) {
          return status_t::out_of_mem;
       }
-      auto result = obj->get_future().share();
+      auto result = obj->get_future();
       self().context().schedule_job(*obj);
       return result;
    }
@@ -59,10 +59,10 @@ protected:
    template<typename ... Args>
    inline auto with(Args&& ... args) {
       return [&](auto&& callback) {
-         if(((!async::is_future_valid(args)) || ...) ) {
+         if((!async::is_optional_type<std::decay_t<decltype(args)>> || ...) ) {
             return status_t::invalid_data;
          }
-         return detail::with_futures(std::forward<decltype(callback)>(callback), async::get_future(args)...)
+         return detail::with_optionals(std::forward<decltype(callback)>(callback), async::get_optional(args)...)
             .with_value([this](auto future_cb) { return register_future_callback(future_cb); });
       };
    }
