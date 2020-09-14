@@ -28,16 +28,12 @@ struct sched_actor
 
 protected:
    auto exit_(exit_reason reason) -> void {
-      if(!(flags_ & exiting_flag)) {
-         flags_ |= exiting_flag;
+      if(!flags_.exiting_flag) {
+         flags_.exiting_flag = 1;
          reason_ = reason;
       }
    }
 private:
-   enum : uint32_t {
-      exiting_flag = 0x0000'0001,
-   };
-
    auto handle_message_internal(message& msg) noexcept -> task_result;
    virtual auto user_defined_handle_msg(message&) noexcept -> task_result {
       return task_result::done;
@@ -66,14 +62,16 @@ protected:
    }
 
    auto user_timer_created() {
-      timer_created_ = true;
+      flags_.timer_created = 1;
    }
 private:
    message* current_message_{};
-   uint32_t flags_{};
+   struct {
+      uint8_t exiting_flag:1;
+      uint8_t registered:1;
+      uint8_t timer_created:1;
+   } flags_{};
    exit_reason reason_;
-   bool registered_{false};
-   bool timer_created_{false};
 };
 
 NANO_CAF_NS_END

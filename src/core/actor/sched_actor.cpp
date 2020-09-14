@@ -11,16 +11,16 @@ NANO_CAF_NS_BEGIN
 constexpr size_t max_throughput = 3;
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-sched_actor::sched_actor(bool register_to_context)
-   : registered_(register_to_context) {
+sched_actor::sched_actor(bool register_to_context) {
    if(register_to_context) {
       to_ctl()->context().register_actor();
+      flags_.registered = 1;
    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 sched_actor::~sched_actor() {
-   if(registered_) {
+   if(flags_.registered) {
       to_ctl()->context().deregister_actor();
    }
 }
@@ -43,7 +43,7 @@ auto sched_actor::resume() noexcept  -> resumable::result {
       });
 
       if(__unlikely(!result)) {
-         if(timer_created_) {
+         if(flags_.timer_created) {
             to_ctl()->context().clear_actor_timer(to_ctl());;
          }
          exit_handler();
@@ -71,7 +71,7 @@ auto sched_actor::handle_message_internal(message& msg) noexcept -> task_result 
       exit_(exit_reason::normal);
    }
 
-   if(__unlikely(flags_ & exiting_flag)) {
+   if(__unlikely(flags_.exiting_flag)) {
       actor_inbox::close();
       return task_result::done;
    }
