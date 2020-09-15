@@ -32,6 +32,8 @@ using timer_spec = either<duration, std::chrono::steady_clock::time_point>;
 struct timer_id_t {
    explicit timer_id_t(uint64_t id) : id_{id} {}
 
+   //auto operator=(timer_id_t const&) noexcept -> timer_id_t& = default;
+
    auto operator==(timer_id_t& rhs) const { return id_ == rhs.id_; }
    auto operator!=(timer_id_t& rhs) const { return id_ != rhs.id_; }
    auto operator<(timer_id_t& rhs) const  { return id_ < rhs.id_; }

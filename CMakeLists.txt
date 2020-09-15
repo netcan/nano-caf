@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(nano_caf)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
 #      -Wcast-align -Wunused -Woverloaded-virtual -Wconversion \
@@ -9,7 +9,12 @@ set(CMAKE_CXX_STANDARD 17)
 #      -Wno-invalid-offsetof -fno-rtti -DDEBUG=1 -DSPDLOG_NO_EXCEPTIONS \
 #      -Wno-builtin-macro-redefined -D'__FILE__=\"$(subst $(realpath ${CMAKE_SOURCE_DIR})/,,$(abspath $<))\"'")
 
-set(CMAKE_CXX_FLAGS, "${CMAKE_CXX_FLAGS} -Wno-builtin-macro-redefined -D'__FILE__=\"$(subst $(realpath ${CMAKE_SOURCE_DIR})/,,$(abspath $<))\"'")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSPDLOG_NO_EXCEPTIONS \
+    -DDEBUG=1 -Wno-builtin-macro-redefined -D'__FILE__=\"$(subst $(realpath ${CMAKE_SOURCE_DIR})/,,$(abspath $<))\"'")
+
+if(CMAKE_CXX_STANDARD EQUAL 20)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcoroutines -fno-exceptions")
+endif()
 
 #if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
@@ -113,7 +118,20 @@ add_library(nano_caf
         include/nano-caf/util/suppress_warning.h
         include/nano-caf/util/cpp_attribute.h
         include/nano-caf/util/ptr_trait.h
-        include/nano-caf/util/result_t.h include/nano-caf/core/system_actor_context.h include/nano-caf/core/timer/actor_timer.h src/core/timer/actor_timer.cpp include/nano-caf/util/cv_notifier.h include/nano-caf/core/timer/timer_set.h src/core/timer/timer_set.cpp include/nano-caf/core/actor/shutdown_notifier.h include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp include/nano-caf/util/caf_log.h)
+        include/nano-caf/util/result_t.h
+        include/nano-caf/core/system_actor_context.h
+        include/nano-caf/core/timer/actor_timer.h
+        src/core/timer/actor_timer.cpp
+        include/nano-caf/util/cv_notifier.h
+        include/nano-caf/core/timer/timer_set.h src/core/timer/timer_set.cpp
+        include/nano-caf/core/actor/shutdown_notifier.h
+        include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp)
+
+if(CMAKE_CXX_STANDARD EQUAL 20)
+    target_sources(nano_caf PRIVATE
+            include/nano-caf/util/caf_log.h include/nano-caf/core/coroutine/coro_actor.h
+            include/nano-caf/core/coroutine/coro_timer.h src/core/coroutine/coro_timer.cpp)
+endif()
 
 add_executable(nano_caf-test
         third-party/catch.hpp
@@ -135,28 +153,32 @@ add_executable(nano_caf-test
 add_executable(test_actor_system
         tests/ft/test_actor_system.cpp)
 
-add_executable(test_async tests/ft/test_async.cpp
-        third-party/nanobench.h
-        tests/ut/nanobench.cpp)
+if(CMAKE_CXX_STANDARD EQUAL 20)
+    add_executable(test_coro_actor tests/ft/test_coro_timer.cpp)
+endif()
+
+add_executable(test_async tests/ft/test_async.cpp)
 
 add_executable(test_ping_pong
         tests/ft/test_ping_pong.cpp)
 
-add_executable(test_job_queue
-        tests/ft/test_job_queue.cpp
-        third-party/nanobench.h
-        tests/ut/nanobench.cpp)
+#add_executable(test_job_queue
+#        tests/ft/test_job_queue.cpp
+#        third-party/nanobench.h
+#        tests/ut/nanobench.cpp)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(nano_caf-test nano_caf pthread atomic)
     target_link_libraries(test_actor_system nano_caf pthread atomic)
+    target_link_libraries(test_coro_actor nano_caf pthread atomic)
     target_link_libraries(test_ping_pong nano_caf pthread atomic)
     target_link_libraries(test_async nano_caf pthread atomic)
-    target_link_libraries(test_job_queue nano_caf pthread atomic)
+    #target_link_libraries(test_job_queue nano_caf pthread atomic)
 else()
     target_link_libraries(nano_caf-test nano_caf)
     target_link_libraries(test_actor_system nano_caf)
+    target_link_libraries(test_coro_actor nano_caf)
     target_link_libraries(test_ping_pong nano_caf)
     target_link_libraries(test_async nano_caf)
-    target_link_libraries(test_job_queue nano_caf)
+    #target_link_libraries(test_job_queue nano_caf)
 endif()

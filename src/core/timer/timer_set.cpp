@@ -71,10 +71,11 @@ auto timer_set::remove_timer(intptr_t actor_id, timer_id_t msg_id) -> void {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto timer_set::remove_index(intptr_t actor_id, const timers::iterator& iterator) -> void {
+auto timer_set::remove_index(intptr_t actor_id, timers::iterator const& iterator) -> void {
    timer_find_and_modify(actor_id,
        [&](auto const& item)      { return item.second == iterator; },
-       [this](auto const& result) { actor_indexer_.erase(result); });
+       [this](auto const& result) { actor_indexer_.erase(result);
+   });
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,8 +168,8 @@ auto timer_set::check_timer_due(const shutdown_notifier& shutdown) -> status_t {
          auto iterator = timers_.emplace(get_due(timer_msg), std::move(sched_msg));
          update_index(timer_msg->actor.actor_id(), timer_iter, iterator);
       } else {
-         timers_.erase(timer_iter);
          remove_index(timer_msg->actor.actor_id(), timer_iter);
+         timers_.erase(timer_iter);
       }
    }
 
