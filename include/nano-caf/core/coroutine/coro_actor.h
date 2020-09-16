@@ -10,6 +10,7 @@
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/core/actor/exit_reason.h>
 #include <nano-caf/core/actor/typed_actor_handle.h>
+#include <nano-caf/core/coroutine/coro_registry.h>
 #include <nano-caf/core/coroutine/coro_timer.h>
 
 NANO_CAF_NS_BEGIN
@@ -30,7 +31,7 @@ struct coro_actor : actor_context {
 
    template<typename Rep, typename Period>
    auto sleep(std::chrono::duration<Rep, Period> const& d) {
-      return coro_timer::timer_awaiter{*this, (uint64_t)std::chrono::microseconds(d).count()};
+      return coro_timer::timer_awaiter{(uint64_t)std::chrono::microseconds(d).count()};
    }
 
 private:
@@ -42,6 +43,9 @@ private:
       }
       return result;
    }
+
+   friend coro_timer;
+   coro_registry coroutines_;
 
 private:
    inline auto self_handle() const noexcept -> intrusive_actor_ptr override { return &self(); }

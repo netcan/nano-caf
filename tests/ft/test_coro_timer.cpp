@@ -18,17 +18,18 @@ struct my_actor : coro_actor {
    std::vector<int> values;
    coro_timer my_timer;
 
-   auto echo_timer() -> coro_timer {
+   auto echo_timer(int a) -> coro_timer {
       co_await sleep(1s);
       spdlog::info("timeout");
-      co_await sleep(1s);
+
+      co_await sleep(2s);
       spdlog::info("timeout");
       exit(exit_reason::normal);
    }
 
    auto handle_message(message& msg) noexcept -> task_result override {
       if (msg.msg_type_id_ == test_message::type_id ) {
-         my_timer = echo_timer();
+         my_timer = echo_timer(0);
       }
       return task_result::resume;
    }

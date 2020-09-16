@@ -10,11 +10,14 @@ set(CMAKE_CXX_STANDARD 20)
 #      -Wno-builtin-macro-redefined -D'__FILE__=\"$(subst $(realpath ${CMAKE_SOURCE_DIR})/,,$(abspath $<))\"'")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSPDLOG_NO_EXCEPTIONS \
-    -DDEBUG=1 -Wno-builtin-macro-redefined -D'__FILE__=\"$(subst $(realpath ${CMAKE_SOURCE_DIR})/,,$(abspath $<))\"'")
+    -DDEBUG=1")
 
 if(CMAKE_CXX_STANDARD EQUAL 20)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcoroutines -fno-exceptions")
 endif()
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-builtin-macro-redefined -D'__FILE__=\"$(subst $(realpath ${CMAKE_SOURCE_DIR})/,,$(abspath $<))\"'")
+
 
 #if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
@@ -125,7 +128,7 @@ add_library(nano_caf
         include/nano-caf/util/cv_notifier.h
         include/nano-caf/core/timer/timer_set.h src/core/timer/timer_set.cpp
         include/nano-caf/core/actor/shutdown_notifier.h
-        include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp)
+        include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp include/nano-caf/core/coroutine/coro_registry.h)
 
 if(CMAKE_CXX_STANDARD EQUAL 20)
     target_sources(nano_caf PRIVATE
