@@ -21,9 +21,11 @@ struct coro_actor : actor_context {
       return co_timer{(uint64_t)std::chrono::microseconds(d).count()};
    }
 
-private:
-   friend struct detail::timer_task_promise;
-   auto start_timer_(timer_spec const& spec, bool periodic, std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t> {
+   auto coroutine_alive(std::coroutine_handle<> coro) const noexcept -> bool {
+      return coroutines_.exists(coro.address());
+   }
+
+   auto start_timer(timer_spec const& spec, bool periodic, std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t> {
       auto result = get_system_actor_context().start_timer(self_handle(), spec, periodic, std::move(callback));
       if(result.is_ok()) {
          on_timer_created();
@@ -35,8 +37,10 @@ private:
       get_system_actor_context().stop_timer(self_handle(), timer_id);
    }
 
+private:
+   friend struct detail::timer_task_promise;
+
    friend timer_task;
-   friend detail::timer_awaiter;
    template<typename METHOD_ATOM, message::category CATEGORY>
    friend struct request;
 

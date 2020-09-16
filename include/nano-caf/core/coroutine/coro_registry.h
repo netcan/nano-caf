@@ -12,25 +12,25 @@
 NANO_CAF_NS_BEGIN
 
 struct coro_registry {
-   auto exists(void* handle) -> bool {
-      return coroutines_.find(handle) != coroutines_.end();
+   auto exists(void* handle) const noexcept -> bool {
+      return handle != nullptr && coroutines_.find(handle) != coroutines_.end();
    }
 
-   auto on_create(void* handle) {
+   auto on_create(void* handle) noexcept {
       if(handle == nullptr) {
          return;
       }
       coroutines_.insert(handle);
    }
 
-   auto on_destroy(void* handle) {
+   auto on_destroy(void* handle) noexcept {
       if(handle == nullptr) {
          return;
       }
       coroutines_.erase(handle);
    }
 
-   ~coro_registry() {
+   ~coro_registry() noexcept {
       for(auto v: coroutines_) {
          std::coroutine_handle<>::from_address(v).destroy();
       }

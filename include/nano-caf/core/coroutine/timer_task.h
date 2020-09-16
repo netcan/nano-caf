@@ -7,6 +7,7 @@
 
 #include <nano-caf/core/msg/predefined-msgs.h>
 #include <nano-caf/core/coroutine/awaitable_trait.h>
+#include <nano-caf/core/coroutine/co_timer.h>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/util/caf_log.h>
 #include <coroutine>
@@ -16,16 +17,12 @@ NANO_CAF_NS_BEGIN
 struct coro_actor;
 struct timer_task;
 
-struct co_timer {
-   duration duration_;
-};
-
 namespace detail {
    struct timer_task_promise;
-   struct timer_awaiter {
+   struct cancellable_timer_awaiter {
       using handle_type = std::coroutine_handle<timer_task_promise>;
 
-      timer_awaiter(duration d) noexcept
+      cancellable_timer_awaiter(duration d) noexcept
          : duration_{d} {}
 
       auto await_ready() const noexcept { return false; }
@@ -48,7 +45,7 @@ namespace detail {
 
    struct timer_awaiter_keeper {
       using handle_type = std::coroutine_handle<timer_task_promise>;
-      inline auto on_timer_start(timer_awaiter* timer) noexcept -> void {
+      inline auto on_timer_start(cancellable_timer_awaiter* timer) noexcept -> void {
          awaiter_ = timer;
       }
       inline auto on_timer_done() noexcept -> void {
@@ -57,7 +54,7 @@ namespace detail {
       auto still_waiting(timer_id_t) const noexcept -> bool;
       auto cancel(handle_type handle) noexcept -> void;
    private:
-      timer_awaiter* awaiter_{nullptr};
+      cancellable_timer_awaiter* awaiter_{nullptr};
    };
 
    struct timer_task_promise : private timer_awaiter_keeper {
@@ -85,8 +82,8 @@ namespace detail {
          return std::forward<AWAITER>(awaiter);
       }
 
-      auto await_transform(co_timer const& timer) noexcept -> timer_awaiter {
-         return timer.duration_;
+      auto await_transform(co_timer&& timer) noexcept -> cancellable_timer_awaiter {
+         return timer.get_duration();
       }
 
       auto return_void() noexcept {}
@@ -99,7 +96,7 @@ namespace detail {
       auto on_destroy() noexcept -> void;
 
    private:
-      friend timer_awaiter;
+      friend cancellable_timer_awaiter;
       friend timer_task;
 
       coro_actor& actor_;
