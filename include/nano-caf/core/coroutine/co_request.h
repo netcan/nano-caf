@@ -37,7 +37,7 @@ struct request {
       auto status = actor_handle(to_).request<typename METHOD_ATOM::msg_type, CATEGORY>
          ( caller.promise().get_self_handle()
          , requester::make_delegate_request_handler<METHOD_ATOM>([=, this](auto&& result) {
-            if(actor->coroutines_.exists(caller.address())) {
+            if(actor->coroutine_alive(caller)) {
                result_ = std::move(result);
                caller();
             }

@@ -11,7 +11,7 @@ NANO_CAF_NS_BEGIN
 auto timer_task::stop_timer() noexcept -> void {
    // only by querying from the registry, we can precisely know
    // the aliveness of this coroutine.
-   if(actor_ && actor_->coroutines_.exists(handle_.address())) {
+   if(actor_ && actor_->coroutine_alive(handle_)) {
       handle_.promise().stop_timer();
    }
 }
@@ -39,13 +39,13 @@ namespace detail {
 
       // once this coroutine is created successfully, it should be registered
       // to the actor, so that its lifetime could be maintained automatically.
-      actor_.coroutines_.on_create(handle.address());
+      actor_.coroutines_.on_create(handle);
       return timer_task{actor_, handle};
    }
 
    ///////////////////////////////////////////////////////////////////////
    auto timer_task_promise::on_destroy() noexcept -> void {
-      actor_.coroutines_.on_destroy(handle_type::from_promise(*this).address());
+      actor_.coroutines_.on_destroy(handle_type::from_promise(*this));
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -82,13 +82,13 @@ namespace detail {
    auto cancellable_timer_awaiter::start_timer(handle_type caller) noexcept -> status_t {
       auto& actor = caller.promise().get_actor();
       auto result = actor.start_timer(duration_, false,
-                                      std::make_shared<timeout_callback_t>([=, &actor](timer_id_t id) {
-                                         // only if this coroutine is still alive & it's still waiting for this timer,
-                                         // (which might've been cancelled already), the coroutine(caller) is resumed.
-                                         if (actor.coroutine_alive(caller) && caller.promise().still_waiting(id)) {
-                                            caller();
-                                         }
-                                      }));
+              std::make_shared<timeout_callback_t>([=, &actor](timer_id_t id) {
+                 // only if this coroutine is still alive & it's still waiting for this timer,
+                 // (which might've been cancelled already), the coroutine(caller) is resumed.
+                 if (actor.coroutine_alive(caller) && caller.promise().still_waiting(id)) {
+                    caller();
+                 }
+              }));
 
       if(result.is_ok()) {
          // remember the timer_id, and register this timer to the promise,

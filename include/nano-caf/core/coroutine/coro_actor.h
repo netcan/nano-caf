@@ -22,7 +22,7 @@ struct coro_actor : actor_context {
    }
 
    auto coroutine_alive(std::coroutine_handle<> coro) const noexcept -> bool {
-      return coroutines_.exists(coro.address());
+      return coroutines_.exists(coro);
    }
 
    auto start_timer(timer_spec const& spec, bool periodic, std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t> {
