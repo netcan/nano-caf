@@ -22,7 +22,8 @@ enum status_t : std::uint_fast64_t {
    null_sender,
    msg_dropped,
    invalid_data,
-   system_shutdown
+   system_shutdown,
+   cancelled
 };
 
 NANO_CAF_NS_END

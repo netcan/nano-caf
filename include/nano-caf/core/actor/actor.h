@@ -87,12 +87,14 @@ protected:
 
    template<typename Rep, typename Period, typename F>
    inline auto after(std::chrono::duration<Rep, Period> const& d, F&& f) -> result_t<timer_id_t> {
-      return after((uint64_t)std::chrono::microseconds(d).count(), std::forward<F>(f));
+      return after((uint64_t)std::chrono::microseconds(d).count(),
+                   [f_ = std::forward<F>(f)](timer_id_t){ f_(); });
    }
 
    template<typename Rep, typename Period, typename F>
    inline auto repeat(std::chrono::duration<Rep, Period> const& d, F&& f) -> result_t<timer_id_t> {
-      return repeat((uint64_t)std::chrono::microseconds(d).count(), std::forward<F>(f));
+      return repeat((uint64_t)std::chrono::microseconds(d).count(),
+                    [f_ = std::forward<F>(f)](timer_id_t){ f_(); });
    }
 
    template<typename F>

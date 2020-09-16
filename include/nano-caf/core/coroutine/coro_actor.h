@@ -18,11 +18,11 @@ NANO_CAF_NS_BEGIN
 struct coro_actor : actor_context {
    template<typename Rep, typename Period>
    [[nodiscard("co_await")]] auto sleep(std::chrono::duration<Rep, Period> const& d) {
-      return timer_task::timer_awaiter{(uint64_t)std::chrono::microseconds(d).count()};
+      return co_timer{(uint64_t)std::chrono::microseconds(d).count()};
    }
 
 private:
-   friend struct timer_task::promise_type;
+   friend struct detail::timer_task_promise;
    auto start_timer_(timer_spec const& spec, bool periodic, std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t> {
       auto result = get_system_actor_context().start_timer(self_handle(), spec, periodic, std::move(callback));
       if(result.is_ok()) {

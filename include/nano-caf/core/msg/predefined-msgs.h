@@ -42,7 +42,7 @@ private:
    uint64_t id_;
 };
 
-using timeout_callback_t = std::function<auto () -> void>;
+using timeout_callback_t = std::function<auto (timer_id_t) -> void>;
 
 CAF_def_message(start_timer_msg,
     (id, timer_id_t),

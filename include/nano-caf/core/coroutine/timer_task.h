@@ -6,35 +6,52 @@
 #define NANO_CAF_TIMER_TASK_H
 
 #include <nano-caf/core/msg/predefined-msgs.h>
+#include <nano-caf/util/status_t.h>
 #include <nano-caf/util/caf_log.h>
 #include <coroutine>
 
 NANO_CAF_NS_BEGIN
 
 struct coro_actor;
+struct timer_task;
 
-struct timer_task {
-   struct promise_type;
-   using handle_type = std::coroutine_handle<promise_type>;
+struct co_timer {
+   duration duration_;
+};
 
-   struct timer_awaiter {
-      timer_awaiter(timer_spec const& spec)
-         : spec_{spec} {}
+namespace detail {
 
-      auto await_ready() const noexcept { return false; }
-      auto await_suspend(handle_type caller) noexcept -> bool;
-      void await_resume() const noexcept {}
+   struct timer_task_promise {
+      using handle_type = std::coroutine_handle<timer_task_promise>;
 
    private:
-      timer_spec spec_;
-   };
+      struct timer_awaiter {
+         timer_awaiter(duration d)
+            : duration_{d} {}
 
-   template<typename T> struct S;
-   struct promise_type {
+         auto await_ready() const noexcept { return false; }
+         auto await_suspend(handle_type caller) noexcept -> bool;
+         auto await_resume() const noexcept -> status_t;
+
+         auto cancel(handle_type caller) -> void;
+         auto matches(timer_id_t id) const noexcept -> bool {
+            return timer_id_ && (*timer_id_ == id);
+         }
+      private:
+         auto start_timer(handle_type caller) noexcept -> status_t;
+
+      private:
+         duration duration_;
+         std::optional<timer_id_t> timer_id_{std::nullopt};
+         status_t result_{status_t::ok};
+         handle_type caller_;
+      };
+
+   public:
       template<typename ACTOR, typename ... Args>
       requires std::is_base_of_v<coro_actor, std::decay_t<ACTOR>>
-      promise_type(ACTOR& self, Args const&...)
-         : self_{static_cast<coro_actor&>(self)}
+      timer_task_promise(ACTOR& actor, Args const&...)
+         : actor_{static_cast<coro_actor&>(actor)}
       {}
 
       auto get_return_object() -> timer_task;
@@ -56,16 +73,32 @@ struct timer_task {
          return final_awaiter{};
       }
 
+      auto await_transform(co_timer const& timer) -> timer_awaiter {
+         return timer.duration_;
+      }
+
       auto return_void() {}
 
-      auto start_timer(timer_spec const&) noexcept -> bool;
       auto stop_timer() noexcept -> void;
       auto on_destroy() -> void;
 
    private:
-      std::optional<timer_id_t> timer_id_;
-      coro_actor& self_;
+      inline auto on_timer_start(timer_awaiter* timer) -> void {
+         awaiter_ = timer;
+      }
+      inline auto on_timer_done() -> void {
+         awaiter_ = nullptr;
+      }
+      inline auto still_waiting(timer_id_t) -> bool;
+   private:
+      coro_actor& actor_;
+      timer_awaiter* awaiter_{nullptr};
    };
+}
+
+struct timer_task {
+   using promise_type = detail::timer_task_promise;
+   using handle_type = std::coroutine_handle<promise_type>;
 
    timer_task() = default;
    explicit timer_task(coro_actor& self, handle_type handle) noexcept

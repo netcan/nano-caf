@@ -78,7 +78,7 @@ private:
       auto handle_timeout(message& msg) {
          auto timeout = msg.body<timeout_msg>();
          if(timeout->callback) {
-            (*timeout->callback)();
+            (*timeout->callback)(timeout->id);
             return task_result::resume;
          }
          return T::handle_message(msg);

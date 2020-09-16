@@ -13,18 +13,30 @@ using namespace NANO_CAF_NS;
 using namespace std::chrono_literals;
 
 struct my_actor : coro_actor {
-   auto echo_timer(int a) -> timer_task {
-      co_await sleep(1s);
-      spdlog::info("timeout");
+   auto echo_timer() -> timer_task {
+      auto result = co_await sleep(1s);
+      if(result == status_t::ok) {
+         spdlog::info("timeout 1");
+      } else {
+         spdlog::error("timer 1 failed: {}", result);
+      }
 
-      co_await sleep(2s);
-      spdlog::info("timeout");
+      result = co_await sleep(1s);
+      if(result == status_t::ok) {
+         spdlog::info("timeout 2");
+      } else {
+         spdlog::error("timer 2 failed: {}", result);
+      }
+
       exit(exit_reason::normal);
    }
 
    auto handle_message(message& msg) noexcept -> task_result override {
       if (msg.msg_type_id_ == test_message::type_id ) {
-         echo_timer(0);
+         auto timer = echo_timer();
+         timer.stop_timer();
+//         timer.stop_timer();
+//         timer.stop_timer();
       }
       return task_result::resume;
    }
