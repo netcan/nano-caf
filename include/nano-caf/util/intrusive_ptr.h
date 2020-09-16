@@ -41,7 +41,8 @@ struct intrusive_ptr {
 
    T* operator->()  const noexcept { return ptr_; }
    T& operator*()   const noexcept { return *ptr_; }
-   bool operator!() const noexcept { return !ptr_; }
+
+   auto operator!() const noexcept -> bool { return !ptr_; }
 
    auto release() -> void {
       if (ptr_) {

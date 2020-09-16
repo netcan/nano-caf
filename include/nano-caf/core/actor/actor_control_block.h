@@ -19,6 +19,7 @@ NANO_CAF_NS_BEGIN
 
 struct sched_actor;
 struct system_actor_context;
+struct intrusive_actor_ptr;
 
 struct actor_control_block {
    using data_destructor = void (*)(sched_actor*);
@@ -72,8 +73,7 @@ public:
    friend auto intrusive_ptr_release_weak(actor_control_block* x) noexcept -> void;
    friend auto intrusive_ptr_release(actor_control_block* x) noexcept -> void;
 
-   friend auto intrusive_ptr_upgrade_weak(actor_control_block* x) noexcept -> intrusive_ptr<actor_control_block>;
-
+   friend auto intrusive_ptr_upgrade_weak(actor_control_block* x) noexcept -> intrusive_actor_ptr;
 
 private:
    std::atomic<size_t> strong_refs_;

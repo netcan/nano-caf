@@ -22,17 +22,17 @@ struct actor_handle {
 
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    auto send(Args&& ... args) noexcept {
-      return send_(make_message<T, CATEGORY>(std::forward<Args>(args)...));
+      return ptr_.send(make_message<T, CATEGORY>(std::forward<Args>(args)...));
    }
 
    template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
    auto request(HANDLER&& handler, Args&& ... args) noexcept {
-      return send_(make_request<T, CATEGORY>(std::forward<HANDLER>(handler), std::forward<Args>(args)...));
+      return ptr_.send(make_request<T, CATEGORY>(std::forward<HANDLER>(handler), std::forward<Args>(args)...));
    }
 
    template<message::category CATEGORY = message::urgent>
    auto exit(exit_reason reason = exit_reason::normal) noexcept {
-      return send_(make_message<exit_msg, CATEGORY>(reason));
+      return ptr_.send(make_message<exit_msg, CATEGORY>(reason));
    }
 
    template<message::category CATEGORY = message::urgent>
@@ -56,12 +56,12 @@ struct actor_handle {
 
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    auto send(intrusive_actor_ptr from, Args&& ... args) noexcept {
-      return send_(make_message<T, CATEGORY>(from, std::forward<Args>(args)...));
+      return ptr_.send(make_message<T, CATEGORY>(from, std::forward<Args>(args)...));
    }
 
    template<typename T, message::category CATEGORY = message::normal, typename HANDLER, typename ... Args>
    auto request(intrusive_actor_ptr from, HANDLER&& handler, Args&& ... args) noexcept {
-      return send_(make_request<T, CATEGORY>(from, std::forward<HANDLER>(handler), std::forward<Args>(args)...));
+      return ptr_.send(make_request<T, CATEGORY>(from, std::forward<HANDLER>(handler), std::forward<Args>(args)...));
    }
 
    auto get()             { return ptr_; }
@@ -84,9 +84,6 @@ struct actor_handle {
    inline auto operator!=(actor_handle const& rhs) const noexcept -> bool {
       return !operator==(rhs);
    }
-
-private:
-   auto send_(message*) noexcept -> status_t;
 
 private:
    intrusive_actor_ptr ptr_{};

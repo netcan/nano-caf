@@ -7,12 +7,19 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/util/intrusive_ptr.h>
+#include <nano-caf/util/status_t.h>
 
 NANO_CAF_NS_BEGIN
 
 struct actor_control_block;
+struct message;
 
-using intrusive_actor_ptr = intrusive_ptr<actor_control_block>;
+struct intrusive_actor_ptr : intrusive_ptr<actor_control_block> {
+   using super = intrusive_ptr<actor_control_block>;
+   using super::super;
+
+   auto send(message*) noexcept -> status_t;
+};
 
 auto intrusive_ptr_add_weak_ref(actor_control_block* x) noexcept -> void;
 auto intrusive_ptr_add_ref(actor_control_block* x) noexcept -> void;

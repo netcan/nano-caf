@@ -128,7 +128,7 @@ add_library(nano_caf
         include/nano-caf/util/cv_notifier.h
         include/nano-caf/core/timer/timer_set.h src/core/timer/timer_set.cpp
         include/nano-caf/core/actor/shutdown_notifier.h
-        include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp include/nano-caf/core/coroutine/coro_registry.h)
+        include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp include/nano-caf/core/coroutine/coro_registry.h src/core/actor/intrusive_actor_ptr.cpp)
 
 if(CMAKE_CXX_STANDARD EQUAL 20)
     target_sources(nano_caf PRIVATE
