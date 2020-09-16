@@ -16,19 +16,6 @@
 NANO_CAF_NS_BEGIN
 
 struct coro_actor : actor_context {
-   inline auto stop_timer(timer_id_t timer_id) -> void {
-      get_system_actor_context().stop_timer(self_handle(), timer_id);
-   }
-
-   template<typename Rep, typename Period>
-   inline auto start_timer(std::chrono::duration<Rep, Period> const& d, bool periodic = false) -> result_t<timer_id_t> {
-      return start_timer((uint64_t)std::chrono::microseconds(d).count(), periodic);
-   }
-
-   inline auto start_timer(timer_spec&& spec, bool periodic = false) -> result_t<timer_id_t> {
-      return start_timer_(spec, periodic, nullptr);
-   }
-
    template<typename Rep, typename Period>
    [[nodiscard("co_await")]] auto sleep(std::chrono::duration<Rep, Period> const& d) {
       return timer_task::timer_awaiter{(uint64_t)std::chrono::microseconds(d).count()};
@@ -42,6 +29,10 @@ private:
          on_timer_created();
       }
       return result;
+   }
+
+   inline auto stop_timer(timer_id_t timer_id) -> void {
+      get_system_actor_context().stop_timer(self_handle(), timer_id);
    }
 
    friend timer_task;
