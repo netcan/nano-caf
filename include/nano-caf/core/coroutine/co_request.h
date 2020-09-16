@@ -13,18 +13,18 @@
 NANO_CAF_NS_BEGIN
 
 template<typename METHOD_ATOM, message::category CATEGORY = message::normal>
-struct co_request {
+struct request {
    using result_type = requester::method_result_t<METHOD_ATOM>;
    using message_type = typename METHOD_ATOM::msg_type;
 
    template<typename ... Args>
-   co_request(intrusive_actor_ptr to, Args&& ... args)
+   request(intrusive_actor_ptr to, Args&& ... args)
       : to_{std::move(to)}
       , message_{std::forward<Args>(args)...}
    {}
 
    template<typename A, typename ... Args>
-   co_request(typed_actor_handle<A> to, Args&& ... args)
+   request(typed_actor_handle<A> to, Args&& ... args)
       : to_{std::move(to.get())}
       , message_{std::forward<Args>(args)...}
    {}

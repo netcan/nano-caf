@@ -67,7 +67,7 @@ struct my_actor : coro_actor {
          spdlog::error("timer 2 failed: {}", result);
       }
 
-      auto result_2 = co_await co_request<media_session::open>(session_actor, 100l);
+      auto result_2 = co_await request<media_session::open>(session_actor, 100l);
       if(result_2.is_ok()) {
          spdlog::info("request result: {}", *result_2);
       } else {
