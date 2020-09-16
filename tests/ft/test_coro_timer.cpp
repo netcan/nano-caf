@@ -5,14 +5,53 @@
 #include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/coroutine/coro_actor.h>
+#include <nano-caf/core/coroutine/co_request.h>
 #include <spdlog/spdlog.h>
 #include "../ut/test_msgs.h"
+#include <nano-caf/core/msg/request.h>
+#include <nano-caf/core/actor/behavior_based_actor.h>
 
 using namespace NANO_CAF_NS;
 
 using namespace std::chrono_literals;
 
+namespace {
+   enum : uint32_t {
+      media_session_interface_id = 1
+   };
+
+   __CAF_actor_interface(media_session, media_session_interface_id,
+      (open,  (const long&) -> long),
+      (close, (const long&) -> void),
+      (empty, ()            -> std::shared_ptr<int>)
+   );
+
+   struct media_session_actor : behavior_based_actor {
+      auto get_behavior() -> behavior override {
+         return {
+            [&](media_session::open, long value) -> long {
+               return value + 1;
+            },
+            [&](media_session::close, long) {
+            },
+            [&](media_session::empty) -> auto {
+               std::cout << "empty received" << std::endl;
+               return std::make_shared<int>(1234);
+            },
+            [&](exit_msg_atom, exit_reason) {
+               std::cout << "exit received" << std::endl;
+            },
+         };
+      }
+   };
+}
+
 struct my_actor : coro_actor {
+   typed_actor_handle<media_session> session_actor;
+   auto on_init() -> void override {
+      session_actor = spawn_typed_actor<media_session, media_session_actor>();
+   }
+
    auto echo_timer() -> timer_task {
       auto result = co_await sleep(1s);
       if(result == status_t::ok) {
@@ -26,6 +65,13 @@ struct my_actor : coro_actor {
          spdlog::info("timeout 2");
       } else {
          spdlog::error("timer 2 failed: {}", result);
+      }
+
+      auto result_2 = co_await co_request<media_session::open>(session_actor, 100l);
+      if(result_2.is_ok()) {
+         spdlog::info("request result: {}", *result_2);
+      } else {
+         spdlog::error("request fail: {}", result_2.failure());
       }
 
       exit(exit_reason::normal);

@@ -13,8 +13,7 @@
 #include <nano-caf/util/result_t.h>
 #include <nano-caf/util/result_trait.h>
 #include <nano-caf/util/caf_log.h>
-#include <nano-caf/core/msg/request_result_handler.h>
-#include <nano-caf/core/actor/intrusive_actor_ptr.h>
+#include <nano-caf/core/actor/request_reply.h>
 #include <nano-caf/core/actor/actor_handle.h>
 #include <optional>
 #include <utility>
@@ -42,9 +41,6 @@ constexpr bool msg_pattern_match =
 template<typename METHOD_ATOM, typename ACTOR_INTERFACE, typename ...Args>
 constexpr bool is_msg_valid = is_msg_atom<METHOD_ATOM> && msg_pattern_match<METHOD_ATOM, ACTOR_INTERFACE, Args...>;
 
-template<typename METHOD_ATOM>
-using result_type = func_result_t<typename METHOD_ATOM::type::result_type>;
-
 template<typename T>
 struct promised_request_handler : request_result_handler<T> {
    auto handle(T&& value, intrusive_actor_ptr&) -> void override {
@@ -66,40 +62,6 @@ struct promised_request_handler : request_result_handler<T> {
    std::promise<result_t<T>> promise_{};
    bool value_set_{false};
 };
-
-template<typename H_RESULT, typename T>
-struct reply_done_notifier : done_notifier {
-   reply_done_notifier(H_RESULT&& handle, T&& result)
-      : handle_{std::move(handle)}, result_{std::move(result)} {}
-
-   auto on_done() -> void override {
-      handle_(result_);
-   }
-
-   H_RESULT handle_;
-   T result_;
-};
-
-template<typename T, typename H_RESULT>
-struct delegate_request_handler : request_result_handler<T> {
-   delegate_request_handler(H_RESULT&& h_result)
-      : h_result_{std::move(h_result)}
-   {}
-
-   static_assert(std::is_invocable_r_v<void, H_RESULT, T>, "T function signature mismatch");
-
-   auto handle(T&& value, intrusive_actor_ptr& sender) -> void override {
-      if(static_cast<bool>(sender)) {
-         actor_handle{sender}.send<reply_msg>(
-            std::unique_ptr<done_notifier>(new reply_done_notifier{std::move(h_result_), std::move(value)}));
-      } else {
-         h_result_(value);
-      }
-   }
-
-   H_RESULT h_result_;
-};
-
 
 template<typename METHOD_ATOM, typename F>
 struct request_rsp_base {
@@ -174,8 +136,7 @@ public:
 
    template<typename H_RESULT, typename H_FAIL>
    auto then(H_RESULT&& h_result, H_FAIL&& h_fail) -> status_t {
-      delegate_request_handler<result_type<METHOD_ATOM>, H_RESULT> handler{ std::forward<H_RESULT>(h_result) };
-      auto status = base::invoke(std::move(handler));
+      auto status = base::invoke(make_delegate_request_handler<METHOD_ATOM>(std::forward<H_RESULT>(h_result)));
       if(status != status_t::ok) {
          h_fail(status);
       }
@@ -196,9 +157,6 @@ public:
       return status;
    }
 };
-
-template<typename METHOD_ATOM>
-using method_result_t = result_t<result_type<METHOD_ATOM>>;
 
 template<typename METHOD_ATOM>
 using future_type = std::future<method_result_t<METHOD_ATOM>>;

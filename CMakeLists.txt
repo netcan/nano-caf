@@ -75,7 +75,6 @@ add_library(nano_caf
         src/core/coordinator.cpp
         src/core/actor_system.cpp
         include/nano-caf/core/actor/actor_handle.h
-        src/core/actor/actor_handle.cpp
         include/nano-caf/core/actor/exit_reason.h
         include/nano-caf/util/list_element.h
         include/nano-caf/core/actor/enq_result.h
@@ -128,7 +127,7 @@ add_library(nano_caf
         include/nano-caf/util/cv_notifier.h
         include/nano-caf/core/timer/timer_set.h src/core/timer/timer_set.cpp
         include/nano-caf/core/actor/shutdown_notifier.h
-        include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp include/nano-caf/core/coroutine/coro_registry.h src/core/actor/intrusive_actor_ptr.cpp)
+        include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp include/nano-caf/core/coroutine/coro_registry.h src/core/actor/intrusive_actor_ptr.cpp include/nano-caf/core/coroutine/co_request.h include/nano-caf/core/actor/request_reply.h include/nano-caf/core/coroutine/awaitable_trait.h)
 
 if(CMAKE_CXX_STANDARD EQUAL 20)
     target_sources(nano_caf PRIVATE

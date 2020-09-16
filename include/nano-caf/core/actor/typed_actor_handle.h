@@ -16,6 +16,7 @@ struct typed_actor_handle : private actor_handle {
    using actor_handle::wait_for_exit;
    using actor_handle::release;
    using actor_handle::exit;
+   using actor_handle::get;
 
    template<typename METHOD_ATOM, message::category CATEGORY = message::normal, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>

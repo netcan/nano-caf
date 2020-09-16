@@ -11,7 +11,7 @@ NANO_CAF_NS_BEGIN
 auto timer_task::stop_timer() noexcept -> void {
    // only by querying from the registry, we can precisely know
    // the aliveness of this coroutine.
-   if(self_ && self_->coroutines_.exists(handle_.address())) {
+   if(actor_ && actor_->coroutines_.exists(handle_.address())) {
       handle_.promise().stop_timer();
    }
 }
@@ -49,6 +49,10 @@ namespace detail {
    ///////////////////////////////////////////////////////////////////////
    auto timer_task_promise::stop_timer() noexcept -> void {
       timer_awaiter_keeper::cancel(handle_type::from_promise(*this));
+   }
+
+   auto timer_task_promise::get_self_handle() const noexcept -> intrusive_actor_ptr {
+      return actor_.self_handle();
    }
 }
 

@@ -37,6 +37,9 @@ private:
 
    friend timer_task;
    friend detail::timer_awaiter;
+   template<typename METHOD_ATOM, message::category CATEGORY>
+   friend struct co_request;
+
    coro_registry coroutines_;
 
 private:

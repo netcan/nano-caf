@@ -41,6 +41,8 @@ public:
       return parent::template emplace<T>(std::forward<Args>(args)...);
    }
 
+   using parent::operator=;
+
    inline constexpr auto is_ok() const noexcept -> bool {
       return parent::is_left();
    }

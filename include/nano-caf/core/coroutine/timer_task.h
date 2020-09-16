@@ -6,6 +6,7 @@
 #define NANO_CAF_TIMER_TASK_H
 
 #include <nano-caf/core/msg/predefined-msgs.h>
+#include <nano-caf/core/coroutine/awaitable_trait.h>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/util/caf_log.h>
 #include <coroutine>
@@ -78,11 +79,20 @@ namespace detail {
       auto get_return_object() noexcept -> timer_task;
       auto initial_suspend() noexcept -> std::suspend_never { return {}; }
       auto final_suspend() noexcept -> final_awaiter { return {}; }
+
+      template<awaiter_concept AWAITER>
+      auto await_transform(AWAITER&& awaiter) -> decltype(auto) {
+         return std::forward<AWAITER>(awaiter);
+      }
+
       auto await_transform(co_timer const& timer) noexcept -> timer_awaiter {
          return timer.duration_;
       }
 
       auto return_void() noexcept {}
+
+      auto get_self_handle() const noexcept -> intrusive_actor_ptr;
+      auto get_actor() const noexcept -> coro_actor& { return actor_; }
 
    private:
       auto stop_timer() noexcept -> void;
@@ -101,13 +111,13 @@ struct timer_task {
    using handle_type = std::coroutine_handle<promise_type>;
 
    timer_task() noexcept = default;
-   explicit timer_task(coro_actor& self, handle_type handle) noexcept
-      : self_{&self}, handle_{handle} {}
+   explicit timer_task(coro_actor& actor, handle_type handle) noexcept
+      : actor_{&actor}, handle_{handle} {}
 
    auto stop_timer() noexcept -> void;
 
 private:
-   coro_actor* self_{};
+   coro_actor* actor_{};
    handle_type handle_;
 };
 
