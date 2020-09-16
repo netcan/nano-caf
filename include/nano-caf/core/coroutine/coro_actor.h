@@ -36,6 +36,7 @@ private:
    }
 
    friend timer_task;
+   friend detail::timer_awaiter;
    coro_registry coroutines_;
 
 private:
