@@ -77,10 +77,14 @@ struct my_actor : coro_actor {
       exit(exit_reason::normal);
    }
 
+   auto wrapper_timer() -> timer_task {
+      co_await echo_timer();
+   }
+
    auto handle_message(message& msg) noexcept -> task_result override {
       if (msg.msg_type_id_ == test_message::type_id ) {
-         auto timer = echo_timer();
-         timer.stop_timer();
+         auto timer = wrapper_timer();
+//         timer.stop_timer();
 //         timer.stop_timer();
 //         timer.stop_timer();
       }

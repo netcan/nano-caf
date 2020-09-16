@@ -20,11 +20,11 @@ struct co_timer {
    auto await_suspend(std::coroutine_handle<P> caller) noexcept -> bool {
       auto& actor = caller.promise().get_actor();
       auto result = actor.start_timer(duration_, false,
-                                      std::make_shared<timeout_callback_t>([=, &actor](timer_id_t) {
-                                         if (actor.coroutine_alive(caller)) {
-                                            caller();
-                                         }
-                                      }));
+           std::make_shared<timeout_callback_t>([=, &actor](timer_id_t) {
+              if (actor.coroutine_alive(caller)) {
+                 caller();
+              }
+           }));
 
       if(result.is_ok()) {
          result_ = status_t::ok;

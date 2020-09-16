@@ -62,7 +62,7 @@ namespace detail {
    private:
       struct final_awaiter {
          auto await_ready() const noexcept { return false; }
-         auto await_suspend(handle_type caller) noexcept -> bool;
+         auto await_suspend(handle_type) noexcept -> std::coroutine_handle<>;
          auto await_resume() const noexcept {};
       };
 
@@ -91,6 +91,14 @@ namespace detail {
       auto get_self_handle() const noexcept -> intrusive_actor_ptr;
       auto get_actor() const noexcept -> coro_actor& { return actor_; }
 
+      auto save_caller(std::coroutine_handle<> caller) noexcept {
+         caller_ = caller;
+      }
+
+      auto get_caller() const noexcept {
+         return caller_;
+      }
+
    private:
       auto stop_timer() noexcept -> void;
       auto on_destroy() noexcept -> void;
@@ -100,6 +108,7 @@ namespace detail {
       friend timer_task;
 
       coro_actor& actor_;
+      std::coroutine_handle<> caller_{};
    };
 }
 
@@ -112,6 +121,18 @@ struct timer_task {
       : actor_{&actor}, handle_{handle} {}
 
    auto stop_timer() noexcept -> void;
+
+   auto await_ready() const noexcept -> bool { return !is_valid(); }
+
+   auto await_suspend(std::coroutine_handle<> caller) noexcept -> bool {
+      handle_.promise().save_caller(caller);
+      return true;
+   }
+
+   auto await_resume() const noexcept {}
+
+private:
+   auto is_valid() const noexcept -> bool;
 
 private:
    coro_actor* actor_{};
