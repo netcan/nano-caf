@@ -30,13 +30,8 @@ struct resumable : list_element_t {
       ptr->intrusive_ptr_release_impl();
    }
 
-   auto set_last_served_worker(size_t worker_id) -> void {
-      served_worker_ = worker_id;
-   }
-
-   auto last_served_worker() -> size_t {
-      return served_worker_;
-   }
+   auto set_last_served_worker(size_t worker_id) -> void { served_worker_ = worker_id; }
+   auto last_served_worker() -> size_t { return served_worker_; }
 
 private:
    auto to_value_ptr() -> void* override {

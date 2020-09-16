@@ -47,6 +47,7 @@ auto actor_inbox::reload() noexcept -> void {
    normal_queue.append_list(normal);
 }
 
+//////////////////////////////////////////////////////////////
 auto actor_inbox::close() -> void {
    lifo_inbox::close();
    urgent_queue.clear();

@@ -10,7 +10,6 @@
 NANO_CAF_NS_BEGIN
 
 struct actor_registry {
-
    auto register_actor() -> void;
    auto deregister_actor() -> void;
 

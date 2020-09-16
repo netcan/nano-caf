@@ -37,14 +37,8 @@ worker : disable_copy {
    auto stop() noexcept -> void;
 
    auto wait_done() noexcept -> void;
-
-   auto id() const noexcept -> size_t {
-      return id_;
-   }
-
-   auto sched_jobs() const -> size_t {
-      return sched_jobs_;
-   }
+   auto id() const noexcept -> size_t { return id_; }
+   auto sched_jobs() const -> size_t { return sched_jobs_; }
 
 private:
    auto run() noexcept -> void;

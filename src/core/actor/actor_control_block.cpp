@@ -7,12 +7,14 @@
 
 NANO_CAF_NS_BEGIN
 
+//////////////////////////////////////////////////////////////////////////////
 auto intrusive_ptr_release_weak(actor_control_block* x) noexcept -> void {
    if (x->weak_refs_ == 1
        || x->weak_refs_.fetch_sub(1, std::memory_order_acq_rel) == 1)
       x->block_dtor_(x);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 auto intrusive_ptr_release(actor_control_block* x) noexcept -> void {
    if (x->strong_refs_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
       x->data_dtor_(x->get());
@@ -20,6 +22,7 @@ auto intrusive_ptr_release(actor_control_block* x) noexcept -> void {
    }
 }
 
+//////////////////////////////////////////////////////////////////////////////
 auto intrusive_ptr_upgrade_weak(actor_control_block* x) noexcept -> intrusive_actor_ptr {
    auto count = x->strong_refs_.load();
    while (count != 0) {

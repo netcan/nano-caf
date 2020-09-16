@@ -17,10 +17,12 @@ auto timer_task::stop_timer() noexcept -> void {
 }
 
 namespace detail {
+   //////////////////////////////////////////////////////////////////////////////
    inline auto timer_awaiter_keeper::still_waiting(timer_id_t id) const noexcept -> bool {
       return (awaiter_ != nullptr) && awaiter_->matches(id);
    }
 
+   //////////////////////////////////////////////////////////////////////////////
    inline auto timer_awaiter_keeper::cancel(handle_type handle) noexcept -> void {
       // only if the awaiter is not null, we are able to know a timer is still waiting,
       // although it might not be the one we intent to cancel (it doesn't matter actually).
@@ -78,7 +80,7 @@ namespace detail {
 
    ///////////////////////////////////////////////////////////////////////
    auto timer_awaiter::start_timer(handle_type caller) noexcept -> status_t {
-      auto& actor = caller.promise().actor_;
+      auto& actor = caller.promise().get_actor();
       auto result = actor.start_timer_(duration_, false,
          std::make_shared<timeout_callback_t>([=, &actor](timer_id_t id){
             // only if this coroutine is still alive & it's still waiting for this timer,
@@ -106,6 +108,7 @@ namespace detail {
       return result.failure();
    }
 
+   //////////////////////////////////////////////////////////////////////////////
    auto timer_awaiter::await_resume() const noexcept -> status_t {
       // this function will be invoked if one of following conditions satisfied:
       // 1. this timer wasn't launched successfully;
@@ -117,6 +120,7 @@ namespace detail {
       return result_;
    }
 
+   //////////////////////////////////////////////////////////////////////////////
    auto timer_awaiter::cancel(handle_type caller) noexcept -> void {
       // as long as this function could be called, which means this timer
       // must've been started, and we haven't received its timeout msg yet.

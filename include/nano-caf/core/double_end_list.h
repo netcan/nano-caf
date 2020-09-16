@@ -20,7 +20,6 @@ NANO_CAF_NS_BEGIN
 struct
 alignas(CACHE_LINE_SIZE)
 double_end_list {
-
    double_end_list();
    ~double_end_list();
 
@@ -34,7 +33,6 @@ double_end_list {
    }
 
    auto empty() const noexcept -> bool;
-
    auto pop_front() noexcept -> double_end_list_elem*;
 
 private:

@@ -14,7 +14,7 @@ struct actor_system
    : private system_actor_context
    , actor_context {
    auto start(size_t num_of_workers) noexcept -> void;
-   auto shutdown() noexcept -> void;
+   auto shutdown() noexcept  -> void;
    auto power_off() noexcept -> void;
 
    using system_actor_context::get_num_of_actors;
@@ -23,7 +23,7 @@ struct actor_system
    using system_actor_context::sched_jobs;
 
 private:
-   auto get_system_actor_context() -> system_actor_context& override { return *this; }
+   auto get_system_actor_context()   -> system_actor_context& override { return *this; }
    auto self_handle() const noexcept -> intrusive_actor_ptr override { return nullptr; }
 };
 
