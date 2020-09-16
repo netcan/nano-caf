@@ -13,10 +13,6 @@ using namespace NANO_CAF_NS;
 using namespace std::chrono_literals;
 
 struct my_actor : coro_actor {
-   timer_id_t timer_id_{300949};
-   unsigned int times = 0;
-   std::vector<int> values;
-
    auto echo_timer(int a) -> timer_task {
       co_await sleep(1s);
       spdlog::info("timeout");
@@ -31,10 +27,6 @@ struct my_actor : coro_actor {
          echo_timer(0);
       }
       return task_result::resume;
-   }
-
-   void clear() {
-      values.clear();
    }
 };
 
