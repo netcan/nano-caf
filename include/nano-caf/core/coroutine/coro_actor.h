@@ -30,7 +30,7 @@ struct coro_actor : actor_context {
    }
 
    template<typename Rep, typename Period>
-   auto sleep(std::chrono::duration<Rep, Period> const& d) {
+   [[nodiscard("co_await")]] auto sleep(std::chrono::duration<Rep, Period> const& d) {
       return timer_task::timer_awaiter{(uint64_t)std::chrono::microseconds(d).count()};
    }
 
