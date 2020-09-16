@@ -11,7 +11,7 @@
 #include <nano-caf/core/actor/exit_reason.h>
 #include <nano-caf/core/actor/typed_actor_handle.h>
 #include <nano-caf/core/coroutine/coro_registry.h>
-#include <nano-caf/core/coroutine/coro_timer.h>
+#include <nano-caf/core/coroutine/timer_task.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -31,11 +31,11 @@ struct coro_actor : actor_context {
 
    template<typename Rep, typename Period>
    auto sleep(std::chrono::duration<Rep, Period> const& d) {
-      return coro_timer::timer_awaiter{(uint64_t)std::chrono::microseconds(d).count()};
+      return timer_task::timer_awaiter{(uint64_t)std::chrono::microseconds(d).count()};
    }
 
 private:
-   friend struct coro_timer::promise_type;
+   friend struct timer_task::promise_type;
    auto start_timer_(timer_spec const& spec, bool periodic, std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t> {
       auto result = get_system_actor_context().start_timer(self_handle(), spec, periodic, std::move(callback));
       if(result.is_ok()) {
@@ -44,7 +44,7 @@ private:
       return result;
    }
 
-   friend coro_timer;
+   friend timer_task;
    coro_registry coroutines_;
 
 private:

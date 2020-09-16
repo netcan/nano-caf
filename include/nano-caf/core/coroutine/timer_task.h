@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/9/15.
 //
 
-#ifndef NANO_CAF_CORO_TIMER_H
-#define NANO_CAF_CORO_TIMER_H
+#ifndef NANO_CAF_TIMER_TASK_H
+#define NANO_CAF_TIMER_TASK_H
 
 #include <nano-caf/core/msg/predefined-msgs.h>
 #include <nano-caf/util/caf_log.h>
@@ -13,7 +13,7 @@ NANO_CAF_NS_BEGIN
 
 struct coro_actor;
 
-struct [[nodiscard]] coro_timer {
+struct timer_task {
    struct promise_type;
    using handle_type = std::coroutine_handle<promise_type>;
 
@@ -29,10 +29,6 @@ struct [[nodiscard]] coro_timer {
       timer_spec spec_;
    };
 
-private:
-
-
-public:
    template<typename T> struct S;
    struct promise_type {
       template<typename ACTOR, typename ... Args>
@@ -41,7 +37,7 @@ public:
          : self_{static_cast<coro_actor&>(self)}
       {}
 
-      auto get_return_object() -> coro_timer;
+      auto get_return_object() -> timer_task;
 
       auto initial_suspend() {
          return std::suspend_never{};
@@ -65,24 +61,25 @@ public:
       auto start_timer(timer_spec const&) noexcept -> bool;
       auto stop_timer() noexcept -> void;
       auto on_destroy() -> void;
+
    private:
       std::optional<timer_id_t> timer_id_;
       coro_actor& self_;
    };
 
-   coro_timer() = default;
-   explicit coro_timer(coro_actor& self, handle_type handle) noexcept
+   timer_task() = default;
+   explicit timer_task(coro_actor& self, handle_type handle) noexcept
       : self_{&self}, handle_{handle} {}
 
    auto stop_timer() noexcept -> void;
 
-   coro_timer(coro_timer const&) = default;
-   coro_timer(coro_timer&& rhs) = default;
+   timer_task(timer_task const&) = default;
+   timer_task(timer_task&& rhs) = default;
 
-   auto operator=(coro_timer const&) noexcept -> coro_timer& = default;
-   auto operator=(coro_timer&& rhs) noexcept -> coro_timer& = default;
+   auto operator=(timer_task const&) noexcept -> timer_task& = default;
+   auto operator=(timer_task&& rhs) noexcept -> timer_task& = default;
 
-   ~coro_timer() = default;
+   ~timer_task() = default;
 
 private:
    coro_actor* self_{};
@@ -91,4 +88,4 @@ private:
 
 NANO_CAF_NS_END
 
-#endif //NANO_CAF_CORO_TIMER_H
+#endif //NANO_CAF_TIMER_TASK_H

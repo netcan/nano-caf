@@ -16,9 +16,8 @@ struct my_actor : coro_actor {
    timer_id_t timer_id_{300949};
    unsigned int times = 0;
    std::vector<int> values;
-   coro_timer my_timer;
 
-   auto echo_timer(int a) -> coro_timer {
+   auto echo_timer(int a) -> timer_task {
       co_await sleep(1s);
       spdlog::info("timeout");
 
@@ -29,7 +28,7 @@ struct my_actor : coro_actor {
 
    auto handle_message(message& msg) noexcept -> task_result override {
       if (msg.msg_type_id_ == test_message::type_id ) {
-         my_timer = echo_timer(0);
+         echo_timer(0);
       }
       return task_result::resume;
    }

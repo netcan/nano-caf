@@ -133,7 +133,7 @@ add_library(nano_caf
 if(CMAKE_CXX_STANDARD EQUAL 20)
     target_sources(nano_caf PRIVATE
             include/nano-caf/util/caf_log.h include/nano-caf/core/coroutine/coro_actor.h
-            include/nano-caf/core/coroutine/coro_timer.h src/core/coroutine/coro_timer.cpp)
+            include/nano-caf/core/coroutine/timer_task.h src/core/coroutine/timer_task.cpp)
 endif()
 
 add_executable(nano_caf-test
