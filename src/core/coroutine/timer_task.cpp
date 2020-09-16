@@ -9,6 +9,8 @@ NANO_CAF_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////
 auto timer_task::stop_timer() noexcept -> void {
+   // only by querying from the registry, we can precisely know
+   // the aliveness of this coroutine.
    if(self_ && self_->coroutines_.exists(handle_.address())) {
       handle_.promise().stop_timer();
    }
@@ -20,6 +22,8 @@ namespace detail {
    }
 
    inline auto timer_awaiter_keeper::cancel(handle_type handle) noexcept -> void {
+      // only if the awaiter is not null, we are able to know a timer is still waiting,
+      // although it might not be the one we intent to cancel (it doesn't matter actually).
       if (awaiter_) {
          awaiter_->cancel(handle);
       }
@@ -91,7 +95,7 @@ namespace detail {
 
          // we need to use this caller in await_resume.
          caller_ = caller;
-         
+
          return status_t::ok;
       }
 
