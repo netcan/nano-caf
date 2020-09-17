@@ -85,9 +85,9 @@ namespace detail {
       auto initial_suspend() noexcept -> std::suspend_never { return {}; }
       auto final_suspend() noexcept -> final_awaiter { return {}; }
 
-      template<awaiter_concept<timer_task_promise> AWAITER>
-      auto await_transform(AWAITER&& awaiter) -> decltype(auto) {
-         return std::forward<AWAITER>(awaiter);
+      template<awaitable_concept<timer_task_promise> AWAITABLE>
+      auto await_transform(AWAITABLE&& awaitable) -> decltype(auto) {
+         return get_awaiter(std::forward<AWAITABLE>(awaitable));
       }
 
       auto await_transform(co_timer&& timer) noexcept -> real_cancellable_timer_awaiter {
@@ -124,12 +124,16 @@ struct timer_task : cancellable_timer_awaiter {
       : actor_{&actor}, handle_{handle} {}
 
    auto cancel() noexcept -> void override;
-   auto matches(timer_id_t id) const noexcept -> bool override;
 
+public:
+   // as an awaiter
    auto await_ready() const noexcept -> bool { return !is_valid(); }
    auto await_suspend(std::coroutine_handle<> caller) noexcept -> bool;
    auto await_suspend(handle_type caller) noexcept -> bool;
    auto await_resume() const noexcept -> void;
+
+private:
+   auto matches(timer_id_t id) const noexcept -> bool override;
 
 private:
    auto is_valid() const noexcept -> bool;

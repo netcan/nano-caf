@@ -74,6 +74,8 @@ namespace detail {
 
    ///////////////////////////////////////////////////////////////////////
    auto timer_task_promise::on_destroy() noexcept -> void {
+      // the deregister operation should not be put in destructor,
+      // because it's a chicken-and-eggs issue.
       actor_.coroutines_.on_destroy(handle_type::from_promise(*this));
    }
 

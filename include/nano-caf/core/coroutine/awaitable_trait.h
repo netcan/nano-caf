@@ -57,7 +57,7 @@ namespace detail {
       return operator co_await(std::forward<T>(value));
    }
 
-   template<typename P, awaiter_concept<P> T>
+   template<awaiter_concept<void> T>
    auto get_awaiter(T&& value) -> decltype(auto) {
       return std::forward<T>(value);
    }

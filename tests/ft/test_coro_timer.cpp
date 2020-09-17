@@ -73,20 +73,19 @@ struct my_actor : coro_actor {
       } else {
          spdlog::error("request fail: {}", result_2.failure());
       }
-
-      exit(exit_reason::normal);
    }
 
    auto wrapper_timer() -> timer_task {
       co_await echo_timer();
+      exit(exit_reason::normal);
    }
 
    auto handle_message(message& msg) noexcept -> task_result override {
       if (msg.msg_type_id_ == test_message::type_id ) {
          auto timer = wrapper_timer();
          timer.cancel();
-//         timer.stop_timer();
-//         timer.stop_timer();
+//         timer.cancel();
+//         timer.cancel();
       }
       return task_result::resume;
    }
