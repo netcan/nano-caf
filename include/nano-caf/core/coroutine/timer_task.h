@@ -11,6 +11,7 @@
 #include <nano-caf/core/coroutine/co_timer.h>
 #include <nano-caf/core/coroutine/real_cancellable_timer_awaiter.h>
 #include <nano-caf/core/coroutine/co_actor_final_awaiter.h>
+#include <nano-caf/core/coroutine/co_task.h>
 #include <nano-caf/util/caf_log.h>
 
 NANO_CAF_NS_BEGIN
@@ -85,67 +86,70 @@ namespace detail {
 }
 
 template<typename T = void>
-struct timer_task : cancellable_timer_awaiter {
+struct timer_task
+   : private co_task<detail::timer_task_promise<T>> {
    using promise_type = detail::timer_task_promise<T>;
    using handle_type = std::coroutine_handle<promise_type>;
+   using super = co_task<promise_type>;
 
-   timer_task() noexcept = default;
-   explicit timer_task(co_actor_context& actor, handle_type handle) noexcept
-      : actor_{&actor}, handle_{handle} {}
+   using super::super;
 
-   auto cancel() noexcept -> void override {
-      // only by querying from the registry, we can precisely know
-      // the aliveness of this coroutine.
-      if(is_valid()) {
-         handle_.promise().cancel();
+private:
+   friend struct awaiter;
+   struct awaiter : private cancellable_timer_awaiter {
+      awaiter(timer_task& self) : self_(self) {}
+
+      auto await_ready() const noexcept -> bool { return !self_.is_valid(); }
+      auto await_suspend(std::coroutine_handle<> caller) noexcept {
+         self_.promise().save_caller(caller);
       }
-   }
+
+      template<typename P>
+      auto await_suspend(std::coroutine_handle<detail::timer_task_promise<P>> caller) noexcept {
+         self_.promise().save_caller(caller);
+         caller.promise().on_timer_start(this);
+         timer_keeper_ = &caller.promise();
+      }
+
+      auto await_resume() const noexcept -> decltype(auto)
+      requires std::same_as<T, void> {
+         notify_caller_done();
+      }
+
+      auto await_resume() const noexcept -> decltype(auto)
+      requires (!std::same_as<T, void>) {
+         notify_caller_done();
+         return self_.promise().get_result();
+      }
+
+   private:
+      auto matches(timer_id_t id) const noexcept -> bool override {
+         return self_.is_valid() && self_.promise().still_waiting(id);
+      }
+
+      auto cancel() noexcept -> void override {
+         return self_.cancel();
+      }
+
+   private:
+      auto notify_caller_done() const noexcept {
+         if(timer_keeper_) timer_keeper_->on_timer_done();
+      }
+
+   private:
+      timer_task& self_;
+      detail::timer_awaiter_keeper* timer_keeper_{};
+   };
 
 public:
-   // as an awaiter
-   auto await_ready() const noexcept -> bool { return !is_valid(); }
-
-   auto await_suspend(std::coroutine_handle<> caller) noexcept {
-      handle_.promise().save_caller(caller);
+   auto operator co_await() -> awaiter { return *this; }
+   auto cancel() noexcept -> void {
+      // only by querying from the registry, we can precisely know
+      // the aliveness of this coroutine.
+      if(super::is_valid()) {
+         super::promise().cancel();
+      }
    }
-
-   template<typename P>
-   auto await_suspend(std::coroutine_handle<detail::timer_task_promise<P>> caller) noexcept {
-      handle_.promise().save_caller(caller);
-      caller.promise().on_timer_start(this);
-      timer_keeper_ = &caller.promise();
-   }
-
-   auto await_resume() const noexcept -> decltype(auto)
-   requires std::same_as<T, void> {
-      notify_caller_done();
-   }
-
-   auto await_resume() const noexcept -> decltype(auto)
-   requires (!std::same_as<T, void>) {
-      notify_caller_done();
-      return handle_.promise().get_result();
-   }
-
-private:
-   auto matches(timer_id_t id) const noexcept -> bool override {
-      return is_valid() && handle_.promise().still_waiting(id);
-   }
-
-private:
-   auto is_valid() const noexcept -> bool {
-      return handle_ && actor_ && actor_->coroutine_alive(handle_);
-   }
-
-protected:
-   auto notify_caller_done() const noexcept {
-      if(timer_keeper_) timer_keeper_->on_timer_done();
-   }
-
-protected:
-   co_actor_context* actor_{};
-   handle_type handle_;
-   detail::timer_awaiter_keeper* timer_keeper_{};
 };
 
 namespace detail {
