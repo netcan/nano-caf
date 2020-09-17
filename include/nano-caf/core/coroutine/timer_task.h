@@ -14,7 +14,7 @@
 
 NANO_CAF_NS_BEGIN
 
-struct coro_actor;
+struct co_actor_context;
 struct timer_task;
 
 struct cancellable_timer_awaiter {
@@ -76,9 +76,9 @@ namespace detail {
 
    public:
       template<typename ACTOR, typename ... Args>
-      requires std::is_base_of_v<coro_actor, std::decay_t<ACTOR>>
+      requires std::is_base_of_v<co_actor_context, std::decay_t<ACTOR>>
       timer_task_promise(ACTOR& actor, Args const&...) noexcept
-         : actor_{static_cast<coro_actor&>(actor)}
+         : actor_{static_cast<co_actor_context&>(actor)}
       {}
 
       auto get_return_object() noexcept -> timer_task;
@@ -97,7 +97,7 @@ namespace detail {
       auto return_void() noexcept {}
 
       auto get_self_handle() const noexcept -> intrusive_actor_ptr;
-      auto get_actor() const noexcept -> coro_actor& { return actor_; }
+      auto get_actor() const noexcept -> co_actor_context& { return actor_; }
 
       auto save_caller(std::coroutine_handle<> caller) noexcept { caller_ = caller; }
       auto get_caller() const noexcept { return caller_; }
@@ -110,7 +110,7 @@ namespace detail {
       friend real_cancellable_timer_awaiter;
       friend timer_task;
 
-      coro_actor& actor_;
+      co_actor_context& actor_;
       std::coroutine_handle<> caller_{};
    };
 }
@@ -120,7 +120,7 @@ struct timer_task : cancellable_timer_awaiter {
    using handle_type = std::coroutine_handle<promise_type>;
 
    timer_task() noexcept = default;
-   explicit timer_task(coro_actor& actor, handle_type handle) noexcept
+   explicit timer_task(co_actor_context& actor, handle_type handle) noexcept
       : actor_{&actor}, handle_{handle} {}
 
    auto cancel() noexcept -> void override;
@@ -139,7 +139,7 @@ private:
    auto is_valid() const noexcept -> bool;
 
 private:
-   coro_actor* actor_{};
+   co_actor_context* actor_{};
    handle_type handle_;
    handle_type caller_{};
 };

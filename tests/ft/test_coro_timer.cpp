@@ -4,7 +4,7 @@
 
 #include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor_system.h>
-#include <nano-caf/core/coroutine/coro_actor.h>
+#include <nano-caf/core/coroutine/co_actor.h>
 #include <nano-caf/core/coroutine/co_request.h>
 #include <spdlog/spdlog.h>
 #include "../ut/test_msgs.h"
@@ -46,7 +46,7 @@ namespace {
    };
 }
 
-struct my_actor : coro_actor {
+struct my_actor : co_actor {
    typed_actor_handle<media_session> session_actor;
    auto on_init() -> void override {
       session_actor = spawn_typed_actor<media_session, media_session_actor>();

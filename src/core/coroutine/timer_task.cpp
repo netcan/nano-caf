@@ -3,7 +3,7 @@
 //
 
 #include <nano-caf/core/coroutine/timer_task.h>
-#include <nano-caf/core/coroutine/coro_actor.h>
+#include <nano-caf/core/coroutine/co_actor_context.h>
 
 NANO_CAF_NS_BEGIN
 
