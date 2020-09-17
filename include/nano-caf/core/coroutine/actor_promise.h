@@ -21,6 +21,13 @@ struct actor_promise {
       on_create();
    }
 
+   template<typename ACTOR>
+   requires std::is_base_of_v<co_actor_context, std::decay_t<std::remove_pointer_t<ACTOR>>>
+   actor_promise(ACTOR* actor) noexcept
+      : actor_{*static_cast<co_actor_context*>(const_cast<ACTOR*>(actor))} {
+      on_create();
+   }
+
    auto on_create() noexcept -> void {
       // once this coroutine is created successfully, it should be registered
       // to the actor, so that its lifetime could be maintained automatically.
