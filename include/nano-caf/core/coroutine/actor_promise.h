@@ -17,7 +17,7 @@ struct actor_promise {
    template<typename ACTOR>
    requires std::is_base_of_v<co_actor_context, std::decay_t<ACTOR>>
    actor_promise(ACTOR& actor) noexcept
-   : actor_{static_cast<co_actor_context&>(actor)} {
+   : actor_{static_cast<co_actor_context&>(const_cast<ACTOR&>(actor))} {
       on_create();
    }
 

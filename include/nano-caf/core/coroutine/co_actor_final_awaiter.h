@@ -29,10 +29,21 @@ struct co_actor_final_awaiter {
 
       auto upper_caller = self.promise().get_caller();
       if(upper_caller) {
+         // symmetric transfer to other co-routine, which means this co-routine
+         // can't be destroyed automatically (we don't do it in task destructor either),
+         // so we must manually destroy it here.
+         self.destroy();
          return upper_caller;
       }
 
-      // straight to the resume point, so that this coroutine could be destroyed.
+      // Since we have to return a coroutine_handle here, and
+      // resuming from final suspend point is an undefined behavior,
+      // which means we can't return the handle of this coroutine.
+      // The only option left to us is noop_coroutine, which will suspend
+      // the coroutine, so this coroutine won't be destroyed automatically.
+      // the only thing we can do is destroying it here, and return
+      // the execution to the resumer.
+      self.destroy();
       return std::noop_coroutine();
    }
 
