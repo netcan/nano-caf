@@ -11,9 +11,7 @@
 #include <nano-caf/core/coroutine/co_timer.h>
 #include <nano-caf/core/coroutine/real_cancellable_timer_awaiter.h>
 #include <nano-caf/core/coroutine/co_actor_final_awaiter.h>
-#include <nano-caf/util/status_t.h>
 #include <nano-caf/util/caf_log.h>
-#include <coroutine>
 
 NANO_CAF_NS_BEGIN
 
@@ -21,7 +19,6 @@ template<typename T>
 struct timer_task;
 
 namespace detail {
-
    struct timer_awaiter_keeper {
       inline auto on_timer_start(cancellable_timer_awaiter* timer) noexcept -> void {
          awaiter_ = timer;
@@ -118,11 +115,13 @@ public:
       timer_keeper_ = &caller.promise();
    }
 
-   auto await_resume() const noexcept -> decltype(auto) requires std::same_as<T, void> {
+   auto await_resume() const noexcept -> decltype(auto)
+   requires std::same_as<T, void> {
       notify_caller_done();
    }
 
-   auto await_resume() const noexcept -> decltype(auto) requires (!std::same_as<T, void>) {
+   auto await_resume() const noexcept -> decltype(auto)
+   requires (!std::same_as<T, void>) {
       notify_caller_done();
       return handle_.promise().get_result();
    }
