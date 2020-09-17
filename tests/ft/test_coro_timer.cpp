@@ -52,7 +52,7 @@ struct my_actor : co_actor {
       session_actor = spawn_typed_actor<media_session, media_session_actor>();
    }
 
-   auto echo_timer() -> timer_task {
+   auto echo_timer() -> timer_task<int> {
       auto result = co_await sleep(1s);
       if(result == status_t::ok) {
          spdlog::info("timeout 1");
@@ -73,10 +73,13 @@ struct my_actor : co_actor {
       } else {
          spdlog::error("request fail: {}", result_2.failure());
       }
+
+      co_return 10;
    }
 
-   auto wrapper_timer() -> timer_task {
-      co_await echo_timer();
+   auto wrapper_timer() -> timer_task<> {
+      auto result = co_await echo_timer();
+      spdlog::info("echo timer returns = {}", result);
       exit(exit_reason::normal);
    }
 
