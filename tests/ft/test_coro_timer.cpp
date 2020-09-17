@@ -84,7 +84,7 @@ struct my_actor : coro_actor {
    auto handle_message(message& msg) noexcept -> task_result override {
       if (msg.msg_type_id_ == test_message::type_id ) {
          auto timer = wrapper_timer();
-//         timer.stop_timer();
+         timer.cancel();
 //         timer.stop_timer();
 //         timer.stop_timer();
       }

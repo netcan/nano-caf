@@ -29,10 +29,10 @@ namespace detail {
       is_coroutine_handle_v<T>;
 }
 
-template<typename T>
+template<typename T, typename P>
 concept awaiter_concept = requires(T value) {
    { value.await_ready() } -> std::same_as<bool>;
-   { value.await_suspend(std::declval<std::coroutine_handle<>>()) } -> detail::valid_await_suspend_result;
+   { value.await_suspend(std::declval<std::coroutine_handle<P>>()) } -> detail::valid_await_suspend_result;
    { value.await_resume() };
 };
 
@@ -57,14 +57,14 @@ namespace detail {
       return operator co_await(std::forward<T>(value));
    }
 
-   template<awaiter_concept T>
+   template<typename P, awaiter_concept<P> T>
    auto get_awaiter(T&& value) -> decltype(auto) {
       return std::forward<T>(value);
    }
 }
 
-template<typename T>
-concept awaitable_concept = has_co_await<T> || has_global_co_await<T> || awaiter_concept<T>;
+template<typename T, typename P>
+concept awaitable_concept = has_co_await<T> || has_global_co_await<T> || awaiter_concept<T, P>;
 
 template<typename T>
 struct awaitable_traits {

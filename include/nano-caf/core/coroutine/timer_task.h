@@ -17,22 +17,30 @@ NANO_CAF_NS_BEGIN
 struct coro_actor;
 struct timer_task;
 
+struct cancellable_timer_awaiter {
+   virtual auto cancel() noexcept -> void = 0;
+   virtual auto matches(timer_id_t id) const noexcept -> bool = 0;
+   virtual ~cancellable_timer_awaiter() = default;
+};
+
 namespace detail {
    struct timer_task_promise;
-   struct cancellable_timer_awaiter {
+   struct real_cancellable_timer_awaiter : cancellable_timer_awaiter {
       using handle_type = std::coroutine_handle<timer_task_promise>;
 
-      cancellable_timer_awaiter(duration d) noexcept
+      real_cancellable_timer_awaiter(duration d) noexcept
          : duration_{d} {}
 
       auto await_ready() const noexcept { return false; }
       auto await_suspend(handle_type caller) noexcept -> bool;
       auto await_resume() const noexcept -> status_t;
 
-      auto cancel(handle_type caller) noexcept -> void;
-      auto matches(timer_id_t id) const noexcept -> bool {
+   private:
+      auto cancel() noexcept -> void override;
+      auto matches(timer_id_t id) const noexcept -> bool override {
          return timer_id_ && (*timer_id_ == id);
       }
+
    private:
       auto start_timer(handle_type caller) noexcept -> status_t;
 
@@ -52,7 +60,7 @@ namespace detail {
          awaiter_ = nullptr;
       }
       auto still_waiting(timer_id_t) const noexcept -> bool;
-      auto cancel(handle_type handle) noexcept -> void;
+      auto cancel() noexcept -> void;
    private:
       cancellable_timer_awaiter* awaiter_{nullptr};
    };
@@ -77,12 +85,12 @@ namespace detail {
       auto initial_suspend() noexcept -> std::suspend_never { return {}; }
       auto final_suspend() noexcept -> final_awaiter { return {}; }
 
-      template<awaiter_concept AWAITER>
+      template<awaiter_concept<timer_task_promise> AWAITER>
       auto await_transform(AWAITER&& awaiter) -> decltype(auto) {
          return std::forward<AWAITER>(awaiter);
       }
 
-      auto await_transform(co_timer&& timer) noexcept -> cancellable_timer_awaiter {
+      auto await_transform(co_timer&& timer) noexcept -> real_cancellable_timer_awaiter {
          return timer.get_duration();
       }
 
@@ -91,20 +99,15 @@ namespace detail {
       auto get_self_handle() const noexcept -> intrusive_actor_ptr;
       auto get_actor() const noexcept -> coro_actor& { return actor_; }
 
-      auto save_caller(std::coroutine_handle<> caller) noexcept {
-         caller_ = caller;
-      }
-
-      auto get_caller() const noexcept {
-         return caller_;
-      }
+      auto save_caller(std::coroutine_handle<> caller) noexcept { caller_ = caller; }
+      auto get_caller() const noexcept { return caller_; }
 
    private:
       auto stop_timer() noexcept -> void;
       auto on_destroy() noexcept -> void;
 
    private:
-      friend cancellable_timer_awaiter;
+      friend real_cancellable_timer_awaiter;
       friend timer_task;
 
       coro_actor& actor_;
@@ -112,7 +115,7 @@ namespace detail {
    };
 }
 
-struct timer_task {
+struct timer_task : cancellable_timer_awaiter {
    using promise_type = detail::timer_task_promise;
    using handle_type = std::coroutine_handle<promise_type>;
 
@@ -120,16 +123,13 @@ struct timer_task {
    explicit timer_task(coro_actor& actor, handle_type handle) noexcept
       : actor_{&actor}, handle_{handle} {}
 
-   auto stop_timer() noexcept -> void;
+   auto cancel() noexcept -> void override;
+   auto matches(timer_id_t id) const noexcept -> bool override;
 
    auto await_ready() const noexcept -> bool { return !is_valid(); }
-
-   auto await_suspend(std::coroutine_handle<> caller) noexcept -> bool {
-      handle_.promise().save_caller(caller);
-      return true;
-   }
-
-   auto await_resume() const noexcept {}
+   auto await_suspend(std::coroutine_handle<> caller) noexcept -> bool;
+   auto await_suspend(handle_type caller) noexcept -> bool;
+   auto await_resume() const noexcept -> void;
 
 private:
    auto is_valid() const noexcept -> bool;
@@ -137,6 +137,7 @@ private:
 private:
    coro_actor* actor_{};
    handle_type handle_;
+   handle_type caller_{};
 };
 
 NANO_CAF_NS_END

@@ -13,12 +13,36 @@ auto timer_task::is_valid() const noexcept -> bool {
 }
 
 ///////////////////////////////////////////////////////////////////////
-auto timer_task::stop_timer() noexcept -> void {
+auto timer_task::cancel() noexcept -> void {
    // only by querying from the registry, we can precisely know
    // the aliveness of this coroutine.
    if(is_valid()) {
       handle_.promise().stop_timer();
    }
+}
+
+///////////////////////////////////////////////////////////////////////
+auto timer_task::matches(timer_id_t id) const noexcept -> bool {
+   return is_valid() && handle_.promise().still_waiting(id);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+auto timer_task::await_suspend(std::coroutine_handle<> caller) noexcept -> bool {
+   handle_.promise().save_caller(caller);
+   return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+auto timer_task::await_suspend(handle_type caller) noexcept -> bool {
+   handle_.promise().save_caller(caller);
+   caller.promise().on_timer_start(this);
+   caller_ = caller;
+   return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+auto timer_task::await_resume() const noexcept -> void{
+   if(caller_) caller_.promise().on_timer_done();
 }
 
 namespace detail {
@@ -28,11 +52,11 @@ namespace detail {
    }
 
    //////////////////////////////////////////////////////////////////////////////
-   inline auto timer_awaiter_keeper::cancel(handle_type handle) noexcept -> void {
+   inline auto timer_awaiter_keeper::cancel() noexcept -> void {
       // only if the awaiter is not null, we are able to know a timer is still waiting,
       // although it might not be the one we intent to cancel (it doesn't matter actually).
       if (awaiter_) {
-         awaiter_->cancel(handle);
+         awaiter_->cancel();
       }
    }
 }
@@ -55,7 +79,7 @@ namespace detail {
 
    ///////////////////////////////////////////////////////////////////////
    auto timer_task_promise::stop_timer() noexcept -> void {
-      timer_awaiter_keeper::cancel(handle_type::from_promise(*this));
+      timer_awaiter_keeper::cancel();
    }
 
    auto timer_task_promise::get_self_handle() const noexcept -> intrusive_actor_ptr {
@@ -82,14 +106,14 @@ namespace detail {
 
 namespace detail {
    ///////////////////////////////////////////////////////////////////////
-   auto cancellable_timer_awaiter::await_suspend(handle_type caller) noexcept -> bool {
+   auto real_cancellable_timer_awaiter::await_suspend(handle_type caller) noexcept -> bool {
       result_ = start_timer(caller);
       // if this timer wasn't launched successfully, no suspend needed.
       return result_ == status_t::ok;
    }
 
    ///////////////////////////////////////////////////////////////////////
-   auto cancellable_timer_awaiter::start_timer(handle_type caller) noexcept -> status_t {
+   auto real_cancellable_timer_awaiter::start_timer(handle_type caller) noexcept -> status_t {
       auto& actor = caller.promise().get_actor();
       auto result = actor.start_timer(duration_, false,
               std::make_shared<timeout_callback_t>([=, &actor](timer_id_t id) {
@@ -119,29 +143,29 @@ namespace detail {
    }
 
    //////////////////////////////////////////////////////////////////////////////
-   auto cancellable_timer_awaiter::await_resume() const noexcept -> status_t {
+   auto real_cancellable_timer_awaiter::await_resume() const noexcept -> status_t {
       // this function will be invoked if one of following conditions satisfied:
       // 1. this timer wasn't launched successfully;
       // 2. this awaiter is cancelled;
       // 3. the timeout message has been received.
-      caller_.promise().on_timer_done();
+      if(caller_) caller_.promise().on_timer_done();
 
       // return the result, succeeded or failed, to the coroutine.
       return result_;
    }
 
    //////////////////////////////////////////////////////////////////////////////
-   auto cancellable_timer_awaiter::cancel(handle_type caller) noexcept -> void {
+   auto real_cancellable_timer_awaiter::cancel() noexcept -> void {
       // as long as this function could be called, which means this timer
       // must've been started, and we haven't received its timeout msg yet.
       // (but the timeout message might've been in our mail box already).
-      caller.promise().get_actor().stop_timer(*timer_id_);
+      caller_.promise().get_actor().stop_timer(*timer_id_);
       result_ = status_t::cancelled;
       // since the timer has been cancelled, the caller should not
       // be suspend any longer. Once it's resumed, it will call
       // the await_resume of this awaiter immediately. So we don't
       // need to call its on_timer_done() here.
-      caller.resume();
+      caller_.resume();
    }
 }
 
