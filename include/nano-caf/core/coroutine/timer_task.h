@@ -7,6 +7,7 @@
 
 #include <nano-caf/core/msg/predefined-msgs.h>
 #include <nano-caf/core/coroutine/awaitable_trait.h>
+#include <nano-caf/core/coroutine/actor_promise.h>
 #include <nano-caf/core/coroutine/co_timer.h>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/util/caf_log.h>
@@ -14,7 +15,6 @@
 
 NANO_CAF_NS_BEGIN
 
-struct co_actor_context;
 struct timer_task;
 
 struct cancellable_timer_awaiter {
@@ -65,7 +65,9 @@ namespace detail {
       cancellable_timer_awaiter* awaiter_{nullptr};
    };
 
-   struct timer_task_promise : private timer_awaiter_keeper {
+   struct timer_task_promise
+      : private actor_promise<timer_task_promise> // must be the first
+      , private timer_awaiter_keeper {
       using handle_type = std::coroutine_handle<timer_task_promise>;
    private:
       struct final_awaiter {
@@ -76,9 +78,8 @@ namespace detail {
 
    public:
       template<typename ACTOR, typename ... Args>
-      requires std::is_base_of_v<co_actor_context, std::decay_t<ACTOR>>
       timer_task_promise(ACTOR& actor, Args const&...) noexcept
-         : actor_{static_cast<co_actor_context&>(actor)}
+         : actor_promise{actor}
       {}
 
       auto get_return_object() noexcept -> timer_task;
@@ -104,13 +105,12 @@ namespace detail {
 
    private:
       auto stop_timer() noexcept -> void;
-      auto on_destroy() noexcept -> void;
+      //auto on_destroy() noexcept -> void;
 
    private:
       friend real_cancellable_timer_awaiter;
       friend timer_task;
 
-      co_actor_context& actor_;
       std::coroutine_handle<> caller_{};
    };
 }
