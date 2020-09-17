@@ -15,11 +15,11 @@ struct co_task {
    using handle_type = std::coroutine_handle<P>;
 
    co_task() noexcept = default;
-   co_task(co_actor_context& actor, handle_type self) noexcept
-   : actor_{&actor}, self_{self} {}
+   co_task(co_actor_context* actor, handle_type self) noexcept
+   : actor_{actor}, self_{self} {}
 
    auto is_valid() const noexcept -> bool {
-      return self_ && actor_ && actor_->coroutine_alive(self_);
+      return self_ && actor_->coroutine_alive(self_);
    }
 
    auto promise() const -> decltype(auto) {

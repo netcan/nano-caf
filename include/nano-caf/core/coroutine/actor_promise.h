@@ -31,7 +31,7 @@ struct actor_promise {
       actor_.coroutines_.on_destroy(handle_type::from_promise(*reinterpret_cast<P*>(this)));
    }
 
-   auto get_actor() const noexcept -> co_actor_context& { return actor_; }
+   auto get_actor() const noexcept -> decltype(auto) { return actor_; }
    auto get_self_handle() const noexcept -> intrusive_actor_ptr {
       return actor_.self_handle();
    }
@@ -39,7 +39,7 @@ struct actor_promise {
    auto save_caller(std::coroutine_handle<> caller) noexcept { caller_ = caller; }
    auto get_caller() const noexcept { return caller_; }
 
-protected:
+private:
    co_actor_context& actor_;
    std::coroutine_handle<> caller_{};
 };

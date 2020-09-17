@@ -45,6 +45,8 @@ namespace detail {
          : super{actor}
       {}
 
+      // for embedded system
+      static auto get_return_object_on_allocation_failure() noexcept -> timer_task<T>;
       auto get_return_object() noexcept -> timer_task<T>;
       auto initial_suspend() noexcept   -> std::suspend_never { return {}; }
       auto final_suspend() noexcept     -> co_actor_final_awaiter { return {}; }
@@ -155,8 +157,13 @@ public:
 namespace detail {
    template<typename T>
    auto timer_task_promise_base<T>::get_return_object() noexcept -> timer_task<T> {
-      return timer_task<T>{ super::actor_,
+      return timer_task<T>{ &super::get_actor(),
                             handle_type::from_promise(*reinterpret_cast<timer_task_promise<T>*>(this))};
+   }
+
+   template<typename T>
+   auto timer_task_promise_base<T>::get_return_object_on_allocation_failure() noexcept -> timer_task<T> {
+      return timer_task<T>{nullptr, handle_type::from_address(nullptr)};
    }
 }
 
