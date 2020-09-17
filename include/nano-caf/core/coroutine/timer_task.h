@@ -28,6 +28,7 @@ namespace detail {
       }
       auto still_waiting(timer_id_t) const noexcept -> bool;
       auto cancel() noexcept -> void;
+
    private:
       cancellable_timer_awaiter* awaiter_{nullptr};
    };
@@ -44,8 +45,8 @@ namespace detail {
       {}
 
       auto get_return_object() noexcept -> timer_task<T>;
-      auto initial_suspend() noexcept -> std::suspend_never { return {}; }
-      auto final_suspend() noexcept -> co_actor_final_awaiter { return {}; }
+      auto initial_suspend() noexcept   -> std::suspend_never { return {}; }
+      auto final_suspend() noexcept     -> co_actor_final_awaiter { return {}; }
 
       template<awaitable_concept<timer_task_promise<T>> AWAITABLE>
       auto await_transform(AWAITABLE&& awaitable) -> decltype(auto) {
@@ -53,7 +54,7 @@ namespace detail {
       }
 
       auto await_transform(co_timer&& timer) noexcept -> real_cancellable_timer_awaiter<T> {
-         return timer.get_duration();
+         return timer.duration_;
       }
    };
 

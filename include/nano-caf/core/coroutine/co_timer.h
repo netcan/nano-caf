@@ -11,36 +11,42 @@
 
 NANO_CAF_NS_BEGIN
 
-struct co_timer {
-   explicit co_timer(duration duration) : duration_{duration} {}
+namespace detail {
+   struct co_timer_awaiter {
+      co_timer_awaiter(duration d) : duration_{d} {}
 
-   auto await_ready() const noexcept { return false; }
+      auto await_ready() const noexcept { return false; }
 
-   template<typename P>
-   auto await_suspend(std::coroutine_handle<P> caller) noexcept -> bool {
-      auto& actor = caller.promise().get_actor();
-      auto result = actor.start_timer(duration_, false,
-           std::make_shared<timeout_callback_t>([=, &actor](timer_id_t) {
-              if (actor.coroutine_alive(caller)) {
-                 caller();
-              }
-           }));
+      template<typename P>
+      auto await_suspend(std::coroutine_handle<P> caller) noexcept -> bool {
+         auto& actor = caller.promise().get_actor();
+         auto result = actor.start_timer(duration_, false,
+              std::make_shared<timeout_callback_t>([=, &actor](timer_id_t) {
+                 if (actor.coroutine_alive(caller)) {
+                    caller();
+                 }
+              }));
 
-      if(result.is_ok()) {
-         result_ = status_t::ok;
-         return true;
+         if(result.is_ok()) {
+            result_ = status_t::ok;
+            return true;
+         } else {
+            result_ = result.failure();
+            return false;
+         }
       }
 
-      result_ = result.failure();
-      return false;
-   }
+      auto await_resume() const noexcept -> status_t { return result_; }
 
-   auto await_resume() const noexcept -> status_t { return result_; }
-   auto get_duration() const noexcept -> duration { return duration_; }
+   private:
+      duration duration_;
+      status_t result_{status_t::ok};
+   };
+}
 
-private:
+struct co_timer {
+   auto operator co_await () -> detail::co_timer_awaiter { return duration_; }
    duration duration_;
-   status_t result_{status_t::ok};
 };
 
 NANO_CAF_NS_END
