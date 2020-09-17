@@ -77,21 +77,4 @@ namespace detail {
    }
 }
 
-namespace detail {
-   auto timer_task_promise::final_awaiter::await_suspend(handle_type self) noexcept -> std::coroutine_handle<> {
-      // before this coroutine is destroyed, it should be de-registered. so that
-      // anyone who needs to know its aliveness (the timeout message, eg), is able
-      // to get the precise result by querying the registry.
-      self.promise().on_destroy();
-
-      auto upper_caller = self.promise().get_caller();
-      if(upper_caller) {
-         return upper_caller;
-      }
-
-      // straight to the resume point, so that this coroutine could be destroyed.
-      return std::noop_coroutine();
-   }
-}
-
 NANO_CAF_NS_END

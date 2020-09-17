@@ -10,6 +10,7 @@
 #include <nano-caf/core/coroutine/actor_promise.h>
 #include <nano-caf/core/coroutine/co_timer.h>
 #include <nano-caf/core/coroutine/real_cancellable_timer_awaiter.h>
+#include <nano-caf/core/coroutine/co_actor_final_awaiter.h>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/util/caf_log.h>
 #include <coroutine>
@@ -38,13 +39,6 @@ namespace detail {
       : private actor_promise<timer_task_promise> // must be the first
       , private timer_awaiter_keeper {
       using handle_type = std::coroutine_handle<timer_task_promise>;
-   private:
-      struct final_awaiter {
-         auto await_ready() const noexcept { return false; }
-         auto await_suspend(handle_type) noexcept -> std::coroutine_handle<>;
-         auto await_resume() const noexcept {};
-      };
-
    public:
       template<typename ACTOR, typename ... Args>
       timer_task_promise(ACTOR& actor, Args const&...) noexcept
@@ -53,7 +47,7 @@ namespace detail {
 
       auto get_return_object() noexcept -> timer_task;
       auto initial_suspend() noexcept -> std::suspend_never { return {}; }
-      auto final_suspend() noexcept -> final_awaiter { return {}; }
+      auto final_suspend() noexcept -> co_actor_final_awaiter { return {}; }
 
       template<awaitable_concept<timer_task_promise> AWAITABLE>
       auto await_transform(AWAITABLE&& awaitable) -> decltype(auto) {
@@ -72,9 +66,10 @@ namespace detail {
       auto save_caller(std::coroutine_handle<> caller) noexcept { caller_ = caller; }
       auto get_caller() const noexcept { return caller_; }
 
+      using actor_promise<timer_task_promise>::on_destroy;
+
    private:
       auto stop_timer() noexcept -> void;
-      //auto on_destroy() noexcept -> void;
 
    private:
       friend real_cancellable_timer_awaiter;
