@@ -43,7 +43,7 @@ struct co_actor_final_awaiter {
       // the coroutine, so this coroutine won't be destroyed automatically.
       // the only thing we can do is destroying it here, and return
       // the execution to the resumer.
-      self.destroy();
+      //self.destroy();
       return std::noop_coroutine();
    }
 
