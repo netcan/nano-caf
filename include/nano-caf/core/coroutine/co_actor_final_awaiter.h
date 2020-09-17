@@ -12,15 +12,15 @@
 NANO_CAF_NS_BEGIN
 
 template<typename P>
-concept destroyable_coroutine = requires (P co) {
-   { co.on_destroy() };
-   { co.get_caller() } -> std::convertible_to<std::coroutine_handle<>>;
+concept awaitable_coroutine = requires (P promise) {
+   { promise.on_destroy() };
+   { promise.get_caller() } -> std::convertible_to<std::coroutine_handle<>>;
 };
 
 struct co_actor_final_awaiter {
    auto await_ready() const noexcept { return false; }
 
-   template<destroyable_coroutine P>
+   template<awaitable_coroutine P>
    auto await_suspend(std::coroutine_handle<P> self) noexcept -> std::coroutine_handle<> {
       // Before this coroutine is destroyed, it must be de-registered. so that
       // anyone who needs to know its aliveness (the timeout message, eg), is able

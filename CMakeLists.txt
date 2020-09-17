@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(nano_caf)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
 #      -Wcast-align -Wunused -Woverloaded-virtual -Wconversion \
@@ -127,12 +127,26 @@ add_library(nano_caf
         include/nano-caf/util/cv_notifier.h
         include/nano-caf/core/timer/timer_set.h src/core/timer/timer_set.cpp
         include/nano-caf/core/actor/shutdown_notifier.h
-        include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp include/nano-caf/core/coroutine/coro_registry.h src/core/actor/intrusive_actor_ptr.cpp include/nano-caf/core/coroutine/co_request.h include/nano-caf/core/actor/request_reply.h include/nano-caf/core/coroutine/awaitable_trait.h include/nano-caf/core/coroutine/co_timer.h include/nano-caf/core/coroutine/co_actor.h include/nano-caf/core/coroutine/actor_promise.h include/nano-caf/core/coroutine/cancellable_timer_awaiter.h include/nano-caf/core/timer/timer_id_t.h include/nano-caf/core/coroutine/real_cancellable_timer_awaiter.h include/nano-caf/core/timer/duration.h include/nano-caf/core/coroutine/co_actor_final_awaiter.h include/nano-caf/core/coroutine/co_task.h)
+        include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp
+        src/core/actor/intrusive_actor_ptr.cpp
+        include/nano-caf/core/timer/timer_id_t.h
+        include/nano-caf/core/timer/duration.h)
 
 if(CMAKE_CXX_STANDARD EQUAL 20)
     target_sources(nano_caf PRIVATE
             include/nano-caf/util/caf_log.h include/nano-caf/core/coroutine/co_actor_context.h
-            include/nano-caf/core/coroutine/timer_task.h src/core/coroutine/timer_task.cpp)
+            include/nano-caf/core/coroutine/timer_task.h src/core/coroutine/timer_task.cpp
+            include/nano-caf/core/coroutine/coro_registry.h
+            include/nano-caf/core/coroutine/co_request.h
+            include/nano-caf/core/actor/request_reply.h
+            include/nano-caf/core/coroutine/awaitable_trait.h
+            include/nano-caf/core/coroutine/co_timer.h
+            include/nano-caf/core/coroutine/co_actor.h
+            include/nano-caf/core/coroutine/actor_promise.h
+            include/nano-caf/core/coroutine/cancellable_timer_awaiter.h
+            include/nano-caf/core/coroutine/real_cancellable_timer_awaiter.h
+            include/nano-caf/core/coroutine/co_actor_final_awaiter.h
+            include/nano-caf/core/coroutine/co_task.h)
 endif()
 
 add_executable(nano_caf-test
@@ -172,14 +186,18 @@ add_executable(test_ping_pong
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(nano_caf-test nano_caf pthread atomic)
     target_link_libraries(test_actor_system nano_caf pthread atomic)
+    if(CMAKE_CXX_STANDARD EQUAL 20)
     target_link_libraries(test_coro_actor nano_caf pthread atomic)
+    endif()
     target_link_libraries(test_ping_pong nano_caf pthread atomic)
     target_link_libraries(test_async nano_caf pthread atomic)
     #target_link_libraries(test_job_queue nano_caf pthread atomic)
 else()
     target_link_libraries(nano_caf-test nano_caf)
     target_link_libraries(test_actor_system nano_caf)
+    if(CMAKE_CXX_STANDARD EQUAL 20)
     target_link_libraries(test_coro_actor nano_caf)
+    endif()
     target_link_libraries(test_ping_pong nano_caf)
     target_link_libraries(test_async nano_caf)
     #target_link_libraries(test_job_queue nano_caf)
