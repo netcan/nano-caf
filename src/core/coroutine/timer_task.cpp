@@ -17,7 +17,7 @@ auto timer_task::cancel() noexcept -> void {
    // only by querying from the registry, we can precisely know
    // the aliveness of this coroutine.
    if(is_valid()) {
-      handle_.promise().stop_timer();
+      handle_.promise().cancel();
    }
 }
 
@@ -58,18 +58,6 @@ namespace detail {
       if (awaiter_) {
          awaiter_->cancel();
       }
-   }
-}
-
-namespace detail {
-   ///////////////////////////////////////////////////////////////////////
-   auto timer_task_promise::get_return_object() noexcept -> timer_task {
-      return timer_task{actor_, handle_type::from_promise(*this)};
-   }
-
-   ///////////////////////////////////////////////////////////////////////
-   auto timer_task_promise::stop_timer() noexcept -> void {
-      timer_awaiter_keeper::cancel();
    }
 }
 
