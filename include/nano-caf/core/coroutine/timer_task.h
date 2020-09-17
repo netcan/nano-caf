@@ -9,6 +9,7 @@
 #include <nano-caf/core/coroutine/awaitable_trait.h>
 #include <nano-caf/core/coroutine/actor_promise.h>
 #include <nano-caf/core/coroutine/co_timer.h>
+#include <nano-caf/core/coroutine/real_cancellable_timer_awaiter.h>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/util/caf_log.h>
 #include <coroutine>
@@ -17,40 +18,8 @@ NANO_CAF_NS_BEGIN
 
 struct timer_task;
 
-struct cancellable_timer_awaiter {
-   virtual auto cancel() noexcept -> void = 0;
-   virtual auto matches(timer_id_t id) const noexcept -> bool = 0;
-   virtual ~cancellable_timer_awaiter() = default;
-};
-
 namespace detail {
    struct timer_task_promise;
-   struct real_cancellable_timer_awaiter : cancellable_timer_awaiter {
-      using handle_type = std::coroutine_handle<timer_task_promise>;
-
-      real_cancellable_timer_awaiter(duration d) noexcept
-         : duration_{d} {}
-
-      auto await_ready() const noexcept { return false; }
-      auto await_suspend(handle_type caller) noexcept -> bool;
-      auto await_resume() const noexcept -> status_t;
-
-   private:
-      auto cancel() noexcept -> void override;
-      auto matches(timer_id_t id) const noexcept -> bool override {
-         return timer_id_ && (*timer_id_ == id);
-      }
-
-   private:
-      auto start_timer(handle_type caller) noexcept -> status_t;
-
-   private:
-      duration duration_;
-      std::optional<timer_id_t> timer_id_{std::nullopt};
-      status_t result_{status_t::ok};
-      handle_type caller_;
-   };
-
    struct timer_awaiter_keeper {
       using handle_type = std::coroutine_handle<timer_task_promise>;
       inline auto on_timer_start(cancellable_timer_awaiter* timer) noexcept -> void {

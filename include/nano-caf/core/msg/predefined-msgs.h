@@ -7,6 +7,8 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/msg/message_trait.h>
+#include <nano-caf/core/timer/timer_id_t.h>
+#include <nano-caf/core/timer/duration.h>
 #include <nano-caf/core/actor/exit_reason.h>
 #include <nano-caf/util/either.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
@@ -25,22 +27,7 @@ struct done_notifier {
 CAF_def_message(future_done, (notifier, std::unique_ptr<done_notifier>));
 CAF_def_message(reply_msg, (notifier, std::unique_ptr<done_notifier>));
 
-using duration = uint64_t ;
-
 using timer_spec = either<duration, std::chrono::steady_clock::time_point>;
-
-struct timer_id_t {
-   explicit timer_id_t(uint64_t id) : id_{id} {}
-
-   //auto operator=(timer_id_t const&) noexcept -> timer_id_t& = default;
-
-   auto operator==(timer_id_t& rhs) const { return id_ == rhs.id_; }
-   auto operator!=(timer_id_t& rhs) const { return id_ != rhs.id_; }
-   auto operator<(timer_id_t& rhs) const  { return id_ < rhs.id_; }
-
-private:
-   uint64_t id_;
-};
 
 using timeout_callback_t = std::function<auto (timer_id_t) -> void>;
 
