@@ -95,10 +95,10 @@ struct timer_task
    using super::super;
 
 private:
-   friend struct awaiter;
-   struct awaiter : private cancellable_timer_awaiter {
-      awaiter(timer_task& self) : self_(self) {}
+   struct awaiter : cancellable_timer_awaiter {
+      awaiter(timer_task& self) : self_{self} {}
 
+      // as an awaiter
       auto await_ready() const noexcept -> bool { return !self_.is_valid(); }
       auto await_suspend(std::coroutine_handle<> caller) noexcept {
          self_.promise().save_caller(caller);
@@ -123,27 +123,27 @@ private:
       }
 
    private:
-      auto matches(timer_id_t id) const noexcept -> bool override {
-         return self_.is_valid() && self_.promise().still_waiting(id);
-      }
-
-      auto cancel() noexcept -> void override {
-         return self_.cancel();
-      }
-
-   private:
       auto notify_caller_done() const noexcept {
          if(timer_keeper_) timer_keeper_->on_timer_done();
       }
 
    private:
-      timer_task& self_;
+      auto matches(timer_id_t id) const noexcept -> bool override {
+         return self_.is_valid() && self_.promise().still_waiting(id);
+      }
+
+      auto cancel() noexcept -> void override {
+         self_.cancel_timer();
+      }
+
+   private:
+      timer_task self_;
       detail::timer_awaiter_keeper* timer_keeper_{};
    };
 
 public:
    auto operator co_await() -> awaiter { return *this; }
-   auto cancel() noexcept -> void {
+   auto cancel_timer() noexcept -> void {
       // only by querying from the registry, we can precisely know
       // the aliveness of this coroutine.
       if(super::is_valid()) {

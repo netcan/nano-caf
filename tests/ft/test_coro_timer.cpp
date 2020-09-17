@@ -86,7 +86,7 @@ struct my_actor : co_actor {
    auto handle_message(message& msg) noexcept -> task_result override {
       if (msg.msg_type_id_ == test_message::type_id ) {
          auto timer = wrapper_timer();
-         timer.cancel();
+         timer.cancel_timer();
 //         timer.cancel();
 //         timer.cancel();
       }
