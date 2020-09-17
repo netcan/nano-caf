@@ -22,9 +22,9 @@ struct co_actor_final_awaiter {
 
    template<destroyable_coroutine P>
    auto await_suspend(std::coroutine_handle<P> self) noexcept -> std::coroutine_handle<> {
-      // before this coroutine is destroyed, it should be de-registered. so that
+      // Before this coroutine is destroyed, it must be de-registered. so that
       // anyone who needs to know its aliveness (the timeout message, eg), is able
-      // to get the precise result by querying the registry.
+      // to get the precise state by querying the registry.
       self.promise().on_destroy();
 
       auto upper_caller = self.promise().get_caller();
