@@ -36,10 +36,9 @@ namespace detail {
    };
 
    struct timer_task_promise
-      : private actor_promise<timer_task_promise> // must be the first
-      , private timer_awaiter_keeper {
+      : actor_promise<timer_task_promise> // must be the first
+      , timer_awaiter_keeper {
       using handle_type = std::coroutine_handle<timer_task_promise>;
-   public:
       template<typename ACTOR, typename ... Args>
       timer_task_promise(ACTOR& actor, Args const&...) noexcept
          : actor_promise{actor}
@@ -60,22 +59,7 @@ namespace detail {
 
       auto return_void() noexcept {}
 
-      auto get_self_handle() const noexcept -> intrusive_actor_ptr;
-      auto get_actor() const noexcept -> co_actor_context& { return actor_; }
-
-      auto save_caller(std::coroutine_handle<> caller) noexcept { caller_ = caller; }
-      auto get_caller() const noexcept { return caller_; }
-
-      using actor_promise<timer_task_promise>::on_destroy;
-
-   private:
       auto stop_timer() noexcept -> void;
-
-   private:
-      friend real_cancellable_timer_awaiter;
-      friend timer_task;
-
-      std::coroutine_handle<> caller_{};
    };
 }
 

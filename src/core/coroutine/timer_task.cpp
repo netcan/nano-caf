@@ -71,10 +71,6 @@ namespace detail {
    auto timer_task_promise::stop_timer() noexcept -> void {
       timer_awaiter_keeper::cancel();
    }
-
-   auto timer_task_promise::get_self_handle() const noexcept -> intrusive_actor_ptr {
-      return actor_.self_handle();
-   }
 }
 
 NANO_CAF_NS_END

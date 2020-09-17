@@ -31,8 +31,17 @@ struct actor_promise {
       actor_.coroutines_.on_destroy(handle_type::from_promise(*reinterpret_cast<P*>(this)));
    }
 
+   auto get_actor() const noexcept -> co_actor_context& { return actor_; }
+   auto get_self_handle() const noexcept -> intrusive_actor_ptr {
+      return actor_.self_handle();
+   }
+
+   auto save_caller(std::coroutine_handle<> caller) noexcept { caller_ = caller; }
+   auto get_caller() const noexcept { return caller_; }
+
 protected:
    co_actor_context& actor_;
+   std::coroutine_handle<> caller_{};
 };
 
 NANO_CAF_NS_END
