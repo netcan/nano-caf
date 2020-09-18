@@ -9,6 +9,7 @@
 #include <nano-caf/core/thread_safe_list.h>
 #include <cstddef>
 #include <vector>
+#include <nano-caf/util/random_generator.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -16,7 +17,8 @@ struct worker;
 struct resumable;
 
 struct coordinator {
-   auto launch(size_t num_of_workers) noexcept -> void;
+   explicit coordinator(size_t num_of_workers) noexcept;
+
    auto shutdown() noexcept -> void;
    auto schedule_job(resumable&) noexcept -> void;
    auto sched_jobs(size_t worker_id) const noexcept -> size_t;
@@ -24,6 +26,7 @@ struct coordinator {
    ~coordinator() noexcept;
 
 private:
+   auto launch() noexcept -> void;
    auto try_steal(size_t id) noexcept -> resumable*;
    auto get_target_worker(resumable& job) -> size_t;
 
@@ -32,6 +35,8 @@ private:
 private:
    std::vector<worker*> workers_;
    std::vector<size_t> sched_jobs_;
+   std::size_t num_of_workers_;
+   random_generator random_;
    bool shutdown_{};
 };
 

@@ -128,8 +128,7 @@ struct future_actor : actor {
 };
 
 void run_on_thread(size_t num_of_threads, char const*) {
-   actor_system system;
-   system.start(num_of_threads);
+   actor_system system{num_of_threads};
 
 //   ankerl::nanobench::Bench().minEpochIterations(109).run(name, [&] {
      for(size_t i=0; i<1000; i++) {

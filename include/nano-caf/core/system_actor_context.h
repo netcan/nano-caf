@@ -21,6 +21,9 @@ struct system_actor_context
    , protected actor_timer
    , private disable_copy {
 
+   explicit system_actor_context(std::size_t num_of_workers) noexcept
+      : coordinator{num_of_workers} {}
+
    template<typename T, typename ... Ts>
    auto spawn(Ts&& ... args) noexcept -> actor_handle {
       return make_actor<T>(*this, std::forward<Ts>(args)...);

@@ -10,9 +10,16 @@
 NANO_CAF_NS_BEGIN
 
 ////////////////////////////////////////////////////////////////////
-auto coordinator::launch(size_t num_of_workers) noexcept -> void {
-   workers_.reserve(num_of_workers);
-   for(size_t i=0; i<num_of_workers; ++i) {
+coordinator::coordinator(size_t num_of_workers) noexcept
+   : num_of_workers_{num_of_workers}
+   , random_{0, num_of_workers-1} {
+   launch();
+}
+
+////////////////////////////////////////////////////////////////////
+auto coordinator::launch() noexcept -> void {
+   workers_.reserve(num_of_workers_);
+   for(size_t i=0; i<num_of_workers_; ++i) {
       workers_.emplace_back(new worker(*this, i));
    }
 
@@ -87,18 +94,14 @@ coordinator::~coordinator() noexcept {
 
 ////////////////////////////////////////////////////////////////////
 auto coordinator::try_steal(size_t id) noexcept -> resumable* {
-   if(__unlikely(workers_.size() == 1)) {
+   if(__unlikely(num_of_workers_ == 1)) {
       return nullptr;
    }
 
-   auto try_times = workers_.size() - 1;
-
-   std::random_device r;
-   std::default_random_engine regen{r()};
-   std::uniform_int_distribution<size_t> uniform(0, try_times);
+   auto try_times = num_of_workers_ - 1;
 
    for(size_t i = 0; i < try_times; ++i) {
-      auto victim = uniform(regen);
+      auto victim = random_.gen();
       if(__likely(victim != id)) {
          auto job = workers_[victim]->take_one();
          if(job != nullptr) {

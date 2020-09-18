@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(nano_caf)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
 #      -Wcast-align -Wunused -Woverloaded-virtual -Wconversion \
@@ -130,7 +130,7 @@ add_library(nano_caf
         include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp
         src/core/actor/intrusive_actor_ptr.cpp
         include/nano-caf/core/timer/timer_id_t.h
-        include/nano-caf/core/timer/duration.h)
+        include/nano-caf/core/timer/duration.h include/nano-caf/util/random_generator.h)
 
 if(CMAKE_CXX_STANDARD EQUAL 20)
     target_sources(nano_caf PRIVATE

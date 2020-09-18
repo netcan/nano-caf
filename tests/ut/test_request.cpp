@@ -76,8 +76,7 @@ namespace {
    };
 
    TEST_CASE("inter-actor request") {
-      actor_system system;
-      system.start(1);
+      actor_system system{1};
 
       auto me = system.spawn<ctrl_actor>();
 
@@ -95,8 +94,7 @@ namespace {
       REQUIRE(std::is_same_v<type_list<long>, media_session::open::type::args_type>);
       REQUIRE(std::is_same_v<type_list<long>, media_session::open::type::args_type>);
 
-      actor_system system;
-      system.start(1);
+      actor_system system{1};
       REQUIRE(system.get_num_of_actors() == 0);
 
       using namespace std::chrono_literals;

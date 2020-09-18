@@ -77,8 +77,7 @@ auto run(size_t num_of_worker) {
       pong_times[i] = 0;
    }
 
-   actor_system system;
-   system.start(num_of_worker);
+   actor_system system{num_of_worker};
 
    auto me = system.spawn<ping_actor_1>();
    std::this_thread::sleep_for(std::chrono::seconds {1});

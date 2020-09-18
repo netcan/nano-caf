@@ -6,8 +6,8 @@
 
 NANO_CAF_NS_BEGIN
 
-auto actor_system::start(size_t num_of_workers) noexcept -> void {
-   coordinator::launch(num_of_workers);
+actor_system::actor_system(size_t num_of_workers)
+   : system_actor_context{num_of_workers} {
    actor_timer::start();
 }
 

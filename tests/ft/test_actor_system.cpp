@@ -44,8 +44,7 @@ struct my_actor : actor {
 };
 
 int main() {
-    actor_system system;
-    system.start(5);
+    actor_system system{5};
 
     auto actor = system.spawn<my_actor>();
 

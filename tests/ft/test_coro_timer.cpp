@@ -95,8 +95,7 @@ struct my_actor : co_actor {
 };
 
 int main() {
-   actor_system system;
-   system.start(5);
+   actor_system system{5};
 
    auto actor = system.spawn<my_actor>();
 

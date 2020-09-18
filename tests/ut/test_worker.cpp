@@ -15,8 +15,8 @@ namespace {
    using namespace NANO_CAF_NS;
 
    SCENARIO("an idle worker") {
-      coordinator scheduler{};
-      scheduler.launch(1);
+      coordinator scheduler{1};
+      scheduler.shutdown();
    }
 
 //   bool actor_deleted = false;

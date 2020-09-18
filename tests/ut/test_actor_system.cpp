@@ -16,8 +16,7 @@ namespace {
    using namespace NANO_CAF_NS;
 
    SCENARIO("a do-nothing actor system") {
-      actor_system system;
-      system.start(5);
+      actor_system system{5};
       system.shutdown();
    }
 
@@ -34,8 +33,7 @@ namespace {
    };
 
    SCENARIO("actor system") {
-      actor_system system;
-      system.start(5);
+      actor_system system{5};
 
       auto actor = system.spawn<my_actor>();
 
@@ -81,8 +79,7 @@ namespace {
 
    SCENARIO("ping pang") {
       pong_times = 0;
-      actor_system system;
-      system.start(1);
+      actor_system system{1};
       REQUIRE(system.get_num_of_actors() == 0);
 
       auto me = system.spawn<ping_actor>();
@@ -167,8 +164,7 @@ namespace {
    };
 
    SCENARIO("async test") {
-      actor_system system;
-      system.start(2);
+      actor_system system{2};
 
       auto me = system.spawn<future_actor>();
       me.send<test_message>(1);
@@ -228,8 +224,7 @@ namespace {
 
    SCENARIO("ping pang 2") {
       pong_times = 0;
-      actor_system system;
-      system.start(1);
+      actor_system system{1};
       REQUIRE(system.get_num_of_actors() == 0);
 
       auto me = system.spawn<ping_actor_1>();
