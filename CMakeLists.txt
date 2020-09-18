@@ -54,25 +54,25 @@ add_library(nano_caf
         include/nano-caf/core/actor/actor_inbox.h
         src/core/actor/actor_inbox.cpp
         include/nano-caf/core/actor/actor_storage.h
-        include/nano-caf/core/thread_safe_list.h
-        include/nano-caf/core/spin_lock.h
+        include/nano-caf/core/thread_pool/thread_safe_list.h
+        include/nano-caf/util/spin_lock.h
         include/nano-caf/core/actor/task_list.h
         include/nano-caf/core/actor/drr_cached_queue.h
         src/core/actor/task_list.cpp
         src/core/actor/ddr_cached_queue.cpp
-        include/nano-caf/core/new_round_result.h
-        include/nano-caf/core/resumable.h
+        include/nano-caf/core/thread_pool/new_round_result.h
+        include/nano-caf/core/thread_pool/resumable.h
         include/nano-caf/core/actor/sched_actor.h
         src/core/actor/sched_actor.cpp
         include/nano-caf/util/intrusive_ptr.h
         include/nano-caf/core/actor/actor_control_block.h
         src/core/actor/actor_control_block.cpp
         include/nano-caf/core/cache_line_size.h
-        include/nano-caf/core/worker.h
-        src/core/worker.cpp tests/ut/test_worker.cpp
+        include/nano-caf/core/thread_pool/worker.h
+        src/core/thread_pool/worker.cpp tests/ut/test_worker.cpp
         include/nano-caf/core/actor/make_actor.h
-        include/nano-caf/core/coordinator.h
-        src/core/coordinator.cpp
+        include/nano-caf/core/thread_pool/coordinator.h
+        src/core/thread_pool/coordinator.cpp
         src/core/actor_system.cpp
         include/nano-caf/core/actor/actor_handle.h
         include/nano-caf/core/actor/exit_reason.h
@@ -99,12 +99,12 @@ add_library(nano_caf
         include/nano-caf/util/either.h
         include/nano-caf/util/unit.h
         include/nano-caf/util/likely.h
-        include/nano-caf/core/double_end_list.h
-        src/core/double_end_list.cpp
-        src/core/thread_safe_list.cpp
-        include/nano-caf/core/lock_free_list.h
-        include/nano-caf/core/double_end_list_elem.h
-        src/core/lock_free_list.cpp
+        include/nano-caf/core/thread_pool/double_end_list.h
+        src/core/thread_pool/double_end_list.cpp
+        src/core/thread_pool/thread_safe_list.cpp
+        include/nano-caf/core/thread_pool/lock_free_list.h
+        include/nano-caf/core/thread_pool/double_end_list_elem.h
+        src/core/thread_pool/lock_free_list.cpp
         include/nano-caf/core/actor/task_stack.h
         include/nano-caf/core/actor/task_result.h
         src/core/actor/task_stack.cpp

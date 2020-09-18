@@ -6,7 +6,7 @@
 #define NANO_CAF_THREAD_SAFE_LIST_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/spin_lock.h>
+#include <nano-caf/util/spin_lock.h>
 #include <nano-caf/util/list_element.h>
 #include <nano-caf/util/likely.h>
 

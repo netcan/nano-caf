@@ -6,7 +6,7 @@
 #define NANO_CAF_SCHED_ACTOR_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/resumable.h>
+#include <nano-caf/core/thread_pool/resumable.h>
 #include <nano-caf/core/actor/actor_inbox.h>
 #include <nano-caf/core/cache_line_size.h>
 #include <nano-caf/core/actor/actor_control_block.h>

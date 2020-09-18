@@ -2,10 +2,10 @@
 // Created by Darwin Yuan on 2020/8/3.
 //
 
-#include <nano-caf/core/double_end_list.h>
+#include <nano-caf/core/thread_pool/double_end_list.h>
 #include <iostream>
 #include <nanobench.h>
-#include <nano-caf/core/lock_free_list.h>
+#include <nano-caf/core/thread_pool/lock_free_list.h>
 #include <mutex>
 #include <condition_variable>
 

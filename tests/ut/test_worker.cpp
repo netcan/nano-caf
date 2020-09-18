@@ -3,11 +3,11 @@
 //
 
 #include <catch.hpp>
-#include <nano-caf/core/worker.h>
+#include <nano-caf/core/thread_pool/worker.h>
 #include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor/sched_actor.h>
 #include <nano-caf/core/actor/make_actor.h>
-#include <nano-caf/core/coordinator.h>
+#include <nano-caf/core/thread_pool/coordinator.h>
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/actor/actor.h>
 

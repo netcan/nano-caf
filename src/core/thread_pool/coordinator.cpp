@@ -2,9 +2,9 @@
 // Created by Darwin Yuan on 2020/7/24.
 //
 
-#include <nano-caf/core/coordinator.h>
-#include <nano-caf/core/worker.h>
-#include <nano-caf/core/resumable.h>
+#include <nano-caf/core/thread_pool/coordinator.h>
+#include <nano-caf/core/thread_pool/worker.h>
+#include <nano-caf/core/thread_pool/resumable.h>
 #include <random>
 
 NANO_CAF_NS_BEGIN

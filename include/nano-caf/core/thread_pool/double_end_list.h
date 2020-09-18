@@ -7,8 +7,8 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/cache_line_size.h>
-#include <nano-caf/core/thread_safe_list.h>
-#include <nano-caf/core/double_end_list_elem.h>
+#include <nano-caf/core/thread_pool/thread_safe_list.h>
+#include <nano-caf/core/thread_pool/double_end_list_elem.h>
 #include <nano-caf/core/actor/enq_result.h>
 #include <nano-caf/util/cpp_attribute.h>
 #include <memory>

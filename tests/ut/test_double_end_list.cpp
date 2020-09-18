@@ -3,7 +3,7 @@
 //
 
 #include <catch.hpp>
-#include <nano-caf/core/double_end_list.h>
+#include <nano-caf/core/thread_pool/double_end_list.h>
 
 namespace {
    using namespace NANO_CAF_NS;

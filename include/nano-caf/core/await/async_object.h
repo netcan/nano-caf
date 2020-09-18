@@ -6,7 +6,7 @@
 #define NANO_CAF_ASYNC_OBJECT_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/resumable.h>
+#include <nano-caf/core/thread_pool/resumable.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
 #include <nano-caf/core/actor/actor_handle.h>

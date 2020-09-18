@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/8/3.
 //
 
-#include <nano-caf/core/thread_safe_list.h>
-#include <nano-caf/core/spin_lock.h>
+#include <nano-caf/core/thread_pool/thread_safe_list.h>
+#include <nano-caf/util/spin_lock.h>
 
 NANO_CAF_NS_BEGIN
 

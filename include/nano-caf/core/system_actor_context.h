@@ -8,7 +8,7 @@
 #include <nano-caf/core/actor/make_actor.h>
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/util/disable_copy.h>
-#include <nano-caf/core/coordinator.h>
+#include <nano-caf/core/thread_pool/coordinator.h>
 #include <nano-caf/core/actor/typed_actor_handle.h>
 #include <nano-caf/core/timer/actor_timer.h>
 #include <nano-caf/core/actor_registry.h>

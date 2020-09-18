@@ -6,7 +6,7 @@
 #define NANO_CAF_COORDINATOR_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/thread_safe_list.h>
+#include <nano-caf/core/thread_pool/thread_safe_list.h>
 #include <cstddef>
 #include <vector>
 #include <nano-caf/util/random_generator.h>

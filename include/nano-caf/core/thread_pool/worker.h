@@ -6,10 +6,10 @@
 #define NANO_CAF_WORKER_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/thread_safe_list.h>
+#include <nano-caf/core/thread_pool/thread_safe_list.h>
 #include <nano-caf/util/disable_copy.h>
 #include <nano-caf/core/cache_line_size.h>
-#include <nano-caf/core/double_end_list.h>
+#include <nano-caf/core/thread_pool/double_end_list.h>
 #include <nano-caf/util/cv_notifier.h>
 #include <nano-caf/core/actor/shutdown_notifier.h>
 #include <condition_variable>

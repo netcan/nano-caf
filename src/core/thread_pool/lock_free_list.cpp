@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/8/3.
 //
 
-#include <nano-caf/core/lock_free_list.h>
+#include <nano-caf/core/thread_pool/lock_free_list.h>
 #include <nano-caf/util/likely.h>
 
 NANO_CAF_NS_BEGIN
