@@ -39,6 +39,7 @@ struct pong_actor_1 : behavior_based_actor {
 
 using namespace std::chrono_literals;
 
+size_t ping_times = 0;
 struct ping_actor_1 : behavior_based_actor {
     actor_handle pong[total_actors];
     size_t n = 1;
@@ -48,20 +49,25 @@ struct ping_actor_1 : behavior_based_actor {
           pong[i] = spawn<pong_actor_1>(i);
        }
 
-       repeat(1ms, [&]{
-          for(size_t i=0; i<total_actors; i++) {
-             send<forward_msg>(pong[i], pong[(i+n) % total_actors]);
-          }
-          if(++n == total_actors) {
-             n = 1;
-          }
-       });
+       for(size_t i=0; i<total_actors; i++) {
+          send<shared_buf_msg>(pong[i], std::make_shared<big_msg>());
+       }
+
+//       repeat(1ms, [&]{
+//          for(size_t i=0; i<total_actors; i++) {
+//             send<forward_msg>(pong[i], pong[(i+n) % total_actors]);
+//          }
+//          if(++n == total_actors) {
+//             n = 1;
+//          }
+//       });
     }
 
     auto get_behavior() -> behavior override {
         return {
                 [&](shared_buf_msg_atom, std::shared_ptr<big_msg>) {
                    reply<shared_buf_msg>(std::make_shared<big_msg>());
+                   ping_times++;
                 },
                 [&](exit_msg_atom, exit_reason reason) {
                    for(size_t i=0; i<total_actors; i++) {
@@ -73,6 +79,7 @@ struct ping_actor_1 : behavior_based_actor {
 };
 
 auto run(size_t num_of_worker) {
+   ping_times = 0;
    for(size_t i=0; i<total_actors; i++) {
       pong_times[i] = 0;
    }
