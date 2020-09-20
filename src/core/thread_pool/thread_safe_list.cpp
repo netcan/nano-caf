@@ -11,17 +11,26 @@ thread_safe_list::thread_safe_list() {
    lock_.clear();
 }
 
+auto thread_safe_list::enqueue_(list_element* ptr) noexcept -> void {
+   if(__likely(tail_ != nullptr)) tail_->next = ptr;
+   else head_ = ptr;
+
+   tail_ = ptr;
+   ptr->next = nullptr;
+}
+
+auto thread_safe_list::reschedule(list_element* ptr) noexcept -> bool {
+   spin_lock _{lock_};
+   if(head_ == nullptr) return false;
+   enqueue_(ptr);
+   return true;
+}
 
 auto thread_safe_list::enqueue(list_element* ptr) noexcept -> void {
    if(__unlikely(ptr == nullptr)) return;
    {
       spin_lock _{lock_};
-
-      if(__likely(tail_ != nullptr)) tail_->next = ptr;
-      else head_ = ptr;
-
-      tail_ = ptr;
-      ptr->next = nullptr;
+      enqueue_(ptr);
    }
 }
 

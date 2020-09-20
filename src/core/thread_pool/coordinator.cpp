@@ -20,7 +20,7 @@ coordinator::coordinator(size_t num_of_workers) noexcept
 auto coordinator::launch() noexcept -> void {
    workers_.reserve(num_of_workers_);
    for(size_t i=0; i<num_of_workers_; ++i) {
-      workers_.emplace_back(new worker(*this, i));
+      workers_.emplace_back(new worker{*this, i, num_of_workers_ == 1});
    }
 
    for(auto& worker : workers_) {

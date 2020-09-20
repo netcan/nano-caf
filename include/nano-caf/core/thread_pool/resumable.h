@@ -12,14 +12,7 @@
 NANO_CAF_NS_BEGIN
 
 struct resumable : list_element_t {
-   enum class result {
-      resume_later,
-      awaiting_message,
-      done,
-      shutdown_execution_unit
-   };
-
-   virtual auto resume() noexcept -> result = 0;
+   virtual auto resume() noexcept -> bool = 0;
    virtual ~resumable() noexcept = default;
 
    inline friend auto intrusive_ptr_add_ref(resumable* ptr) noexcept -> void {

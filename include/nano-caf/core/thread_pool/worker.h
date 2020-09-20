@@ -26,9 +26,8 @@ struct coordinator;
 struct
 alignas(CACHE_LINE_SIZE)
 worker : disable_copy {
-   worker(coordinator& coordinator, size_t id)
-    : id_(id), coordinator_(coordinator) {}
-   worker(const worker&) = delete;
+   worker(coordinator& coordinator, size_t id, bool unique)
+    : id_(id), coordinator_(coordinator), unique_(unique) {}
 
    auto take_one() noexcept -> resumable*;
 
@@ -42,7 +41,8 @@ worker : disable_copy {
 
 private:
    auto run() noexcept -> void;
-   auto resume_job(resumable*) noexcept -> bool;
+   auto resume_once(resumable*) noexcept -> bool;
+   auto resume_job(resumable*) noexcept -> void;
    auto cleanup() noexcept -> void;
    auto goto_bed() noexcept -> void;
    auto get_a_job() noexcept -> resumable*;
@@ -60,6 +60,7 @@ private:
    size_t sched_jobs_{};
 
    std::thread thread_{};
+   bool unique_{false};
 };
 
 NANO_CAF_NS_END

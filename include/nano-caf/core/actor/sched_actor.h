@@ -24,7 +24,7 @@ struct sched_actor
 
    using actor_inbox::enqueue;
    using actor_inbox::blocked;
-   auto resume() noexcept  -> resumable::result override;
+   auto resume() noexcept  -> bool override;
 
 protected:
    auto exit_(exit_reason reason) -> void {

@@ -26,12 +26,12 @@ sched_actor::~sched_actor() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto sched_actor::resume() noexcept  -> resumable::result {
+auto sched_actor::resume() noexcept  -> bool {
    size_t consumed_msgs = 0;
 
    while (consumed_msgs < max_throughput) {
       if(actor_inbox::empty() && actor_inbox::try_block()) {
-         return resumable::result::awaiting_message;
+         return true;
       }
 
       auto result = actor_inbox::new_round(max_throughput - consumed_msgs,
@@ -48,17 +48,17 @@ auto sched_actor::resume() noexcept  -> resumable::result {
          }
          exit_handler();
          to_ctl()->on_exit(reason_);
-         return result::done;
+         return true;
       }
 
       consumed_msgs += *result;
    }
 
    if(actor_inbox::empty() && actor_inbox::try_block()) {
-      return resumable::result::awaiting_message;
+      return true;
    }
 
-   return resumable::result::resume_later;
+   return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

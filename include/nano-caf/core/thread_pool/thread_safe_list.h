@@ -25,6 +25,7 @@ struct thread_safe_list {
       return elem->to_value<T>();
    }
 
+   auto reschedule(list_element* ptr) noexcept -> bool;
    auto enqueue(list_element* ptr) noexcept -> void;
    auto push_front(list_element* ptr) noexcept -> void;
    auto empty() const noexcept -> bool;
@@ -32,6 +33,8 @@ struct thread_safe_list {
 
    ~thread_safe_list();
 
+private:
+   auto enqueue_(list_element* ptr) noexcept -> void;
 private:
    list_element* head_ {};
    list_element* tail_ {};

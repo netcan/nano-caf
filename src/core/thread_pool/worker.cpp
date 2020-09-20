@@ -65,7 +65,9 @@ auto worker::goto_bed() noexcept -> void {
 ////////////////////////////////////////////////////////////////////
 auto worker::get_a_job() noexcept -> resumable* {
    if(auto job = job_queue_.dequeue<resumable>(); __likely(job != nullptr)) return job;
-   if(__unlikely((tried_times_ % config[strategy_].intervals) == 0)) {
+   if(unique_) {
+      cv_.wait([this] { return !job_queue_.empty() || shutdown_.shutdown_notified(); });
+   } else if(__unlikely((tried_times_ % config[strategy_].intervals) == 0)) {
       return coordinator_.try_steal(id_);
    }
 
@@ -79,7 +81,7 @@ auto worker::run() noexcept -> void {
       auto job = get_a_job();
       if(job != nullptr) {
          sched_jobs_++;
-         if(!resume_job(job)) return;
+         resume_job(job);
          strategy_ = 0;
          tried_times_ = 0;
       } else {
@@ -101,22 +103,19 @@ auto worker::cleanup() noexcept -> void {
 }
 
 ////////////////////////////////////////////////////////////////////
-auto worker::resume_job(resumable* job) noexcept -> bool {
-   switch(job->resume()) {
-      case resumable::result::resume_later:
-         job_queue_.enqueue(job);
-         break;
-      case resumable::result::shutdown_execution_unit:
-         intrusive_ptr_release(job);
-         return false;
-      case resumable::result::done:
-      case resumable::result::awaiting_message:
-      default:
-         intrusive_ptr_release(job);
-         break;
+auto worker::resume_once(resumable* job) noexcept -> bool {
+   if(job->resume()) {
+      intrusive_ptr_release(job);
+      return true;
+   } else {
+      return job_queue_.reschedule(job);
    }
+}
 
-   return true;
+auto worker::resume_job(resumable* job) noexcept -> void {
+   while(!resume_once(job)) {
+      if(__unlikely(shutdown_.shutdown_notified())) return;
+   }
 }
 
 ////////////////////////////////////////////////////////////////////

@@ -23,9 +23,9 @@ struct async_object : resumable, private done_notifier {
       , sender_{sender}
       {}
 
-   virtual auto resume() noexcept -> result override {
+   virtual auto resume() noexcept -> bool override {
       result_.emplace(std::move(f_()));
-      return result::done;
+      return true;
    }
 
    auto get_future() {

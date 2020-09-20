@@ -14,7 +14,7 @@ namespace {
    SCENARIO("empty sched-actor") {
       sched_actor actor{};
       WHEN("resume an actor with empty queue, should return awaiting_message") {
-         REQUIRE(actor.resume() == resumable::result::awaiting_message);
+         REQUIRE(actor.resume());
          THEN("the message queue is blocked") {
             REQUIRE(actor.blocked());
          }
@@ -38,7 +38,7 @@ namespace {
       actor.enqueue(make_message<test_message>(1));
       actor.enqueue(make_message<test_message>(2));
       WHEN("resume an actor with empty queue, should return awaiting_message") {
-         REQUIRE(actor.resume() == resumable::result::awaiting_message);
+         REQUIRE(actor.resume());
          THEN("it consumed all messages") {
             REQUIRE(actor.values.size() == 2);
          }
@@ -60,7 +60,7 @@ namespace {
       actor.enqueue(make_message<test_message>(5));
 
       WHEN("resume an actor with empty queue, should return resume_later") {
-         REQUIRE(actor.resume() == resumable::result::resume_later);
+         REQUIRE_FALSE(actor.resume());
          THEN("it consumed 3 messages") {
             REQUIRE(actor.values.size() == 3);
          }
@@ -72,7 +72,7 @@ namespace {
          }
          THEN("when resuming another round, should return awaiting_message") {
             actor.clear();
-            REQUIRE(actor.resume() == resumable::result::awaiting_message);
+            REQUIRE(actor.resume());
             THEN("it consumed all messages") {
                REQUIRE(actor.values.size() == 2);
             }
@@ -89,7 +89,7 @@ namespace {
                }
                WHEN("consume again, should return awaiting message") {
                   actor.clear();
-                  REQUIRE(actor.resume() == resumable::result::awaiting_message);
+                  REQUIRE(actor.resume());
                   THEN("should consume the new enqueued message") {
                      REQUIRE(actor.values == std::vector<int>{6});
                   }
