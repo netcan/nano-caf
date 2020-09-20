@@ -94,9 +94,9 @@ auto run(size_t num_of_worker) {
 
    system.shutdown();
 
-   size_t total = 0;
+   size_t total = ping_times;
    for(size_t i=0; i<total_actors; i++) {
-      total += pong_times[i] * 2;
+      total += pong_times[i];
    }
 
    std::cout << "[" << num_of_worker << " threads] ping pong times = "
