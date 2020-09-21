@@ -40,7 +40,7 @@ public:
    }
 
    auto get_promise_done_notifier() const noexcept -> std::shared_ptr<promise_done_notifier> {
-      return std::move(object_);
+      return object_;
    }
 
 private:

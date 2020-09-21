@@ -64,4 +64,27 @@ namespace {
          }
       }
    }
+
+   SCENARIO("expired promise") {
+      cancellable_repository repository;
+      promise<int> p;
+      auto future = p.get_future(repository);
+      intrusive_actor_ptr null_actor;
+      p.set_value(10, null_actor);
+      p.get_promise_done_notifier()->on_promise_done();
+      WHEN("get an awaiter") {
+         std::optional<int> value_set{};
+         std::optional<status_t> failure_set{};
+         auto awaiter = future.then(
+            [&](int value) { value_set = value; },
+            [&](status_t failure) { failure_set = failure; });
+         THEN("the awaiter should not be valid") {
+            REQUIRE_FALSE(awaiter.valid());
+         }
+         THEN("the callback is called") {
+            REQUIRE(value_set.has_value());
+            REQUIRE(*value_set == 10);
+         }
+      }
+   }
 }
