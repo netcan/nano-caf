@@ -9,6 +9,7 @@
 #include <nano-caf/core/thread_pool/resumable.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
+#include <nano-caf/core/await/promise.h>
 #include <nano-caf/core/actor/actor_handle.h>
 #include <type_traits>
 #include <functional>
@@ -17,45 +18,25 @@
 NANO_CAF_NS_BEGIN
 
 template <typename F, typename R, typename = std::enable_if_t<std::is_invocable_r_v<R, F>>>
-struct async_object
-   : promise_done_notifier
-   , resumable  {
+struct async_object : resumable  {
    async_object(intrusive_actor_ptr sender, F&& f)
       : f_{std::move(f)}
       , sender_{sender}
       {}
 
    virtual auto resume() noexcept -> bool override {
-      result_.emplace(std::move(f_()));
+      promise_.set_value(std::move(f_()), sender_);
       return true;
    }
 
-   auto get_future() {
-      if(future_ == nullptr) {
-         future_ = std::make_shared<std::optional<R>>(std::nullopt);
-      }
-      return future_;
-   }
-
-   virtual auto intrusive_ptr_release_impl() noexcept -> void override {
-      if(!result_) {
-         delete this;
-      } else {
-         // has to be sent here, otherwise this message might has arrived at receiver side & been deleted already.
-         sender_.send<future_done>(std::shared_ptr<promise_done_notifier>{this});
-      }
-   }
-
-private:
-   virtual auto on_promise_done() noexcept -> void override {
-      *future_ = std::move(result_);
+   auto get_future(cancellable_repository& repository) {
+      return promise_.get_future(repository);
    }
 
 private:
    F f_;
-   std::optional<R> result_;
-   std::shared_ptr<std::optional<R>> future_;
-   actor_handle sender_;
+   promise<R> promise_;
+   intrusive_actor_ptr sender_;
 };
 
 

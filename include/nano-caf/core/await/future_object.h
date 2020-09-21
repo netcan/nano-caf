@@ -29,6 +29,10 @@ struct future_object : promise_done_notifier {
       return ready_;
    }
 
+   inline auto present() const noexcept -> bool {
+      return present_;
+   }
+
    auto get_value() const noexcept -> const T& {
       return *reinterpret_cast<const T*>(&storage_);
    }

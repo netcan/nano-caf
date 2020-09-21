@@ -33,7 +33,9 @@ private:
 
 private:
    virtual auto intrusive_ptr_add_ref_impl() noexcept -> void {}
-   virtual auto intrusive_ptr_release_impl() noexcept -> void = 0;
+   virtual auto intrusive_ptr_release_impl() noexcept -> void {
+      delete this;
+   }
 
    size_t served_worker_{std::numeric_limits<size_t>::max()};
 };

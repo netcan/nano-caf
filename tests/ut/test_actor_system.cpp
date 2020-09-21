@@ -109,10 +109,6 @@ namespace {
 
       auto on_init() noexcept -> void override {
          auto future1 = async(&future_actor::add, this, 5, 3);
-         if(!future1.is_ok()) {
-            exit(exit_reason::unhandled_exception);
-         }
-
          auto future2 = async([this]() {
             size_t result = 0;
              size_t a = 20;
@@ -123,27 +119,8 @@ namespace {
 
             return result;
          });
-         if(!future2.is_ok()) {
-            exit(exit_reason::unhandled_exception);
-         }
 
-//         auto result1 = with(future1)([this](unsigned long r1) {
-//            //std::cout << "async future1 done = " << r1 << std::endl;
-//         });
-//
-//         if(!result1) {
-//            exit(exit_reason::unhandled_exception);
-//         }
-//
-//         auto result2 = with(future2)([this](unsigned long r2) {
-//            //std::cout << "async future2 done = " << r2 << std::endl;
-//         });
-//
-//         if(!result2) {
-//            exit(exit_reason::unhandled_exception);
-//         }
-
-         auto result3 = with(future1, future2)([this](unsigned long r1, unsigned long r2) {
+         auto result3 = with(future1, future2).on_succeed([this](unsigned long r1, unsigned long r2) {
             //std::cout << "async done" << std::endl;
             final_result = r1 + r2;
             if(final_result == 115000000) {
@@ -152,10 +129,6 @@ namespace {
                exit(exit_reason::unknown);
             }
          });
-
-         if(result3 != status_t::ok) {
-            exit(exit_reason::unhandled_exception);
-         }
       }
 
       auto handle_message(message&) noexcept -> task_result override {

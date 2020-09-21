@@ -34,10 +34,10 @@ struct future_actor : actor {
 
    auto on_init() noexcept -> void override {
       auto future1 = async(&future_actor::add, this, 5, 3);
-      if(!future1.is_ok()) {
-         CAF_ERROR("future1 failed = {}", future1.failure());
-         exit(exit_reason::unhandled_exception);
-      }
+
+      future1.on_succeed(([]([[maybe_unused]]auto r1) {
+            CAF_DEBUG("async future1 done = {}", r1);
+         }));
 
       auto future2 = async([this]() {
          CAF_DEBUG("calc future 2");
@@ -54,10 +54,10 @@ struct future_actor : actor {
 
          return result;
       });
-      if(!future2.is_ok()) {
-         CAF_ERROR("future2 failed = {}", future2.failure());
-         exit(exit_reason::unhandled_exception);
-      }
+
+      future2.on_succeed([]([[maybe_unused]] auto r2) {
+         CAF_DEBUG("async future2 done = {}", r2);
+      });
 
       auto future3 = async([this]() {
          CAF_DEBUG("calc future 3");
@@ -75,51 +75,16 @@ struct future_actor : actor {
          return result;
       });
 
-      if(!future3.is_ok()) {
-         CAF_ERROR("future3 failed = {}", future3.failure());
-         exit(exit_reason::unhandled_exception);
-      }
+      future3.on_succeed([]([[maybe_unused]] auto r3) {
+         CAF_DEBUG("async future3 done = {}", r3);
+      });
 
-      auto result4 = with(future1, future2, future3)(
+      auto result4 = with(future1, future2, future3).on_succeed(
          [this](auto r1, auto  r2, auto r3) {
             final_result = r1 + r2 + r3;
             CAF_DEBUG("all futures done = {}", final_result);
             exit(exit_reason::normal);
          });
-
-      if(result4 != status_t::ok) {
-         CAF_ERROR("result4 failed = {}", result4);
-         exit(exit_reason::unhandled_exception);
-      }
-
-      auto result1 = with(future1)([]([[maybe_unused]]auto r1) {
-         CAF_DEBUG("async future1 done = {}", r1);
-      });
-
-      if(result1 != status_t::ok) {
-         CAF_ERROR("result1 failed = {}", result1);
-         exit(exit_reason::unhandled_exception);
-      }
-
-      auto result2 = with(future2)([]([[maybe_unused]] auto r2) {
-         CAF_DEBUG("async future2 done = {}", r2);
-      });
-
-      if(result2 != status_t::ok) {
-         CAF_ERROR("result2 failed = {}", result2);
-         exit(exit_reason::unhandled_exception);
-      }
-
-      auto result3 = with(future3)([]([[maybe_unused]] auto r3) {
-         CAF_DEBUG("async future3 done = {}", r3);
-      });
-
-      if(result3 != status_t::ok) {
-         CAF_ERROR("result3 failed = {}", result3);
-         exit(exit_reason::unhandled_exception);
-      }
-
-
    }
 
    auto handle_message(message&) noexcept -> task_result override {

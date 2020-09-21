@@ -4,8 +4,7 @@
 
 #include <catch.hpp>
 #include <nano-caf/core/await/promise.h>
-#include <nano-caf/core/await/multi_future_awaiter.h>
-#include <nano-caf/core/msg/make_message.h>
+#include <nano-caf/core/await/multi_future.h>
 
 namespace {
    using namespace NANO_CAF_NS;
@@ -98,12 +97,9 @@ namespace {
       auto future2 = p2.get_future(repository);
 
       std::optional<int> result_set;
-      auto awaiter = make_multi_future_awaiter(
-         repository,
-         [&](int i, short j) { result_set = i + j; },
-         [](status_t) {},
-         future1,
-         future2);
+      auto awaiter = multi_future<int, short>{repository, future1, future2}
+      .then([&](int i, short j) { result_set = i + j; },
+            [](status_t) {});
 
       REQUIRE(!result_set.has_value());
 
@@ -137,12 +133,9 @@ namespace {
       auto future2 = p2.get_future(repository);
 
       std::optional<int> result_set;
-      auto awaiter = make_multi_future_awaiter(
-         repository,
-         [&](int i, short j) { result_set = i + j; },
-         [](status_t) {},
-         future1,
-         future2);
+      auto awaiter = multi_future<int, short>{repository, future1, future2}
+         .then([&](int i, short j) { result_set = i + j; },
+               [](status_t) {});
 
       REQUIRE(!result_set.has_value());
 
@@ -173,12 +166,9 @@ namespace {
       p2.get_promise_done_notifier()->on_promise_done();
 
       std::optional<int> result_set;
-      auto awaiter = make_multi_future_awaiter(
-         repository,
-         [&](int i, short j) { result_set = i + j; },
-         [](status_t) {},
-         future1,
-         future2);
+      auto awaiter = multi_future<int, short>{repository, future1, future2}
+         .then([&](int i, short j) { result_set = i + j; },
+               [](status_t) {});
 
       REQUIRE(result_set.has_value());
 
@@ -202,12 +192,9 @@ namespace {
 
       std::optional<int> result_set;
       std::optional<status_t> failure_set;
-      auto awaiter = make_multi_future_awaiter(
-         repository,
-         [&](int i, short j) { result_set = i + j; },
-         [&](status_t status) { failure_set = status; },
-         future1,
-         future2);
+      auto awaiter = multi_future<int, short>{repository, future1, future2}
+         .then([&](int i, short j) { result_set = i + j; },
+               [&](status_t status) { failure_set = status; });
 
       awaiter.cancel(status_t::cancelled);
 

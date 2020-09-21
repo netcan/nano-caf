@@ -12,7 +12,7 @@
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/await/async_object.h>
 #include <nano-caf/core/await/future_callback.h>
-#include <optional>
+#include <nano-caf/core/await/multi_future.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -21,11 +21,9 @@ struct actor : actor_context {
 
 private:
    template<typename F>
-   using async_future_t = std::shared_ptr<std::optional<typename callable_trait<std::decay_t<F>>::result_type>>;
+   using async_future_t = future<typename callable_trait<std::decay_t<F>>::result_type>;
 
-   template<typename F>
-   using async_future_type = result_t<async_future_t<F>>;
-
+   cancellable_repository repository_;
 private:
    inline auto self_handle() const noexcept -> intrusive_actor_ptr override { return &self(); }
    inline auto get_system_actor_context() -> system_actor_context& override { return self().context(); }
@@ -39,12 +37,13 @@ protected:
    }
 
    template<typename F, typename ... Args>
-   inline auto async(F&& f, Args&&...args) -> async_future_type<F> {
+   inline auto async(F&& f, Args&&...args) -> async_future_t<F> {
       auto obj = make_async_object(self_handle(), std::forward<F>(f), std::forward<Args>(args)...);
       if(obj == nullptr) {
-         return status_t::out_of_mem;
+         return {};
       }
-      auto result = obj->get_future();
+
+      auto result = obj->get_future(repository_);
       self().context().schedule_job(*obj);
       return result;
    }
@@ -54,15 +53,9 @@ protected:
       return to.template request<METHOD>(self_handle(), std::forward<Args>(args)...);
    }
 
-   template<typename ... Args>
-   inline auto with(Args&& ... args) {
-      return [&](auto&& callback) {
-         if((!async::is_optional_type<std::decay_t<decltype(args)>> || ...) ) {
-            return status_t::invalid_data;
-         }
-         return detail::with_optionals(std::forward<decltype(callback)>(callback), async::get_optional(args)...)
-            .with_value([this](auto future_cb) { return register_future_callback(future_cb); });
-      };
+   template<typename ... Xs>
+   inline auto with(future<Xs>& ... args) {
+      return multi_future<Xs...>(repository_, args ...);
    }
 
    template<typename Rep, typename Period>

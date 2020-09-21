@@ -32,6 +32,15 @@ struct multi_future_awaiter
                              objects.object_ ...) {
    }
 
+   multi_future_awaiter(cancellable_repository &repository, F_CALLBACK &&f_callback, F_FAIL &&f_fail,
+                        std::tuple<std::shared_ptr<detail::future_object<Xs>>...>&& objects)
+      :  repository_{repository}
+      ,  objects_{std::move(objects)}
+      ,  callback_{std::forward<F_CALLBACK>(f_callback)}
+      ,  on_fail_{std::forward<F_FAIL>(f_fail)}, num_of_pending_(sizeof...(Xs)) {
+      init(std::index_sequence_for<Xs...>{});
+   }
+
 private:
    multi_future_awaiter(cancellable_repository &repository, F_CALLBACK &&f_callback, F_FAIL &&f_fail,
                         std::shared_ptr<detail::future_object<Xs>>... objects)
@@ -78,11 +87,11 @@ private:
 
    template<std::size_t ... I>
    auto init(std::index_sequence<I...>) {
-      auto all_valid = (std::get<I>(objects_) && ...);
-      if (!all_valid) {
-         on_fail_(status_t::invalid_data);
-         destroyed_ = true;
-      }
+//      auto all_valid = (std::get<I>(objects_) && ...);
+//      if (!all_valid) {
+//         on_fail_(status_t::invalid_data);
+//         destroyed_ = true;
+//      }
       (init<I>(), ...);
       if (num_of_pending_ == 0) {
          std::invoke(callback_, std::get<I>(objects_)->get_value() ...);
@@ -117,19 +126,21 @@ private:
    bool destroyed_{false};
 };
 
-template<typename F_CALLBACK, typename F_FAIL, typename ... Xs>
-inline auto make_multi_future_awaiter
-   ( cancellable_repository &repository,
-     F_CALLBACK &&f_callback,
-     F_FAIL &&f_fail,
-     future<Xs>&... objects) -> future_awaiter {
-   auto awaiter = std::make_shared<multi_future_awaiter<F_CALLBACK, F_FAIL, Xs...>>(repository, std::forward<F_CALLBACK>(f_callback), std::forward<F_FAIL>(f_fail), objects...);
-   if(!awaiter->destroyed()) {
-      repository.add_cancellable(awaiter);
-      awaiter->register_notifier();
-   }
-   return future_awaiter{awaiter};
-}
+//template<typename F_CALLBACK, typename F_FAIL, typename ... Xs>
+//inline auto make_multi_future_awaiter
+//   ( cancellable_repository &repository,
+//     F_CALLBACK &&f_callback,
+//     F_FAIL &&f_fail,
+//     future<Xs>&... objects) -> future_awaiter {
+//   auto awaiter = std::make_shared<multi_future_awaiter<F_CALLBACK, F_FAIL, Xs...>>(repository, std::forward<F_CALLBACK>(f_callback), std::forward<F_FAIL>(f_fail), objects...);
+//   if(!awaiter->destroyed()) {
+//      repository.add_cancellable(awaiter);
+//      awaiter->register_notifier();
+//   }
+//   return future_awaiter{awaiter};
+//}
+
+
 
 NANO_CAF_NS_END
 

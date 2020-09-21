@@ -11,6 +11,7 @@
 NANO_CAF_NS_BEGIN
 
 struct future_awaiter {
+   future_awaiter() = default;
    explicit future_awaiter(std::shared_ptr<cancellable> object) : object_{object} {}
 
    auto valid() const noexcept -> bool {

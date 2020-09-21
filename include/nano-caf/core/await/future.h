@@ -14,14 +14,15 @@ NANO_CAF_NS_BEGIN
 
 struct cancellable_repository;
 
-template<typename F_CALLBACK, typename F_FAIL, typename ... Xs>
-struct multi_future_awaiter;
+template<typename ... Xs>
+struct multi_future;
 
 template<typename T>
 struct future {
    using obj_type = std::shared_ptr<detail::future_object<T>>;
-   future(obj_type obj, cancellable_repository& repository)
-      : repository_{repository}
+   future() noexcept = default;
+   future(obj_type obj, cancellable_repository& repository) noexcept
+      : repository_{&repository}
       , object_{std::move(obj)} {}
 
    auto valid() const noexcept -> bool {
@@ -29,22 +30,32 @@ struct future {
    }
 
    template<typename F_CALLBACK, typename F_FAIL>
-   auto then(F_CALLBACK&& callback, F_FAIL&& on_fail) -> future_awaiter {
-      auto awaiter = std::make_shared<single_future_awaiter<T, F_CALLBACK, F_FAIL>>(repository_, object_, std::forward<F_CALLBACK>(callback), std::forward<F_FAIL>(on_fail));
+   auto then(F_CALLBACK&& callback, F_FAIL&& on_fail) noexcept -> future_awaiter {
+      if(repository_ == nullptr || !object_) {
+         on_fail(status_t::invalid_data);
+         return {};
+      }
+
+      auto awaiter = std::make_shared<single_future_awaiter<T, F_CALLBACK, F_FAIL>>(*repository_, object_, std::forward<F_CALLBACK>(callback), std::forward<F_FAIL>(on_fail));
       if(!awaiter->destroyed()) {
-         repository_.add_cancellable(awaiter);
+         repository_->add_cancellable(awaiter);
          object_->add_notifier(awaiter);
       }
       return future_awaiter{std::move(awaiter)};
    }
 
-private:
-   template<typename F_CALLBACK, typename F_FAIL, typename ... Xs>
-   friend struct multi_future_awaiter;
+   template<typename F_CALLBACK>
+   auto on_succeed(F_CALLBACK&& callback) noexcept -> future_awaiter {
+      return then(std::forward<F_CALLBACK>(callback), [](auto){});
+   }
 
 private:
-   cancellable_repository& repository_;
-   obj_type object_;
+   template<typename ... Xs>
+   friend struct multi_future;
+
+private:
+   cancellable_repository* repository_{};
+   obj_type object_{};
 };
 
 NANO_CAF_NS_END

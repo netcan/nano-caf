@@ -43,6 +43,10 @@ public:
       return object_;
    }
 
+   auto has_value() const noexcept -> bool {
+      return object_ && object_->present();
+   }
+
 private:
    obj_type object_;
 };
