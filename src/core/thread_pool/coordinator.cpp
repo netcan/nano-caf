@@ -94,24 +94,16 @@ coordinator::~coordinator() noexcept {
 
 ////////////////////////////////////////////////////////////////////
 auto coordinator::try_steal(size_t id) noexcept -> resumable* {
-   if(__unlikely(num_of_workers_ == 1)) {
-      return nullptr;
+   auto victim = random_.gen();
+   if(__likely(victim == id)) {
+      victim = (victim + 1) % num_of_workers_;
    }
 
-   auto try_times = num_of_workers_ - 1;
-
-   for(size_t i = 0; i < try_times; ++i) {
-      auto victim = random_.gen();
-      if(__likely(victim != id)) {
-         auto job = workers_[victim]->take_one();
-         if(job != nullptr) {
-            job->set_last_served_worker(id);
-         }
-         return job;
-      }
+   auto job = workers_[victim]->take_one();
+   if(job != nullptr) {
+      job->set_last_served_worker(id);
    }
-
-   return nullptr;
+   return job;
 }
 
 ///////////////////////////////////////////////////////////////////////////
