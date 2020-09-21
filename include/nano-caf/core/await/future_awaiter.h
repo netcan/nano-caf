@@ -13,6 +13,10 @@ NANO_CAF_NS_BEGIN
 struct future_awaiter {
    explicit future_awaiter(std::shared_ptr<cancellable> object) : object_{object} {}
 
+   auto valid() const noexcept -> bool {
+      return static_cast<bool>(object_.lock());
+   }
+
    auto cancel(status_t cause) noexcept -> void {
       auto object = object_.lock();
       if(object) {

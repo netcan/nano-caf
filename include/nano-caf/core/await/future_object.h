@@ -17,7 +17,7 @@ template<typename T>
 struct future_object : promise_done_notifier {
    auto set_value(T&& value) -> bool {
       if(present_) return false;
-      new (storage_) T{std::move(value)};
+      new (&storage_) T{std::move(value)};
       return present_ = true;
    }
 
@@ -30,7 +30,7 @@ struct future_object : promise_done_notifier {
    }
 
    auto get_value() const noexcept -> const T& {
-      return *reinterpret_cast<const T*>(storage_);
+      return *reinterpret_cast<const T*>(&storage_);
    }
 
    auto add_notifier(std::shared_ptr<promise_done_notifier> notifier) {

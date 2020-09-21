@@ -30,12 +30,17 @@ public:
       return future<T>{object_, repository};
    }
 
-private:
-   auto set_value(T&& value, intrusive_actor_ptr to) noexcept -> void override {
+   auto set_value(T&& value, intrusive_actor_ptr& to) noexcept -> void override {
       check_object();
       if(object_->set_value(std::move(value))) {
-         actor_handle(to).send<future_done>(object_);
+         if(to) {
+            actor_handle(to).send<future_done>(object_);
+         }
       }
+   }
+
+   auto get_promise_done_notifier() const noexcept -> std::shared_ptr<promise_done_notifier> {
+      return object_;
    }
 
 private:

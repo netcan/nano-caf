@@ -17,38 +17,38 @@ template<typename T, typename F_CALLBACK, typename F_FAIL,
    typename = std::enable_if_t<std::is_invocable_r_v<void, std::decay_t<F_CALLBACK>, const T&> &&
                                std::is_invocable_r_v<void, std::decay_t<F_FAIL>, status_t>>>
 struct single_future_awaiter
-   : std::enable_shared_from_this<single_future_awaiter<T, F_CALLBACK, F_FAIL>>
-   , cancellable
-   , private promise_done_notifier {
-   using super = std::enable_shared_from_this<single_future_awaiter<T, F_CALLBACK, F_FAIL>>;
+   : cancellable
+   , promise_done_notifier {
    using object_type = std::shared_ptr<detail::future_object<T>>;
 
    single_future_awaiter(cancellable_repository& repository, object_type object, F_CALLBACK&& f_callback, F_FAIL f_fail)
-      : repository_{repository}, object_{std::move(object)}, callback_{std::forward(f_callback)}, on_fail_{std::forward(f_fail)} {
+      : repository_{repository}
+      , object_{std::move(object)}
+      , callback_{std::forward<F_CALLBACK>(f_callback)}
+      , on_fail_{std::forward<F_FAIL>(f_fail)} {
       if(object) {
          callback_(object_->get_value());
-         destroyed = true;
-      } else {
-         repository_.add_cancellable(super::shared_from_this());
-         object_->add_notifier(super::shared_from_this());
+         destroyed_ = true;
       }
    }
 
+   inline auto destroyed() const noexcept -> bool { return destroyed_; }
+
 private:
    auto destroy() {
-      repository_.remove_cancellable(super::shared_from_this());
-      destroyed = true;
+      repository_.remove_cancellable(this);
+      destroyed_ = true;
    }
 
    auto on_promise_done() noexcept -> void override {
-      if(!destroyed && object_ && *object_) {
+      if(!destroyed_ && object_ && *object_) {
          callback_(object_->get_value());
          destroy();
       }
    }
 
    auto cancel(status_t cause) noexcept -> void override {
-      if(!destroyed) {
+      if(!destroyed_) {
          on_fail_(cause);
          destroy();
       }
@@ -59,7 +59,7 @@ private:
    object_type object_;
    F_CALLBACK callback_;
    F_FAIL     on_fail_;
-   bool       destroyed;
+   bool       destroyed_{};
 };
 
 NANO_CAF_NS_END

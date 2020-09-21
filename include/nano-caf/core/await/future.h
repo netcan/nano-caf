@@ -21,9 +21,18 @@ struct future {
       : repository_{repository}
       , object_{std::move(obj)} {}
 
+   auto valid() const noexcept -> bool {
+      return static_cast<bool>(object_);
+   }
+
    template<typename F_CALLBACK, typename F_FAIL>
    auto then(F_CALLBACK&& callback, F_FAIL&& on_fail) -> future_awaiter {
-      return future_awaiter{std::make_shared<single_future_awaiter<T, F_CALLBACK, F_FAIL>>(repository_, object_, std::forward<F_CALLBACK>(callback), std::forward<F_FAIL>(on_fail))};
+      auto awaiter = std::make_shared<single_future_awaiter<T, F_CALLBACK, F_FAIL>>(repository_, object_, std::forward<F_CALLBACK>(callback), std::forward<F_FAIL>(on_fail));
+      if(!awaiter->destroyed()) {
+         repository_.add_cancellable(awaiter);
+         object_->add_notifier(awaiter);
+      }
+      return future_awaiter{std::move(awaiter)};
    }
 
 private:

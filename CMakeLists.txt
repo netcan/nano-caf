@@ -163,7 +163,7 @@ add_executable(nano_caf-test
         tests/ut/test_lock_free_list.cpp
         tests/ut/test_ro_meta.cpp
         tests/ut/test_lock_meta_data.cpp
-        tests/ut/test_request.cpp)
+        tests/ut/test_request.cpp tests/ut/test_promise.cpp)
 
 add_executable(test_actor_system
         tests/ft/test_actor_system.cpp)
