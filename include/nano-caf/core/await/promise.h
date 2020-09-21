@@ -7,8 +7,8 @@
 
 #include <nano-caf/core/await/future.h>
 #include <nano-caf/core/await/abstract_promise.h>
-#include <memory>
 #include <nano-caf/core/actor/actor_handle.h>
+#include <memory>
 
 NANO_CAF_NS_BEGIN
 
@@ -34,13 +34,13 @@ public:
       check_object();
       if(object_->set_value(std::move(value))) {
          if(to) {
-            actor_handle(to).send<future_done>(object_);
+            actor_handle(to).send<future_done>(std::move(object_));
          }
       }
    }
 
    auto get_promise_done_notifier() const noexcept -> std::shared_ptr<promise_done_notifier> {
-      return object_;
+      return std::move(object_);
    }
 
 private:
