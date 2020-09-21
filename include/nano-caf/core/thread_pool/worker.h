@@ -50,6 +50,7 @@ private:
    job_list_t job_queue_{};
    cv_notifier cv_{};
 
+   std::thread thread_{};
    //alignas(CACHE_LINE_SIZE)
    size_t id_{};
    shutdown_notifier shutdown_{};
@@ -57,8 +58,6 @@ private:
    size_t strategy_{};
    size_t tried_times_{};
    size_t sched_jobs_{};
-
-   std::thread thread_{};
    bool unique_{false};
 };
 

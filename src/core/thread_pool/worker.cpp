@@ -77,14 +77,14 @@ auto worker::get_a_job() noexcept -> resumable* {
 ////////////////////////////////////////////////////////////////////
 auto worker::run() noexcept -> void {
    while (1) {
-      if(__unlikely(shutdown_.shutdown_notified())) return;
       auto job = get_a_job();
       if(job != nullptr) {
          sched_jobs_++;
-         while(!resume_once(job));
+         while(__unlikely(!resume_once(job)));
          strategy_ = 0;
          tried_times_ = 0;
       } else {
+         if(__unlikely(shutdown_.shutdown_notified())) return;
          goto_bed();
       }
    }
