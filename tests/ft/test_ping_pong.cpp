@@ -49,18 +49,18 @@ struct ping_actor_1 : behavior_based_actor {
           pong[i] = spawn<pong_actor_1>(i);
        }
 
-       for(size_t i=0; i<total_actors; i++) {
-          send<shared_buf_msg>(pong[i], std::make_shared<big_msg>());
-       }
+//       for(size_t i=0; i<total_actors; i++) {
+//          send<shared_buf_msg>(pong[i], std::make_shared<big_msg>());
+//       }
 
-//       repeat(1ms, [&]{
-//          for(size_t i=0; i<total_actors; i++) {
-//             send<forward_msg>(pong[i], pong[(i+n) % total_actors]);
-//          }
-//          if(++n == total_actors) {
-//             n = 1;
-//          }
-//       });
+       repeat(1ms, [&]{
+          for(size_t i=0; i<total_actors; i++) {
+             send<forward_msg>(pong[i], pong[(i+n) % total_actors]);
+          }
+          if(++n == total_actors) {
+             n = 1;
+          }
+       });
     }
 
     auto get_behavior() -> behavior override {

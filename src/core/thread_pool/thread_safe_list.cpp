@@ -21,7 +21,7 @@ auto thread_safe_list::enqueue_(list_element* ptr) noexcept -> void {
 
 auto thread_safe_list::reschedule(list_element* ptr) noexcept -> bool {
    spin_lock _{lock_};
-   if(head_ == nullptr) return false;
+   if(tail_ == nullptr) return false;
    enqueue_(ptr);
    return true;
 }

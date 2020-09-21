@@ -42,7 +42,6 @@ worker : disable_copy {
 private:
    auto run() noexcept -> void;
    auto resume_once(resumable*) noexcept -> bool;
-   auto resume_job(resumable*) noexcept -> void;
    auto cleanup() noexcept -> void;
    auto goto_bed() noexcept -> void;
    auto get_a_job() noexcept -> resumable*;

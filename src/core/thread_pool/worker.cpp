@@ -44,9 +44,9 @@ namespace {
       size_t intervals;
    }
    config[3] = {
-      {timespan{10'000},      100, 10},
+      {timespan{10'000},        100, 10},
       {timespan{1'000'000},     500, 5},
-      {timespan{1000'000'000}, 1, 1}
+      {timespan{1000'000'000},  1,   1}
    };
 }
 
@@ -81,7 +81,7 @@ auto worker::run() noexcept -> void {
       auto job = get_a_job();
       if(job != nullptr) {
          sched_jobs_++;
-         resume_job(job);
+         while(!resume_once(job));
          strategy_ = 0;
          tried_times_ = 0;
       } else {
@@ -109,12 +109,6 @@ auto worker::resume_once(resumable* job) noexcept -> bool {
       return true;
    } else {
       return job_queue_.reschedule(job);
-   }
-}
-
-auto worker::resume_job(resumable* job) noexcept -> void {
-   while(!resume_once(job)) {
-      if(__unlikely(shutdown_.shutdown_notified())) return;
    }
 }
 
