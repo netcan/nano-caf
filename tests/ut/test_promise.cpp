@@ -4,6 +4,7 @@
 
 #include <catch.hpp>
 #include <nano-caf/core/await/promise.h>
+#include <nano-caf/core/await/multi_future_awaiter.h>
 #include <nano-caf/core/msg/make_message.h>
 
 namespace {
@@ -86,5 +87,135 @@ namespace {
             REQUIRE(*value_set == 10);
          }
       }
+   }
+
+   SCENARIO("multi-future") {
+      cancellable_repository repository;
+      promise<int> p1;
+      auto future1 = p1.get_future(repository);
+
+      promise<short> p2;
+      auto future2 = p2.get_future(repository);
+
+      std::optional<int> result_set;
+      auto awaiter = make_multi_future_awaiter(
+         repository,
+         [&](int i, short j) { result_set = i + j; },
+         [](status_t) {},
+         future1,
+         future2);
+
+      REQUIRE(!result_set.has_value());
+
+      intrusive_actor_ptr null_actor;
+      p1.set_value(10, null_actor);
+      p1.get_promise_done_notifier()->on_promise_done();
+
+      REQUIRE(!result_set.has_value());
+
+      p2.set_value(5, null_actor);
+      p2.get_promise_done_notifier()->on_promise_done();
+
+      REQUIRE(result_set.has_value());
+
+      REQUIRE(*result_set == 15);
+
+      REQUIRE_FALSE(awaiter.valid());
+      REQUIRE(repository.empty());
+   }
+
+   SCENARIO("partial multi-future") {
+      cancellable_repository repository;
+      promise<int> p1;
+      auto future1 = p1.get_future(repository);
+
+      intrusive_actor_ptr null_actor;
+      p1.set_value(10, null_actor);
+      p1.get_promise_done_notifier()->on_promise_done();
+
+      promise<short> p2;
+      auto future2 = p2.get_future(repository);
+
+      std::optional<int> result_set;
+      auto awaiter = make_multi_future_awaiter(
+         repository,
+         [&](int i, short j) { result_set = i + j; },
+         [](status_t) {},
+         future1,
+         future2);
+
+      REQUIRE(!result_set.has_value());
+
+      p2.set_value(5, null_actor);
+      p2.get_promise_done_notifier()->on_promise_done();
+
+      REQUIRE(result_set.has_value());
+
+      REQUIRE(*result_set == 15);
+
+      REQUIRE_FALSE(awaiter.valid());
+      REQUIRE(repository.empty());
+   }
+
+   SCENARIO("late multi-future") {
+      cancellable_repository repository;
+      promise<int> p1;
+      auto future1 = p1.get_future(repository);
+
+      intrusive_actor_ptr null_actor;
+      p1.set_value(10, null_actor);
+      p1.get_promise_done_notifier()->on_promise_done();
+
+      promise<short> p2;
+      auto future2 = p2.get_future(repository);
+
+      p2.set_value(5, null_actor);
+      p2.get_promise_done_notifier()->on_promise_done();
+
+      std::optional<int> result_set;
+      auto awaiter = make_multi_future_awaiter(
+         repository,
+         [&](int i, short j) { result_set = i + j; },
+         [](status_t) {},
+         future1,
+         future2);
+
+      REQUIRE(result_set.has_value());
+
+      REQUIRE(*result_set == 15);
+
+      REQUIRE_FALSE(awaiter.valid());
+      REQUIRE(repository.empty());
+   }
+
+   SCENARIO("cancel multi-future") {
+      cancellable_repository repository;
+      promise<int> p1;
+      auto future1 = p1.get_future(repository);
+
+      intrusive_actor_ptr null_actor;
+      p1.set_value(10, null_actor);
+      p1.get_promise_done_notifier()->on_promise_done();
+
+      promise<short> p2;
+      auto future2 = p2.get_future(repository);
+
+      std::optional<int> result_set;
+      std::optional<status_t> failure_set;
+      auto awaiter = make_multi_future_awaiter(
+         repository,
+         [&](int i, short j) { result_set = i + j; },
+         [&](status_t status) { failure_set = status; },
+         future1,
+         future2);
+
+      awaiter.cancel(status_t::cancelled);
+
+      REQUIRE(!result_set.has_value());
+      REQUIRE(failure_set.has_value());
+      REQUIRE(*failure_set == status_t::cancelled);
+
+      REQUIRE_FALSE(awaiter.valid());
+      REQUIRE(repository.empty());
    }
 }

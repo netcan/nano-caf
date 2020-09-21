@@ -139,7 +139,7 @@ add_library(nano_caf
         include/nano-caf/core/await/future_awaiter.h
         include/nano-caf/core/await/single_future_awaiter.h
         include/nano-caf/core/await/cancellable.h
-        include/nano-caf/core/await/cancellable_repository.h)
+        include/nano-caf/core/await/cancellable_repository.h include/nano-caf/core/await/multi_future_awaiter.h)
 
 if(CMAKE_CXX_STANDARD EQUAL 20)
     target_sources(nano_caf PRIVATE

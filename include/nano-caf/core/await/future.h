@@ -14,6 +14,9 @@ NANO_CAF_NS_BEGIN
 
 struct cancellable_repository;
 
+template<typename F_CALLBACK, typename F_FAIL, typename ... Xs>
+struct multi_future_awaiter;
+
 template<typename T>
 struct future {
    using obj_type = std::shared_ptr<detail::future_object<T>>;
@@ -34,6 +37,10 @@ struct future {
       }
       return future_awaiter{std::move(awaiter)};
    }
+
+private:
+   template<typename F_CALLBACK, typename F_FAIL, typename ... Xs>
+   friend struct multi_future_awaiter;
 
 private:
    cancellable_repository& repository_;

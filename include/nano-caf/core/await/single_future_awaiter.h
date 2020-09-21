@@ -21,7 +21,10 @@ struct single_future_awaiter
    , promise_done_notifier {
    using object_type = std::shared_ptr<detail::future_object<T>>;
 
-   single_future_awaiter(cancellable_repository& repository, object_type object, F_CALLBACK&& f_callback, F_FAIL f_fail)
+   single_future_awaiter(cancellable_repository& repository,
+                         object_type object,
+                         F_CALLBACK&& f_callback,
+                         F_FAIL&& f_fail)
       : repository_{repository}
       , object_{std::move(object)}
       , callback_{std::forward<F_CALLBACK>(f_callback)}
