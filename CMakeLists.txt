@@ -116,7 +116,6 @@ add_library(nano_caf
         include/nano-caf/util/status_t.h
         include/nano-caf/util/result_trait.h
         include/nano-caf/core/actor/requester.h
-        include/nano-caf/core/msg/request_result_handler.h
         include/nano-caf/util/suppress_warning.h
         include/nano-caf/util/cpp_attribute.h
         include/nano-caf/util/ptr_trait.h
@@ -130,7 +129,7 @@ add_library(nano_caf
         include/nano-caf/core/actor_registry.h src/core/actor_registry.cpp
         src/core/actor/intrusive_actor_ptr.cpp
         include/nano-caf/core/timer/timer_id_t.h
-        include/nano-caf/core/timer/duration.h include/nano-caf/util/random_generator.h)
+        include/nano-caf/core/timer/duration.h include/nano-caf/util/random_generator.h include/nano-caf/core/await/promise.h include/nano-caf/core/await/future_object.h include/nano-caf/core/await/future.h include/nano-caf/core/await/abstract_promise.h include/nano-caf/core/await/promise_done_notifier.h include/nano-caf/core/await/future_awaiter.h include/nano-caf/core/await/single_future_awaiter.h include/nano-caf/core/await/cancellable.h include/nano-caf/core/await/cancellable_repository.h)
 
 if(CMAKE_CXX_STANDARD EQUAL 20)
     target_sources(nano_caf PRIVATE

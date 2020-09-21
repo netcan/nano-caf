@@ -7,17 +7,16 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/core/msg/predefined-msgs.h>
-#include <nano-caf/core/msg/request_result_handler.h>
 #include <nano-caf/core/actor/actor_handle.h>
 
 NANO_CAF_NS_BEGIN namespace requester {
 
 template<typename CALLBACK, typename R>
-struct reply_done_notifier : done_notifier {
+struct reply_done_notifier : promise_done_notifier {
    reply_done_notifier(CALLBACK &&callback, R &&result)
       : callback_{std::move(callback)}, result_{std::move(result)} {}
 
-   auto on_done() -> void override {
+   auto on_promise_done() noexcept -> void override {
       callback_(std::move(result_));
    }
 
@@ -26,16 +25,16 @@ struct reply_done_notifier : done_notifier {
 };
 
 template<typename R, typename CALLBACK>
-struct delegate_request_handler : request_result_handler<R> {
+struct delegate_request_handler : abstract_promise<R> {
    delegate_request_handler(CALLBACK&& callback)
       : callback_{std::move(callback)} {}
 
    static_assert(std::is_invocable_r_v < void, CALLBACK, R > , "R function signature mismatch");
 
-   auto handle(R &&value, intrusive_actor_ptr &sender) -> void override {
+   auto set_value(R &&value, intrusive_actor_ptr &sender) noexcept -> void override {
       if (static_cast<bool>(sender)) {
          actor_handle{sender}.send<reply_msg>(
-            std::unique_ptr<done_notifier>(new reply_done_notifier{std::move(callback_), std::move(value)}));
+            std::unique_ptr<promise_done_notifier>(new reply_done_notifier{std::move(callback_), std::move(value)}));
       } else {
          callback_(std::move(value));
       }

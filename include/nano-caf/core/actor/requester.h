@@ -42,8 +42,8 @@ template<typename METHOD_ATOM, typename ACTOR_INTERFACE, typename ...Args>
 constexpr bool is_msg_valid = is_msg_atom<METHOD_ATOM> && msg_pattern_match<METHOD_ATOM, ACTOR_INTERFACE, Args...>;
 
 template<typename T>
-struct promised_request_handler : request_result_handler<T> {
-   auto handle(T&& value, intrusive_actor_ptr&) -> void override {
+struct promised_request_handler : abstract_promise<T> {
+   auto set_value(T&& value, intrusive_actor_ptr&) noexcept -> void override {
       promise_.set_value(std::move(value));
       value_set_ = true;
    }
@@ -73,8 +73,8 @@ struct request_rsp_base {
       return f_(std::forward<HANDLER>(handler));
    }
 
-   struct dummy_request_handler : request_result_handler<result_type<METHOD_ATOM>> {
-      auto handle(result_type<METHOD_ATOM>&&, intrusive_actor_ptr&) -> void override {}
+   struct dummy_request_handler : abstract_promise<result_type<METHOD_ATOM>> {
+      auto set_value(result_type<METHOD_ATOM>&&, intrusive_actor_ptr&) noexcept -> void override {}
    };
 
    ~request_rsp_base() {

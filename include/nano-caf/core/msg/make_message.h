@@ -84,7 +84,7 @@ struct request_entity : message_entity<T, CATEGORY> {
    }
 
    using result_type = func_result_t<typename T::result_type>;
-   static_assert(std::is_base_of_v<request_result_handler<result_type>, real_handler_t>);
+   static_assert(std::is_base_of_v<abstract_promise<result_type>, real_handler_t>);
    real_handler_t handler_;
 };
 

@@ -6,9 +6,8 @@
 #define NANO_CAF_MESSAGE_H
 
 #include <nano-caf/nano-caf-ns.h>
-#include <nano-caf/core/msg/request_result_handler.h>
 #include <nano-caf/util/type_id_t.h>
-#include <nano-caf/core/actor/intrusive_actor_ptr.h>
+#include <nano-caf/core/await/abstract_promise.h>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/util/either.h>
 #include <utility>
@@ -61,9 +60,9 @@ struct message {
    }
 
    template<typename T>
-   auto get_request_result_handler() -> request_result_handler<T>* {
+   auto get_request_result_handler() -> abstract_promise<T>* {
       if(!is_request()) return nullptr;
-      return reinterpret_cast<request_result_handler<T>*>(handler_ptr());
+      return reinterpret_cast<abstract_promise<T>*>(handler_ptr());
    }
 
    virtual ~message() = default;

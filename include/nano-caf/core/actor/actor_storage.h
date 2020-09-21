@@ -87,12 +87,12 @@ private:
       auto user_defined_handle_msg(message& msg) noexcept -> task_result override {
          switch(msg.msg_type_id_) {
             case reply_msg::type_id:
-               msg.body<reply_msg>()->notifier->on_done();
+               msg.body<reply_msg>()->notifier->on_promise_done();
                return task_result::resume;
             case timeout_msg::type_id:
                return handle_timeout(msg);
             case future_done::type_id:
-               msg.body<future_done>()->notifier->on_done();
+               msg.body<future_done>()->notifier->on_promise_done();
                check_futures();
                return task_result::resume;
             default:

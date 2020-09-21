@@ -11,7 +11,7 @@
 #include <nano-caf/core/timer/duration.h>
 #include <nano-caf/core/actor/exit_reason.h>
 #include <nano-caf/util/either.h>
-#include <nano-caf/core/actor/intrusive_actor_ptr.h>
+#include <nano-caf/core/await/promise_done_notifier.h>
 #include <cstdint>
 #include <chrono>
 
@@ -19,13 +19,8 @@ NANO_CAF_NS_BEGIN
 
 CAF_def_message(exit_msg, (reason, exit_reason));
 
-struct done_notifier {
-   virtual auto on_done() -> void = 0;
-   virtual ~done_notifier() = default;
-};
-
-CAF_def_message(future_done, (notifier, std::unique_ptr<done_notifier>));
-CAF_def_message(reply_msg, (notifier, std::unique_ptr<done_notifier>));
+CAF_def_message(future_done, (notifier, std::shared_ptr<promise_done_notifier>));
+CAF_def_message(reply_msg, (notifier, std::unique_ptr<promise_done_notifier>));
 
 using timer_spec = either<duration, std::chrono::steady_clock::time_point>;
 

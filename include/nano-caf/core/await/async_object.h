@@ -17,7 +17,9 @@
 NANO_CAF_NS_BEGIN
 
 template <typename F, typename R, typename = std::enable_if_t<std::is_invocable_r_v<R, F>>>
-struct async_object : resumable, private done_notifier {
+struct async_object
+   : promise_done_notifier
+   , resumable  {
    async_object(intrusive_actor_ptr sender, F&& f)
       : f_{std::move(f)}
       , sender_{sender}
@@ -40,12 +42,12 @@ struct async_object : resumable, private done_notifier {
          delete this;
       } else {
          // has to be sent here, otherwise this message might has arrived at receiver side & been deleted already.
-         sender_.send<future_done>(std::unique_ptr<done_notifier>(this));
+         sender_.send<future_done>(std::shared_ptr<promise_done_notifier>{this});
       }
    }
 
 private:
-   virtual auto on_done() -> void override {
+   virtual auto on_promise_done() noexcept -> void override {
       *future_ = std::move(result_);
    }
 
