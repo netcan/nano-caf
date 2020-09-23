@@ -6,11 +6,10 @@
 #define NANO_CAF_FUTURE_AWAITER_H
 
 #include <nano-caf/core/await/cancellable.h>
+#include <nano-caf/core/actor/actor_timer_context.h>
 #include <memory>
 
 NANO_CAF_NS_BEGIN
-
-struct actor_timer_context;
 
 struct future_awaiter {
    future_awaiter() = default;
@@ -30,7 +29,7 @@ struct future_awaiter {
 
    template<typename Rep, typename Period>
    inline auto time_guard(std::chrono::duration<Rep, Period> const& d) && noexcept -> future_awaiter& {
-      if(context_) {
+      if(context_ && valid()) {
          auto cb = std::make_shared<timeout_callback_t>([obj = object_](auto){
             auto cancellable = obj.lock();
             if(cancellable) {
