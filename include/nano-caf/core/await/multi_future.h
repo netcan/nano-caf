@@ -43,7 +43,7 @@ struct multi_future {
          context_->add_cancellable(awaiter);
          awaiter->register_notifier();
       }
-      return future_awaiter{context_, awaiter};
+      return future_awaiter{awaiter};
    }
 
    template<typename F_CALLBACK,

@@ -7,8 +7,7 @@
 
 #include <nano-caf/core/await/promise_done_notifier.h>
 #include <nano-caf/core/await/future_object.h>
-#include <nano-caf/core/await/cancellable.h>
-#include <nano-caf/core/actor/on_actor_context.h>
+#include <nano-caf/core/await/abstract_future_awaiter.h>
 #include <memory>
 
 NANO_CAF_NS_BEGIN
@@ -17,7 +16,7 @@ template<typename T, typename F_CALLBACK, typename F_FAIL,
    typename = std::enable_if_t<std::is_invocable_r_v<void, std::decay_t<F_CALLBACK>, const T&> &&
                                std::is_invocable_r_v<void, std::decay_t<F_FAIL>, status_t>>>
 struct single_future_awaiter
-   : cancellable
+   : abstract_future_awaiter
    , promise_done_notifier {
    using object_type = std::shared_ptr<detail::future_object<T>>;
 
@@ -25,7 +24,7 @@ struct single_future_awaiter
                          object_type object,
                          F_CALLBACK&& f_callback,
                          F_FAIL&& f_fail)
-      : context_{context}
+      : abstract_future_awaiter{context}
       , object_{std::move(object)}
       , callback_{std::forward<F_CALLBACK>(f_callback)}
       , on_fail_{std::forward<F_FAIL>(f_fail)} {
@@ -40,14 +39,7 @@ struct single_future_awaiter
       }
    }
 
-   inline auto destroyed() const noexcept -> bool { return destroyed_; }
-
 private:
-   auto destroy() {
-      context_.remove_cancellable(this);
-      destroyed_ = true;
-   }
-
    auto on_promise_done() noexcept -> void override {
       if(!destroyed_ && object_ && *object_) {
          callback_(object_->get_value());
@@ -55,19 +47,14 @@ private:
       }
    }
 
-   auto cancel(status_t cause) noexcept -> void override {
-      if(!destroyed_) {
-         on_fail_(cause);
-         destroy();
-      }
+   auto on_fail(status_t cause) noexcept -> void override {
+      on_fail_(cause);
    }
 
 private:
-   on_actor_context& context_;
    object_type object_;
    F_CALLBACK callback_;
    F_FAIL     on_fail_;
-   bool       destroyed_{};
 };
 
 NANO_CAF_NS_END

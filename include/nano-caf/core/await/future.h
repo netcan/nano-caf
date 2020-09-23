@@ -41,7 +41,7 @@ struct future {
          context_->add_cancellable(awaiter);
          object_->add_notifier(awaiter);
       }
-      return future_awaiter{context_, std::move(awaiter)};
+      return future_awaiter{std::move(awaiter)};
    }
 
    template<typename F_CALLBACK>
