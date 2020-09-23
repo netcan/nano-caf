@@ -71,6 +71,8 @@ private:
       uint8_t registered:1;
       uint8_t timer_created:1;
    } flags_{};
+
+protected:
    exit_reason reason_;
 };
 

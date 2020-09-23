@@ -41,7 +41,7 @@ struct single_future_awaiter
 
 private:
    auto on_promise_done() noexcept -> void override {
-      if(!destroyed_ && object_ && *object_) {
+      if(!destroyed_ && object_ && object_->ready()) {
          callback_(object_->get_value());
          destroy();
       }

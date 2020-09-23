@@ -46,6 +46,13 @@ auto task_list::push_front(message* ptr) noexcept -> void {
 
    total_task_size_++;
 }
+
+auto task_list::take_all() noexcept -> message* {
+   auto result = head_;
+   reset();
+   return result;
+}
+
 ///////////////////////////////////////////////////////////
 auto task_list::append_list(task_list& list) noexcept -> void{
    if(__unlikely(list.empty())) return;

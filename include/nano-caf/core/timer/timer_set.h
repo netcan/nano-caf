@@ -15,6 +15,7 @@
 NANO_CAF_NS_BEGIN
 
 struct timer_set {
+   timer_set();
 private:
    using time_point = std::chrono::steady_clock::time_point;
 
@@ -37,7 +38,7 @@ private:
    auto handle_msg(std::unique_ptr<message> msg) -> void;
 
    template<typename PRED, typename OP>
-   auto timer_find_and_modify(intptr_t actor_id, PRED&& pred, OP&& op) -> void;
+   auto timer_find_and_modify(int code, intptr_t actor_id, PRED&& pred, OP&& op) -> void;
 
 private:
    using timers = std::multimap<time_point, std::unique_ptr<message>>;

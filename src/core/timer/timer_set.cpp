@@ -22,6 +22,8 @@ namespace {
    }
 }
 
+timer_set::timer_set() {
+}
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    if(__unlikely(msg == nullptr)) return status_t::null_msg;
@@ -31,6 +33,7 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
 
    auto due = get_due(start_msg);
    while(__unlikely(due < std::chrono::steady_clock::now())) {
+      CAF_INFO("timout {}", start_msg->actor.actor_id());
       send_timeout_msg_to_actor(start_msg);
       if(!start_msg->is_periodic) {
          return status_t::ok;
@@ -44,13 +47,17 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    auto actor_id = start_msg->actor.actor_id();
    actor_indexer_.emplace(actor_id, iterator);
 
+
    return status_t::ok;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 template<typename PRED, typename OP>
-auto timer_set::timer_find_and_modify(intptr_t actor_id, PRED&& pred, OP&& op) -> void {
+auto timer_set::timer_find_and_modify(int code, intptr_t actor_id, PRED&& pred, OP&& op) -> void {
    auto range = actor_indexer_.equal_range(actor_id);
+   if(range.first == range.second) {
+      CAF_ERROR("no actor {}, {}, {}", code, actor_id, actor_indexer_.size());
+   }
    auto result = std::find_if(range.first, range.second, std::forward<PRED>(pred));
    if(result != range.second) {
       op(result);
@@ -58,11 +65,11 @@ auto timer_set::timer_find_and_modify(intptr_t actor_id, PRED&& pred, OP&& op) -
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto timer_set::remove_timer(intptr_t actor_id, timer_id_t msg_id) -> void {
-   timer_find_and_modify(actor_id,
+auto timer_set::remove_timer(intptr_t actor_id, timer_id_t timer_id) -> void {
+   timer_find_and_modify(0, actor_id,
        [&](auto const& item) {
           auto&& [_, msg] = *item.second;
-          return msg->template body<start_timer_msg>()->id == msg_id;
+          return msg->template body<start_timer_msg>()->id == timer_id;
        },
        [&](auto const& result) {
           timers_.erase(result->second);
@@ -72,7 +79,7 @@ auto timer_set::remove_timer(intptr_t actor_id, timer_id_t msg_id) -> void {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_set::remove_index(intptr_t actor_id, timers::iterator const& iterator) -> void {
-   timer_find_and_modify(actor_id,
+   timer_find_and_modify(1, actor_id,
        [&](auto const& item)      { return item.second == iterator; },
        [this](auto const& result) { actor_indexer_.erase(result);
    });
@@ -80,7 +87,7 @@ auto timer_set::remove_index(intptr_t actor_id, timers::iterator const& iterator
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_set::update_index(intptr_t actor_id, timers::iterator const& from, timers::iterator const& to) -> void {
-   timer_find_and_modify(actor_id,
+   timer_find_and_modify(2, actor_id,
        [&](auto const& item) { return item.second == from; },
        [&](auto& result)     { result->second = to; });
 }

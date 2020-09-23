@@ -54,6 +54,10 @@ private:
          : sched_actor(true)
          , T{std::forward<Args>(args)...} {}
 
+      ~internal_actor() {
+
+      }
+
       auto exit(exit_reason reason) noexcept -> void override {
          sched_actor::exit_(reason);
       }

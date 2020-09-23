@@ -16,6 +16,7 @@ struct task_list {
    auto next(size_t& deficit) noexcept -> std::unique_ptr<message>;
    auto push_back(message* ptr) noexcept -> void;
    auto push_front(message* ptr) noexcept -> void;
+   auto take_all() noexcept -> message*;
    auto append_list(task_list& list) noexcept -> void;
    auto prepend_list(task_list& list) noexcept -> void;
    auto clear() noexcept -> void;

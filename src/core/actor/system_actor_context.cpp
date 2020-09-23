@@ -12,10 +12,11 @@ auto system_actor_context::schedule_job(resumable& job) noexcept -> void {
    coordinator::schedule_job(job);
 }
 
+using namespace std::chrono_literals;
 ///////////////////////////////////////////////////////////////////////////////////////////
 auto system_actor_context::wait_actors_done() -> void {
    while(actor_registry::get_num_of_actors() > 0) {
-      std::this_thread::yield();
+      std::this_thread::sleep_for(10ns);
    }
 }
 

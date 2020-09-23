@@ -16,7 +16,7 @@ auto abstract_future_awaiter::cancel(status_t cause) noexcept -> void {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 auto abstract_future_awaiter::destroy() -> void {
    context_.remove_cancellable(this);
-   if(timer_id_) {
+   if(timer_id_.has_value()) {
       context_.stop_timer(*timer_id_);
       timer_id_ = std::nullopt;
    }
@@ -34,7 +34,7 @@ auto abstract_future_awaiter::await(uint64_t duration, std::weak_ptr<awaiter> pt
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 auto abstract_future_awaiter::start_timer_(uint64_t duration, std::weak_ptr<awaiter> ptr) noexcept -> status_t {
-   if(destroyed_) return status_t::ok;
+   if(destroyed_ || timer_id_.has_value()) return status_t::ok;
    auto cb = std::make_shared<timeout_callback_t>([obj = ptr](auto){
       auto cancellable = obj.lock();
       if(cancellable) {

@@ -36,9 +36,9 @@ struct future_actor : actor {
    auto on_init() noexcept -> void override {
       auto future1 = async(&future_actor::add, this, 5, 3);
 
-      future1.on_succeed(([]([[maybe_unused]]auto r1) {
+      future1.on_succeed([]([[maybe_unused]]auto r1) {
             CAF_DEBUG("async future1 done = {}", r1);
-         }));
+         });
 
       auto future2 = async([this]() {
          CAF_DEBUG("calc future 2");
@@ -57,8 +57,7 @@ struct future_actor : actor {
       });
 
       future2.on_succeed([]([[maybe_unused]] auto r2) {
-         CAF_DEBUG("async future2 done = {}", r2);})
-         .time_guard(10s);
+         CAF_DEBUG("async future2 done = {}", r2);});
 
       auto future3 = async([this]() {
          CAF_DEBUG("calc future 3");
@@ -80,12 +79,16 @@ struct future_actor : actor {
          CAF_DEBUG("async future3 done = {}", r3);
       });
 
+      if(future1.ready() || future2.ready() || future3.ready()) {
+         CAF_ERROR("some future ready");
+      }
+
       auto result4 = with(future1, future2, future3).on_succeed(
          [this](auto r1, auto  r2, auto r3) {
             final_result = r1 + r2 + r3;
             CAF_DEBUG("all futures done = {}", final_result);
             exit(exit_reason::normal);
-         });
+         }).time_guard(100ms);
    }
 
    auto handle_message(message&) noexcept -> task_result override {
@@ -96,17 +99,25 @@ struct future_actor : actor {
 void run_on_thread(size_t num_of_threads, char const*) {
    actor_system system{num_of_threads};
 
+   CAF_INFO("started");
 //   ankerl::nanobench::Bench().minEpochIterations(109).run(name, [&] {
+   auto time1 = std::chrono::steady_clock::now();
      for(size_t i=0; i<1000; i++) {
+
         auto me = system.spawn<future_actor>();
         //me.send<test_message>(1);
         me.wait_for_exit();
         me.release();
+
      }
+   auto time2 = std::chrono::steady_clock::now();
+     CAF_INFO("elapsed = {}", (time2 - time1).count());
 
 //   });
 
    system.shutdown();
+   auto time3 = std::chrono::steady_clock::now();
+   CAF_INFO("shutdown elapsed = {}", (time3 - time2).count());
 
    std::cout << "--------------------------------" << std::endl;
    for(size_t i=0; i<num_of_threads; i++) {
@@ -123,6 +134,7 @@ int main() {
    run_on_thread(__(2));
    run_on_thread(__(3));
    run_on_thread(__(4));
+   run_on_thread(__(5));
 
    return 0;
 }

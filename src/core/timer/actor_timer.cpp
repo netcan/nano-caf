@@ -6,6 +6,8 @@
 #include <nano-caf/core/msg/make_message.h>
 #include <nano-caf/util/likely.h>
 #include <nano-caf/core/actor/actor_handle.h>
+#include <nano-caf/core/actor/task_list.h>
+#include <nano-caf/util/caf_log.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -17,7 +19,8 @@ auto actor_timer::go_sleep() -> status_t {
       });
       return shutdown_.shutdown_notified() ? status_t::system_shutdown : status_t::ok;
    } else {
-      return timers_.wait_for_timer_due(cv_, shutdown_);
+      auto result = timers_.wait_for_timer_due(cv_, shutdown_);
+      return result;
    }
 }
 
@@ -29,6 +32,13 @@ inline auto actor_timer::try_go_sleep() -> status_t {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 inline auto actor_timer::process(message* msgs) -> status_t {
+   task_list queue{};
+   while (msgs != nullptr) {
+      auto ptr = msgs;
+      msgs = msgs->next_;
+      queue.push_front(ptr);
+   }
+   msgs = queue.take_all();
    return msgs == nullptr ? try_go_sleep() : timers_.handle_msgs(msgs, shutdown_);
 }
 
@@ -54,8 +64,14 @@ auto actor_timer::stop() -> void {
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto actor_timer::send_msg(message* msg) -> status_t {
    switch(msg_queue_.enqueue(msg)) {
-      case enq_result::ok: return status_t::ok;
-      case enq_result::blocked: cv_.wake_up(); return status_t::ok;
+      case enq_result::ok: {
+         cv_.wake_up();
+         return status_t::ok;
+      }
+      case enq_result::blocked: {
+         cv_.wake_up();
+         return status_t::ok;
+      }
       case enq_result::null_msg: return status_t::null_msg;
       case enq_result::closed:   return status_t::msg_queue_closed;
       default: return status_t::failed;

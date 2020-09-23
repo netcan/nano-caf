@@ -29,6 +29,10 @@ struct future {
       return static_cast<bool>(object_);
    }
 
+   auto ready() const noexcept -> bool {
+      return valid() && object_->ready();
+   }
+
    template<typename F_CALLBACK, typename F_FAIL>
    auto then(F_CALLBACK&& callback, F_FAIL&& on_fail) noexcept -> future_awaiter {
       if(context_ == nullptr || !object_) {

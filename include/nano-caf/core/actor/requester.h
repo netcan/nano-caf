@@ -43,8 +43,6 @@ constexpr bool is_msg_valid = is_msg_atom<METHOD_ATOM> && msg_pattern_match<METH
 
 template<typename T>
 struct promised_request_handler_base : abstract_promise<T> {
-
-
    promised_request_handler_base() = default;
    promised_request_handler_base(promised_request_handler_base&& handler)
       : promise_{std::move(handler.promise_)}
