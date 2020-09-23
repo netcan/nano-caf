@@ -13,15 +13,18 @@ NANO_CAF_NS_BEGIN
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto actor_timer::go_sleep() -> status_t {
+   auto pred = [this] {
+      return shutdown_.shutdown_notified() || !msg_queue_.blocked();
+   };
+
    if(timers_.empty()) {
-      cv_.wait([this]() {
-         return shutdown_.shutdown_notified() || !msg_queue_.blocked();
-      });
-      return shutdown_.shutdown_notified() ? status_t::system_shutdown : status_t::ok;
+      cv_.wait(pred);
    } else {
-      auto result = timers_.wait_for_timer_due(cv_, shutdown_);
-      return result;
+      if(!cv_.wait_until(timers_.get_recent_due(), pred)) {
+         return timers_.check_timer_due(shutdown_);
+      }
    }
+   return shutdown_.shutdown_notified() ? status_t::system_shutdown : status_t::ok;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,10 +67,7 @@ auto actor_timer::stop() -> void {
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto actor_timer::send_msg(message* msg) -> status_t {
    switch(msg_queue_.enqueue(msg)) {
-      case enq_result::ok: {
-         cv_.wake_up();
-         return status_t::ok;
-      }
+      case enq_result::ok: return status_t::ok;
       case enq_result::blocked: {
          cv_.wake_up();
          return status_t::ok;

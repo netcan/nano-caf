@@ -184,14 +184,6 @@ auto timer_set::check_timer_due(const shutdown_notifier& shutdown) -> status_t {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto timer_set::wait_for_timer_due(cv_notifier& cv, shutdown_notifier& shutdown) -> status_t {
-   if(cv.wait_until(get_recent_due()) == std::cv_status::timeout) {
-      return check_timer_due(shutdown);
-   }
-   return shutdown.shutdown_notified() ? status_t::system_shutdown : status_t::ok;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////
 auto timer_set::reset() -> void {
    actor_indexer_.clear();
    timers_.clear();
