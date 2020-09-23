@@ -15,8 +15,8 @@ NANO_CAF_NS_BEGIN
 struct on_actor_context;
 
 template<typename T>
-struct promise : abstract_promise<T> {
-private:
+struct promise_base : abstract_promise<T> {
+protected:
    using obj_type = std::shared_ptr<detail::future_object<T>>;
    inline auto check_object() noexcept -> void {
       if(!object_) {
@@ -24,19 +24,16 @@ private:
       }
    }
 
+   auto reply(intrusive_actor_ptr& to) {
+      if(to) {
+         actor_handle(to).send<future_done>(std::move(object_));
+      }
+   }
+
 public:
    auto get_future(on_actor_context& context) noexcept -> future<T> {
       check_object();
       return future<T>{object_, context};
-   }
-
-   auto set_value(T&& value, intrusive_actor_ptr& to) noexcept -> void override {
-      check_object();
-      if(object_->set_value(std::move(value))) {
-         if(to) {
-            actor_handle(to).send<future_done>(std::move(object_));
-         }
-      }
    }
 
    auto get_promise_done_notifier() const noexcept -> std::shared_ptr<promise_done_notifier> {
@@ -47,8 +44,31 @@ public:
       return object_ && object_->present();
    }
 
-private:
+protected:
    obj_type object_;
+};
+
+template<typename T>
+struct promise : promise_base<T> {
+   using super = promise_base<T>;
+
+   auto set_value(T&& value, intrusive_actor_ptr& to) noexcept -> void override {
+      super::check_object();
+      if(super::object_->set_value(std::move(value))) {
+         super::reply(to);
+      }
+   }
+};
+
+template<>
+struct promise<void> : promise_base<void> {
+   using super = promise_base<void>;
+   auto set_value(intrusive_actor_ptr& to) noexcept -> void override {
+      super::check_object();
+      if(super::object_->set_value()) {
+         super::reply(to);
+      }
+   }
 };
 
 NANO_CAF_NS_END

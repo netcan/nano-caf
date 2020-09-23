@@ -15,8 +15,6 @@
 NANO_CAF_NS_BEGIN
 
 namespace detail {
-   struct request_signature{};
-
    template<typename ATOM, typename SIGNATURE>
    struct request_type {
       request_type() = delete;
@@ -50,9 +48,10 @@ struct __CAF_method_name(x) : NANO_CAF_NS::atom_signature {                \
    struct msg_type : type::msg_type {                                      \
       using tuple_parent = type::msg_type;                                 \
       using tuple_parent::tuple_parent;                                    \
+      constexpr static bool Is_Request = true;                             \
       using result_type = type::result_type;                               \
       constexpr static NANO_CAF_NS::type_id_t type_id =                    \
-           static_cast<type_id_t>(n) | __secrete_type_id;                  \
+           static_cast<NANO_CAF_NS::type_id_t>(n) | __secrete_type_id;     \
    };                                                                      \
 };
 
@@ -65,7 +64,7 @@ private:                                                                        
                  std::is_convertible_v<decltype(i_type_id), uint32_t>,                   \
                  "interface type id must be uint32_t");                                  \
    constexpr static NANO_CAF_NS::type_id_t __secrete_type_id =                           \
-           static_cast<type_id_t>(i_type_id) << 32;                                      \
+           static_cast<NANO_CAF_NS::type_id_t>(i_type_id) << 32;                         \
 public:                                                                                  \
    template <size_t, typename> struct __SeCrEtE_method;                                  \
    constexpr static size_t total_methods = __MACO_num_of_args(__VA_ARGS__);              \

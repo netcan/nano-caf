@@ -15,6 +15,12 @@ struct abstract_promise {
    virtual ~abstract_promise() = default;
 };
 
+template<>
+struct abstract_promise<void> {
+   virtual auto set_value(intrusive_actor_ptr&) noexcept -> void = 0;
+   virtual ~abstract_promise() = default;
+};
+
 NANO_CAF_NS_END
 
 #endif //NANO_CAF_ABSTRACT_PROMISE_H

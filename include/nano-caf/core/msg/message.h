@@ -10,9 +10,16 @@
 #include <nano-caf/core/await/abstract_promise.h>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/util/either.h>
+#include <nano-caf/util/result_trait.h>
 #include <utility>
 
 NANO_CAF_NS_BEGIN
+
+template<typename T, typename = void>
+constexpr bool Is_Request = false;
+
+template<typename T>
+constexpr bool Is_Request<T, std::enable_if_t<T::Is_Request>> = true;
 
 struct message {
    enum : uint64_t {
@@ -59,10 +66,9 @@ struct message {
       return reinterpret_cast<const T*>(body_ptr());
    }
 
-   template<typename T>
-   auto get_request_result_handler() -> abstract_promise<T>* {
-      if(!is_request()) return nullptr;
-      return reinterpret_cast<abstract_promise<T>*>(handler_ptr());
+   template<typename T, typename R = typename T::result_type, typename = std::enable_if_t<Is_Request<T>>>
+   auto get_promise() -> abstract_promise<R>* {
+      return reinterpret_cast<abstract_promise<R>*>(get_promise_ptr());
    }
 
    virtual ~message() = default;
@@ -70,7 +76,7 @@ struct message {
 private:
    virtual auto body_ptr() noexcept -> void* = 0;
    virtual auto body_ptr() const noexcept -> const void* = 0;
-   virtual auto handler_ptr() const noexcept -> void* {
+   virtual auto get_promise_ptr() const noexcept -> void* {
       return nullptr;
    }
 

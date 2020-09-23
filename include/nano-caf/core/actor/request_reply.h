@@ -44,7 +44,7 @@ struct delegate_request_handler : abstract_promise<R> {
 };
 
 template<typename METHOD_ATOM>
-using result_type = func_result_t<typename METHOD_ATOM::type::result_type>;
+using result_type = typename METHOD_ATOM::type::result_type;
 
 template<typename METHOD_ATOM>
 using method_result_t = result_t<result_type<METHOD_ATOM>>;

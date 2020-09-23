@@ -113,7 +113,7 @@ namespace {
          [](auto) {});
 
       me.request<media_session::close>(static_cast<long>(10)).wait().match(
-         [](auto result) { REQUIRE(result == unit);  },
+         []() {},
          [](auto) { REQUIRE(false); });
 
       me.request<media_session::empty>().wait().match(

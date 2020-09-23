@@ -98,6 +98,36 @@ public:
    }
 };
 
+
+template<>
+struct result_t<void> {
+   constexpr result_t() noexcept = default;
+   constexpr result_t(status_t&& value) noexcept
+      : failure_{std::move(value)}
+   {}
+
+   constexpr result_t(const result_t& other) noexcept = default;
+   constexpr result_t(result_t&& other) noexcept
+      : failure_{std::move(other.failure_)}
+   {}
+
+   inline constexpr auto is_ok() const noexcept -> bool {
+      return !failure_;
+   }
+
+   inline constexpr auto failure() const -> status_t {
+      return failure_ ? *failure_ : status_t::ok;
+   }
+
+   template<typename F_VALUE, typename F_ERROR>
+   constexpr auto match(F_VALUE&& f_value, F_ERROR&& f_error) const noexcept {
+      return is_ok() ? f_value() : f_error(*failure_);
+   }
+
+private:
+   std::optional<status_t> failure_;
+};
+
 NANO_CAF_NS_END
 
 #endif //NANO_CAF_RESULT_T_H

@@ -42,25 +42,50 @@ template<typename METHOD_ATOM, typename ACTOR_INTERFACE, typename ...Args>
 constexpr bool is_msg_valid = is_msg_atom<METHOD_ATOM> && msg_pattern_match<METHOD_ATOM, ACTOR_INTERFACE, Args...>;
 
 template<typename T>
-struct promised_request_handler : abstract_promise<T> {
-   auto set_value(T&& value, intrusive_actor_ptr&) noexcept -> void override {
-      promise_.set_value(std::move(value));
-      value_set_ = true;
-   }
+struct promised_request_handler_base : abstract_promise<T> {
 
-   promised_request_handler() = default;
-   promised_request_handler(promised_request_handler&& handler)
+
+   promised_request_handler_base() = default;
+   promised_request_handler_base(promised_request_handler_base&& handler)
       : promise_{std::move(handler.promise_)}
       , value_set_{handler.value_set_} {
       handler.value_set_ = true;
    }
 
-   ~promised_request_handler() {
+   ~promised_request_handler_base() {
       if(!value_set_) promise_.set_value(status_t::msg_dropped);
    }
 
    std::promise<result_t<T>> promise_{};
    bool value_set_{false};
+};
+
+template<typename T>
+struct promised_request_handler : promised_request_handler_base<T> {
+   using super = promised_request_handler_base<T>;
+   auto set_value(T&& value, intrusive_actor_ptr&) noexcept -> void override {
+      super::promise_.set_value(std::move(value));
+      super::value_set_ = true;
+   }
+};
+
+template<>
+struct promised_request_handler<void> : promised_request_handler_base<void> {
+   using super = promised_request_handler_base<void>;
+   auto set_value(intrusive_actor_ptr&) noexcept -> void override {
+      super::promise_.set_value(result_t<void>{});
+      super::value_set_ = true;
+   }
+};
+
+template<typename R>
+struct dummy_request_handler : abstract_promise<R> {
+   auto set_value(R&&, intrusive_actor_ptr&) noexcept -> void override {}
+};
+
+template<>
+struct dummy_request_handler<void> : abstract_promise<void> {
+   auto set_value(intrusive_actor_ptr&) noexcept -> void override {}
 };
 
 template<typename METHOD_ATOM, typename F>
@@ -73,13 +98,9 @@ struct request_rsp_base {
       return f_(std::forward<HANDLER>(handler));
    }
 
-   struct dummy_request_handler : abstract_promise<result_type<METHOD_ATOM>> {
-      auto set_value(result_type<METHOD_ATOM>&&, intrusive_actor_ptr&) noexcept -> void override {}
-   };
-
    ~request_rsp_base() {
       if(!invoked_) {
-         if(auto status = f_(dummy_request_handler{}); status != status_t::ok) {
+         if(auto status = f_(dummy_request_handler<result_type<METHOD_ATOM>>{}); status != status_t::ok) {
             // error log
          }
       };
@@ -96,8 +117,8 @@ protected:
 
 public:
    using base::base;
-
    using wait_result_t = result_t<result_type<METHOD_ATOM>>;
+
 private:
    template<typename F_WAIT>
    auto wait_(F_WAIT&& f_wait) -> wait_result_t {

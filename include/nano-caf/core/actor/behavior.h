@@ -45,20 +45,18 @@ namespace detail {
       auto handle_msg(message &msg, auto (*handler)(MSG_TYPE& msg, F& f) -> result_type) -> bool {
          auto *body = msg.body<MSG_TYPE>();
          if (body == nullptr) return false;
-         if constexpr(std::is_same_v<void, result_type>) {
-            handler(*body, f_);
-            auto callback = msg.get_request_result_handler<unit_t>();
-            if(callback != nullptr) {
-               callback->set_value(std::move(unit), msg.sender_);
+         if constexpr (Is_Request<MSG_TYPE>) {
+            auto promise = msg.get_promise<MSG_TYPE>();
+            assert(promise != nullptr);
+            if constexpr(std::is_same_v<void, result_type>) {
+               handler(*body, f_);
+               promise->set_value(msg.sender_);
+            } else {
+               promise->set_value(handler(*body, f_), msg.sender_);
             }
          } else {
-            auto result = handler(*body, f_);
-            auto callback = msg.get_request_result_handler<result_type>();
-            if(callback != nullptr) {
-               callback->set_value(std::move(result), msg.sender_);
-            }
+            handler(*body, f_);
          }
-
          return true;
       }
    };

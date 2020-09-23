@@ -14,13 +14,7 @@
 NANO_CAF_NS_BEGIN namespace detail {
 
 template<typename T>
-struct future_object : promise_done_notifier {
-   auto set_value(T&& value) -> bool {
-      if(present_) return false;
-      new (&storage_) T{std::move(value)};
-      return present_ = true;
-   }
-
+struct future_object_base : promise_done_notifier {
    inline auto ready() const noexcept -> bool {
       return ready_;
    }
@@ -31,10 +25,6 @@ struct future_object : promise_done_notifier {
 
    inline auto present() const noexcept -> bool {
       return present_;
-   }
-
-   auto get_value() const noexcept -> const T& {
-      return *reinterpret_cast<const T*>(&storage_);
    }
 
    auto add_notifier(std::shared_ptr<promise_done_notifier> notifier) {
@@ -67,9 +57,36 @@ private:
 
 private:
    std::list<std::weak_ptr<promise_done_notifier>> notifiers_;
-   typename std::aligned_storage_t<sizeof(T), alignof(T)> storage_;
-   bool present_{false};
    bool ready_{false};
+
+protected:
+   bool present_{false};
+};
+
+template<typename T>
+struct future_object : future_object_base<T> {
+   using super = future_object_base<T>;
+   auto set_value(T&& value) -> bool {
+      if(super::present_) return false;
+      new (&storage_) T{std::move(value)};
+      return super::present_ = true;
+   }
+
+   auto get_value() const noexcept -> const T& {
+      return *reinterpret_cast<const T*>(&storage_);
+   }
+
+private:
+   typename std::aligned_storage_t<sizeof(T), alignof(T)> storage_;
+};
+
+template<>
+struct future_object<void> : future_object_base<void> {
+   using super = future_object_base<void>;
+   auto set_value() -> bool {
+      if(super::present_) return false;
+      return super::present_ = true;
+   }
 };
 
 } NANO_CAF_NS_END
