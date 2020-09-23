@@ -42,7 +42,7 @@ struct future {
 
       auto awaiter = std::make_shared<single_future_awaiter<T, F_CALLBACK, F_FAIL>>(*context_, object_, std::forward<F_CALLBACK>(callback), std::forward<F_FAIL>(on_fail));
       if(!awaiter->destroyed()) {
-         context_->add_cancellable(awaiter);
+         context_->add_awaiter(awaiter);
          object_->add_notifier(awaiter);
       }
       return future_awaiter{std::move(awaiter)};

@@ -6,6 +6,7 @@
 #define NANO_CAF_TYPED_ACTOR_HANDLE_H
 
 #include <nano-caf/core/actor/requester.h>
+#include <nano-caf/core/await/promise.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -43,7 +44,22 @@ struct typed_actor_handle : private actor_handle {
 
    template<typename METHOD_ATOM, message::category CATEGORY = message::normal, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
-   auto request(intrusive_actor_ptr from, Args&& ... args) {
+   auto request(intrusive_actor_ptr from, on_actor_context& context, Args&& ... args) {
+//      using result_type = typename METHOD_ATOM::msg_type::result_type;
+//      auto p = promise<result_type>{};
+//      auto f = p.get_future(context);
+//
+//      auto result = actor_handle::request<typename METHOD_ATOM::msg_type, CATEGORY>(
+//            from,
+//            std::move(p),
+//            std::forward<Args>(args)...);
+//
+//      if(result == status_t::ok) {
+//         return f;
+//      } else {
+//         return future<result_type>{};
+//      }
+
       auto l = [&, from](auto&& handler) mutable {
          return actor_handle::request<typename METHOD_ATOM::msg_type, CATEGORY>(
             from,

@@ -6,7 +6,7 @@
 #define NANO_CAF_MULTI_FUTURE_AWAITER_H
 
 #include <nano-caf/core/await/abstract_future_awaiter.h>
-#include <nano-caf/core/await/promise_done_notifier.h>
+#include <nano-caf/core/await/future_done_notifier.h>
 #include <nano-caf/core/await/future.h>
 #include <memory>
 
@@ -16,7 +16,7 @@ template<typename F_CALLBACK, typename F_FAIL, typename ... Xs>
 struct multi_future_awaiter
    : std::enable_shared_from_this<multi_future_awaiter<F_CALLBACK, F_FAIL, Xs...>>
    , abstract_future_awaiter
-   , promise_done_notifier {
+   , future_done_notifier {
    static_assert(std::is_invocable_r_v<void, std::decay_t<F_FAIL>, status_t>,
                  "on_fail callback should take a status_t type");
    static_assert(std::is_invocable_r_v<void, std::decay_t<F_CALLBACK>, const Xs &...>,
@@ -24,26 +24,13 @@ struct multi_future_awaiter
    static_assert(sizeof...(Xs) > 1, "should wait at least 2 futures");
 
    using super = std::enable_shared_from_this<multi_future_awaiter<F_CALLBACK, F_FAIL, Xs...>>;
-   multi_future_awaiter(on_actor_context &context, F_CALLBACK &&f_callback, F_FAIL &&f_fail,
-                        future<Xs> &... objects)
-      : multi_future_awaiter(context, std::forward<F_CALLBACK>(f_callback), std::forward<F_FAIL>(f_fail),
-                             objects.object_ ...) {
-   }
 
    multi_future_awaiter(on_actor_context &context, F_CALLBACK &&f_callback, F_FAIL &&f_fail,
-                        std::tuple<std::shared_ptr<detail::future_object<Xs>>...>&& objects)
+                        std::tuple<std::shared_ptr<detail::future_object<Xs>>...>& objects)
       :  abstract_future_awaiter{context}
-      ,  objects_{std::move(objects)}
+      ,  objects_{objects}
       ,  callback_{std::forward<F_CALLBACK>(f_callback)}
       ,  on_fail_{std::forward<F_FAIL>(f_fail)}, num_of_pending_(sizeof...(Xs)) {
-      init(std::index_sequence_for<Xs...>{});
-   }
-
-private:
-   multi_future_awaiter(on_actor_context &context, F_CALLBACK &&f_callback, F_FAIL &&f_fail,
-                        std::shared_ptr<detail::future_object<Xs>>... objects)
-      : abstract_future_awaiter{context}, objects_{std::move(objects)...}, callback_{std::forward<F_CALLBACK>(f_callback)},
-        on_fail_{std::forward<F_FAIL>(f_fail)}, num_of_pending_(sizeof...(Xs)) {
       init(std::index_sequence_for<Xs...>{});
    }
 
@@ -55,7 +42,7 @@ public:
       std::invoke(callback_, std::get<I>(objects_)->get_value() ...);
    }
 
-   auto on_promise_done() noexcept -> void override {
+   auto on_future_done() noexcept -> void override {
       if (--num_of_pending_ == 0) {
          on_done(std::index_sequence_for<Xs...>{});
          destroy();

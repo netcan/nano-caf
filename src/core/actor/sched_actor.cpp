@@ -27,6 +27,11 @@ sched_actor::~sched_actor() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto sched_actor::resume() noexcept  -> bool {
+   if(__unlikely(flags_.init_flag == 0)) {
+      init_handler();
+      flags_.init_flag = 1;
+   }
+
    size_t consumed_msgs = 0;
 
    while (consumed_msgs < max_throughput) {

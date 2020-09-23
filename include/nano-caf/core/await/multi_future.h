@@ -35,15 +35,18 @@ struct multi_future {
    auto then(F_CALLBACK&& callback, F_FAIL&& on_fail) noexcept -> future_awaiter {
       if(context_ == nullptr || !valid_) {
          on_fail(status_t::invalid_data);
+         CAF_INFO("this route");
          return {};
       }
 
-      auto awaiter = std::make_shared<multi_future_awaiter<F_CALLBACK, F_FAIL, Xs...>>(*context_, std::forward<F_CALLBACK>(callback), std::forward<F_FAIL>(on_fail), std::move(objects_));
+      auto awaiter = std::make_shared<multi_future_awaiter<F_CALLBACK, F_FAIL, Xs...>>(*context_, std::forward<F_CALLBACK>(callback), std::forward<F_FAIL>(on_fail), objects_);
       if(!awaiter->destroyed()) {
-         context_->add_cancellable(awaiter);
+         context_->add_awaiter(awaiter);
          awaiter->register_notifier();
+         return future_awaiter{awaiter};
+      } else {
+         return {};
       }
-      return future_awaiter{awaiter};
    }
 
    template<typename F_CALLBACK,

@@ -15,7 +15,7 @@ auto abstract_future_awaiter::cancel(status_t cause) noexcept -> void {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 auto abstract_future_awaiter::destroy() -> void {
-   context_.remove_cancellable(this);
+      context_.remove_awaiter(this);
    if(timer_id_.has_value()) {
       context_.stop_timer(*timer_id_);
       timer_id_ = std::nullopt;

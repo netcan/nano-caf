@@ -25,8 +25,6 @@ namespace {
    struct not_atom {};
    struct fake_atom : atom_signature {};
 
-   template<typename  T> struct S;
-
    //S<detail::method_atoms<media_session>> s;
 
    struct media_session_actor : behavior_based_actor {
@@ -49,6 +47,7 @@ namespace {
    };
 
 
+   using namespace std::chrono_literals;
    struct ctrl_actor : behavior_based_actor {
       typed_actor_handle<media_session> session_actor;
       auto on_init() -> void override {
@@ -66,7 +65,7 @@ namespace {
                      },
                      [](auto failure) {
                         std::cout << "failed = " << failure << std::endl;
-                     });
+                     });//.time_guard(1ms);
             },
             [&](exit_msg_atom, exit_reason) {
                std::cout << "exit received" << std::endl;

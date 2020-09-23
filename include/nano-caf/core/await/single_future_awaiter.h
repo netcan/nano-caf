@@ -5,7 +5,7 @@
 #ifndef NANO_CAF_SINGLE_FUTURE_AWAITER_H
 #define NANO_CAF_SINGLE_FUTURE_AWAITER_H
 
-#include <nano-caf/core/await/promise_done_notifier.h>
+#include <nano-caf/core/await/future_done_notifier.h>
 #include <nano-caf/core/await/future_object.h>
 #include <nano-caf/core/await/abstract_future_awaiter.h>
 #include <memory>
@@ -17,7 +17,7 @@ template<typename T, typename F_CALLBACK, typename F_FAIL,
                                std::is_invocable_r_v<void, std::decay_t<F_FAIL>, status_t>>>
 struct single_future_awaiter
    : abstract_future_awaiter
-   , promise_done_notifier {
+   , future_done_notifier {
    using object_type = std::shared_ptr<detail::future_object<T>>;
 
    single_future_awaiter(on_actor_context& context,
@@ -40,8 +40,8 @@ struct single_future_awaiter
    }
 
 private:
-   auto on_promise_done() noexcept -> void override {
-      if(!destroyed_ && object_ && object_->ready()) {
+   auto on_future_done() noexcept -> void override {
+      if(!destroyed_ && object_) {
          callback_(object_->get_value());
          destroy();
       }

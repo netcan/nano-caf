@@ -89,6 +89,10 @@ struct future_actor : actor {
             CAF_DEBUG("all futures done = {}", final_result);
             exit(exit_reason::normal);
          }).time_guard(100ms);
+
+      if(future1.ready() || future2.ready() || future3.ready()) {
+         CAF_ERROR("some future ready");
+      }
    }
 
    auto handle_message(message&) noexcept -> task_result override {

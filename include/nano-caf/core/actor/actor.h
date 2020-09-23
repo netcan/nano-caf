@@ -50,7 +50,7 @@ protected:
 
    template<typename METHOD, typename A, typename ... Args>
    inline auto request(typed_actor_handle<A>& to, Args&&...args)  {
-      return to.template request<METHOD>(self_handle(), std::forward<Args>(args)...);
+      return to.template request<METHOD>(self_handle(), *this, std::forward<Args>(args)...);
    }
 
    template<typename ... Xs>

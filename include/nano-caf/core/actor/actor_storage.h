@@ -23,8 +23,8 @@ struct actor_storage  {
    template<typename ... Ts>
    actor_storage(system_actor_context& context, Ts&& ... args)
       : control{context, data_dtor, block_dtor} {
-      auto p = new (&value_) internal_actor(std::forward<Ts>(args)...);
-      p->init_handler();
+      new (&value_) internal_actor(std::forward<Ts>(args)...);
+
    }
 
     ~actor_storage() {
@@ -66,7 +66,7 @@ private:
          return *sched_actor::to_ctl();
       }
 
-      auto init_handler() noexcept -> void { T::on_init(); }
+      auto init_handler() noexcept -> void override { T::on_init(); }
       auto exit_handler() noexcept -> void override { T::on_exit(); }
 
       auto handle_timeout(message& msg) {

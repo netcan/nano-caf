@@ -13,11 +13,11 @@
 NANO_CAF_NS_BEGIN
 
 struct awaiter_repository {
-   auto add_cancellable(std::shared_ptr<awaiter> object) noexcept -> void {
+   auto add_awaiter(std::shared_ptr<awaiter> object) noexcept -> void {
       objects_.insert(std::move(object));
    }
 
-   auto remove_cancellable(awaiter* object) noexcept -> void {
+   auto remove_awaiter(awaiter* object) noexcept -> void {
       for(auto&& obj : objects_) {
          if(obj.get() == object) {
             objects_.erase(obj);

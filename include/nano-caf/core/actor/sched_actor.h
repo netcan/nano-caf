@@ -39,6 +39,7 @@ private:
       return task_result::done;
    }
 
+   virtual auto init_handler() noexcept -> void {}
    virtual auto exit_handler() noexcept -> void {}
 
 private:
@@ -67,6 +68,7 @@ protected:
 private:
    message* current_message_{};
    struct {
+      uint8_t init_flag:1;
       uint8_t exiting_flag:1;
       uint8_t registered:1;
       uint8_t timer_created:1;

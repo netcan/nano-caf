@@ -6,6 +6,8 @@
 #define NANO_CAF_FUTURE_OBJECT_H
 
 #include <nano-caf/core/await/promise_done_notifier.h>
+#include <nano-caf/core/await/future_done_notifier.h>
+#include <nano-caf/util/caf_log.h>
 #include <type_traits>
 #include <utility>
 #include <memory>
@@ -15,23 +17,19 @@ NANO_CAF_NS_BEGIN namespace detail {
 
 template<typename T>
 struct future_object_base : promise_done_notifier {
-   inline auto ready() const noexcept -> bool {
+   auto ready() const noexcept -> bool {
       return ready_;
    }
 
-   inline operator bool() const noexcept {
-      return ready_;
-   }
-
-   inline auto present() const noexcept -> bool {
+   auto present() const noexcept -> bool {
       return present_;
    }
 
-   auto add_notifier(std::shared_ptr<promise_done_notifier> notifier) {
+   auto add_notifier(std::shared_ptr<future_done_notifier> notifier) {
       notifiers_.emplace_back(notifier);
    }
 
-   auto remove_notifier(std::shared_ptr<promise_done_notifier> const& notifier) {
+   auto remove_notifier(std::shared_ptr<future_done_notifier> const& notifier) {
       std::remove_if(notifiers_.begin(), notifiers_.end(), [&](auto const& elem){
          return elem.lock() == notifier;
       });
@@ -49,14 +47,14 @@ private:
       for(auto& notifier : notifiers_) {
          auto result = notifier.lock();
          if(result) {
-            result->on_promise_done();
+            result->on_future_done();
          }
       }
       notifiers_.clear();
    }
 
 private:
-   std::list<std::weak_ptr<promise_done_notifier>> notifiers_;
+   std::list<std::weak_ptr<future_done_notifier>> notifiers_;
    bool ready_{false};
 
 protected:

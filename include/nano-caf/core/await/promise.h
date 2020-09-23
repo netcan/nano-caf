@@ -26,7 +26,7 @@ protected:
 
    auto reply(intrusive_actor_ptr& to) {
       if(to) {
-         actor_handle(to).send<future_done>(std::move(object_));
+         actor_handle(to).send<future_done>(object_);
       }
    }
 
