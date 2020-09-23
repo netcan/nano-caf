@@ -6,6 +6,7 @@
 #define NANO_CAF_CANCELLABLE_H
 
 #include <nano-caf/util/status_t.h>
+#include <memory>
 
 NANO_CAF_NS_BEGIN
 
