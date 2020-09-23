@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 ///////////////////////////////////////////////////////////////////////////////////////////
 auto system_actor_context::wait_actors_done() -> void {
    while(actor_registry::get_num_of_actors() > 0) {
-      std::this_thread::sleep_for(10ns);
+      std::this_thread::sleep_for(100ns);
    }
 }
 

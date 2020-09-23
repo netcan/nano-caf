@@ -7,7 +7,6 @@
 #include <nano-caf/util/likely.h>
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/core/actor/task_list.h>
-#include <nano-caf/util/caf_log.h>
 
 NANO_CAF_NS_BEGIN
 
