@@ -111,7 +111,6 @@ private:
 private:
    virtual auto self() const noexcept -> actor_control_block& = 0;
    virtual auto current_sender() const noexcept -> actor_handle = 0;
-   virtual auto register_future_callback(future_callback*) noexcept -> status_t = 0;
    virtual auto on_timer_created() -> void = 0;
 
 protected:

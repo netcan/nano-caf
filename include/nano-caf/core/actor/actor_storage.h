@@ -65,16 +65,6 @@ private:
       auto init_handler() noexcept -> void { T::on_init(); }
       auto exit_handler() noexcept -> void override { T::on_exit(); }
 
-      auto check_futures() {
-         for (auto it = futures_.begin(); it != futures_.end(); ) {
-            if ((*it)->invoke()) {
-               it = futures_.erase(it);
-            } else {
-               ++it;
-            }
-         }
-      }
-
       auto handle_timeout(message& msg) {
          auto timeout = msg.body<timeout_msg>();
          if(timeout->callback) {
@@ -93,7 +83,6 @@ private:
                return handle_timeout(msg);
             case future_done::type_id:
                msg.body<future_done>()->notifier->on_promise_done();
-               check_futures();
                return task_result::resume;
             default:
                return T::handle_message(msg);
@@ -104,17 +93,9 @@ private:
          return get_current_sender();
       }
 
-      auto register_future_callback(future_callback* future) noexcept -> status_t override {
-         if(future == nullptr) return status_t::null_pointer;
-         futures_.emplace_back(future);
-         return status_t::ok;
-      }
-
       auto on_timer_created() -> void override {
          sched_actor::user_timer_created();
       }
-
-      std::vector<std::unique_ptr<future_callback>> futures_{};
    };
 
    union { internal_actor value_; };
