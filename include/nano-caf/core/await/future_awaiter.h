@@ -10,9 +10,12 @@
 
 NANO_CAF_NS_BEGIN
 
+struct actor_timer_context;
+
 struct future_awaiter {
    future_awaiter() = default;
-   explicit future_awaiter(std::shared_ptr<cancellable> object) : object_{object} {}
+   explicit future_awaiter(actor_timer_context* context, std::shared_ptr<cancellable> object)
+      : context_{context}, object_{object} {}
 
    auto valid() const noexcept -> bool {
       return static_cast<bool>(object_.lock());
@@ -27,10 +30,21 @@ struct future_awaiter {
 
    template<typename Rep, typename Period>
    inline auto time_guard(std::chrono::duration<Rep, Period> const& d) && noexcept -> future_awaiter& {
+      if(context_) {
+         auto cb = std::make_shared<timeout_callback_t>([obj = object_](auto){
+            auto cancellable = obj.lock();
+            if(cancellable) {
+               cancellable->cancel(status_t::timeout);
+            }
+         });
+         context_->start_timer((uint64_t)std::chrono::microseconds(d).count(), false, cb);
+      }
+
       return *this;
    }
 
 private:
+   actor_timer_context* context_;
    std::weak_ptr<cancellable> object_;
 };
 
