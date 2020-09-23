@@ -19,7 +19,7 @@ struct abstract_future_awaiter: awaiter {
    inline auto destroyed() const noexcept -> bool { return destroyed_; }
 
 private:
-   auto start_timer(uint64_t duration, std::weak_ptr<awaiter> ptr) noexcept -> status_t override;
+   auto await(uint64_t duration, std::weak_ptr<awaiter> ptr) noexcept -> status_t override;
    auto start_timer_(uint64_t duration, std::weak_ptr<awaiter> ptr) noexcept -> status_t;
    auto timeout() noexcept -> void override;
 

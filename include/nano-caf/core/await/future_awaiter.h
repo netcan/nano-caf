@@ -31,7 +31,7 @@ struct future_awaiter {
    auto time_guard(std::chrono::duration<Rep, Period> const& d) && noexcept -> future_awaiter& {
       auto object = object_.lock();
       if(object) {
-         object->start_timer((uint64_t)std::chrono::microseconds(d).count(), object_);
+         object->await((uint64_t) std::chrono::microseconds(d).count(), object_);
       }
       return *this;
    }
