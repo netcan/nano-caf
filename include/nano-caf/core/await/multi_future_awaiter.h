@@ -5,13 +5,10 @@
 #ifndef NANO_CAF_MULTI_FUTURE_AWAITER_H
 #define NANO_CAF_MULTI_FUTURE_AWAITER_H
 
+#include <nano-caf/core/await/abstract_future_awaiter.h>
 #include <nano-caf/core/await/promise_done_notifier.h>
 #include <nano-caf/core/await/future.h>
-#include <nano-caf/core/await/awaiter.h>
-#include <nano-caf/core/await/awaiter_repository.h>
-#include <nano-caf/core/await/future_awaiter.h>
 #include <memory>
-#include <nano-caf/core/await/abstract_future_awaiter.h>
 
 NANO_CAF_NS_BEGIN
 
