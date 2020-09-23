@@ -24,19 +24,24 @@ struct future_awaiter {
       auto object = object_.lock();
       if(object) {
          object->cancel(cause);
+         if(timer_id_) {
+            context_->stop_timer(*timer_id_);
+            timer_id_ = std::nullopt;
+         }
       }
    }
 
    template<typename Rep, typename Period>
    auto time_guard(std::chrono::duration<Rep, Period> const& d) && noexcept -> future_awaiter& {
-      if(context_ && valid()) {
+      if(context_ && valid() && !timer_id_) {
          auto cb = std::make_shared<timeout_callback_t>([obj = object_](auto){
             auto cancellable = obj.lock();
             if(cancellable) {
                cancellable->cancel(status_t::timeout);
             }
          });
-         context_->start_timer((uint64_t)std::chrono::microseconds(d).count(), false, cb);
+         auto result = context_->start_timer((uint64_t)std::chrono::microseconds(d).count(), false, cb);
+         if(result.is_ok()) timer_id_ = *result;
       }
 
       return *this;
@@ -44,6 +49,7 @@ struct future_awaiter {
 
 private:
    actor_timer_context* context_;
+   std::optional<timer_id_t> timer_id_{};
    std::weak_ptr<cancellable> object_;
 };
 
