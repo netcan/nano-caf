@@ -6,12 +6,12 @@
 #define NANO_CAF_ABSTRACT_FUTURE_AWAITER_H
 
 #include <nano-caf/util/status_t.h>
-#include <nano-caf/core/await/cancellable.h>
+#include <nano-caf/core/await/awaiter.h>
 #include <nano-caf/core/actor/on_actor_context.h>
 
 NANO_CAF_NS_BEGIN
 
-struct abstract_future_awaiter: cancellable {
+struct abstract_future_awaiter: awaiter {
    explicit abstract_future_awaiter(on_actor_context& context)
       : context_{context} {}
 
@@ -19,8 +19,8 @@ struct abstract_future_awaiter: cancellable {
    inline auto destroyed() const noexcept -> bool { return destroyed_; }
 
 private:
-   auto start_timer(uint64_t duration, std::weak_ptr<cancellable> ptr) noexcept -> status_t override;
-   auto start_timer_(uint64_t duration, std::weak_ptr<cancellable> ptr) noexcept -> status_t;
+   auto start_timer(uint64_t duration, std::weak_ptr<awaiter> ptr) noexcept -> status_t override;
+   auto start_timer_(uint64_t duration, std::weak_ptr<awaiter> ptr) noexcept -> status_t;
    auto timeout() noexcept -> void override;
 
 private:

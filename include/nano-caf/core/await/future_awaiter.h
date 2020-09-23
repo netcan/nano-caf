@@ -5,7 +5,7 @@
 #ifndef NANO_CAF_FUTURE_AWAITER_H
 #define NANO_CAF_FUTURE_AWAITER_H
 
-#include <nano-caf/core/await/cancellable.h>
+#include <nano-caf/core/await/awaiter.h>
 #include <nano-caf/core/actor/actor_timer_context.h>
 #include <memory>
 
@@ -13,7 +13,7 @@ NANO_CAF_NS_BEGIN
 
 struct future_awaiter {
    future_awaiter() = default;
-   explicit future_awaiter(std::shared_ptr<cancellable> object)
+   explicit future_awaiter(std::shared_ptr<awaiter> object)
       : object_{object} {}
 
    auto valid() const noexcept -> bool {
@@ -37,7 +37,7 @@ struct future_awaiter {
    }
 
 private:
-   std::weak_ptr<cancellable> object_;
+   std::weak_ptr<awaiter> object_;
 };
 
 NANO_CAF_NS_END

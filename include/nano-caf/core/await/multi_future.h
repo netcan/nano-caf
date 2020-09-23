@@ -11,7 +11,7 @@
 
 NANO_CAF_NS_BEGIN
 
-struct cancellable_repository;
+struct awaiter_repository;
 
 template<typename ... Xs>
 struct multi_future {

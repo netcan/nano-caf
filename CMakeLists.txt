@@ -138,8 +138,8 @@ add_library(nano_caf
         include/nano-caf/core/await/promise_done_notifier.h
         include/nano-caf/core/await/future_awaiter.h
         include/nano-caf/core/await/single_future_awaiter.h
-        include/nano-caf/core/await/cancellable.h
-        include/nano-caf/core/await/cancellable_repository.h include/nano-caf/core/await/multi_future_awaiter.h include/nano-caf/core/await/multi_future.h include/nano-caf/core/actor/on_actor_context.h include/nano-caf/core/actor/actor_timer_context.h include/nano-caf/core/await/abstract_future_awaiter.h src/core/await/abstract_future_awaiter.cpp)
+        include/nano-caf/core/await/awaiter.h
+        include/nano-caf/core/await/awaiter_repository.h include/nano-caf/core/await/multi_future_awaiter.h include/nano-caf/core/await/multi_future.h include/nano-caf/core/actor/on_actor_context.h include/nano-caf/core/actor/actor_timer_context.h include/nano-caf/core/await/abstract_future_awaiter.h src/core/await/abstract_future_awaiter.cpp)
 
 if(CMAKE_CXX_STANDARD EQUAL 20)
     target_sources(nano_caf PRIVATE

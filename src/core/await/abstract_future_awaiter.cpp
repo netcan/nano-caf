@@ -24,7 +24,7 @@ auto abstract_future_awaiter::destroy() -> void {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-auto abstract_future_awaiter::start_timer(uint64_t duration, std::weak_ptr<cancellable> ptr) noexcept -> status_t {
+auto abstract_future_awaiter::start_timer(uint64_t duration, std::weak_ptr<awaiter> ptr) noexcept -> status_t {
    auto result = start_timer_(duration, ptr);
    if(result != status_t::ok) {
       cancel(result);
@@ -33,7 +33,7 @@ auto abstract_future_awaiter::start_timer(uint64_t duration, std::weak_ptr<cance
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-auto abstract_future_awaiter::start_timer_(uint64_t duration, std::weak_ptr<cancellable> ptr) noexcept -> status_t {
+auto abstract_future_awaiter::start_timer_(uint64_t duration, std::weak_ptr<awaiter> ptr) noexcept -> status_t {
    if(destroyed_) return status_t::ok;
    auto cb = std::make_shared<timeout_callback_t>([obj = ptr](auto){
       auto cancellable = obj.lock();

@@ -7,8 +7,8 @@
 
 #include <nano-caf/core/await/promise_done_notifier.h>
 #include <nano-caf/core/await/future.h>
-#include <nano-caf/core/await/cancellable.h>
-#include <nano-caf/core/await/cancellable_repository.h>
+#include <nano-caf/core/await/awaiter.h>
+#include <nano-caf/core/await/awaiter_repository.h>
 #include <nano-caf/core/await/future_awaiter.h>
 #include <memory>
 #include <nano-caf/core/await/abstract_future_awaiter.h>
