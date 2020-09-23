@@ -25,6 +25,11 @@ struct future_awaiter {
       }
    }
 
+   template<typename Rep, typename Period>
+   inline auto time_guard(std::chrono::duration<Rep, Period> const& d) && noexcept -> future_awaiter& {
+      return *this;
+   }
+
 private:
    std::weak_ptr<cancellable> object_;
 };

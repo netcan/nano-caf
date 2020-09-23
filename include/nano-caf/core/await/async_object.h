@@ -29,8 +29,8 @@ struct async_object : resumable  {
       return true;
    }
 
-   auto get_future(cancellable_repository& repository) {
-      return promise_.get_future(repository);
+   auto get_future(on_actor_context& context) {
+      return promise_.get_future(context);
    }
 
 private:

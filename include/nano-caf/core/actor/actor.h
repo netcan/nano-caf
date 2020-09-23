@@ -13,17 +13,17 @@
 #include <nano-caf/core/await/async_object.h>
 #include <nano-caf/core/await/future_callback.h>
 #include <nano-caf/core/await/multi_future.h>
+#include <nano-caf/core/actor/on_actor_context.h>
 
 NANO_CAF_NS_BEGIN
 
-struct actor : actor_context {
+struct actor : actor_context, private on_actor_context {
    virtual ~actor() = default;
 
 private:
    template<typename F>
    using async_future_t = future<typename callable_trait<std::decay_t<F>>::result_type>;
 
-   cancellable_repository repository_;
 private:
    inline auto self_handle() const noexcept -> intrusive_actor_ptr override { return &self(); }
    inline auto get_system_actor_context() -> system_actor_context& override { return self().context(); }
@@ -43,7 +43,7 @@ protected:
          return {};
       }
 
-      auto result = obj->get_future(repository_);
+      auto result = obj->get_future(*this);
       self().context().schedule_job(*obj);
       return result;
    }
@@ -55,7 +55,7 @@ protected:
 
    template<typename ... Xs>
    inline auto with(future<Xs>& ... args) {
-      return multi_future<Xs...>(repository_, args ...);
+      return multi_future<Xs...>(*this, args ...);
    }
 
    template<typename Rep, typename Period>
@@ -64,12 +64,10 @@ protected:
    }
 
    inline auto start_timer(timer_spec const& spec, bool periodic = false) -> result_t<timer_id_t> {
-      return start_timer_(spec, periodic, nullptr);
+      return on_actor_context::start_timer(spec, periodic, nullptr);
    }
 
-   inline auto stop_timer(timer_id_t timer_id) -> void {
-      get_system_actor_context().stop_timer(self_handle(), timer_id);
-   }
+   using on_actor_context::stop_timer;
 
    template<typename F>
    inline auto after(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
@@ -94,25 +92,15 @@ protected:
    inline auto repeat(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
       auto callback = std::make_shared<timeout_callback_t>(std::forward<F>(f));
       if(callback == nullptr) return status_t::out_of_mem;
-      return start_timer_(spec, true, callback);
+      return on_actor_context::start_timer(spec, true, callback);
    }
 
    virtual auto exit(exit_reason) noexcept -> void = 0;
 
 private:
-   auto start_timer_(timer_spec const& spec, bool periodic, std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t> {
-      auto result = get_system_actor_context().start_timer(self_handle(), spec, periodic, std::move(callback));
-      if(result.is_ok()) {
-         on_timer_created();
-      }
-      return result;
-   }
-
-private:
    virtual auto self() const noexcept -> actor_control_block& = 0;
    virtual auto current_sender() const noexcept -> actor_handle = 0;
    virtual auto register_future_callback(future_callback*) noexcept -> status_t = 0;
-   virtual auto on_timer_created() -> void = 0;
 
 protected:
    virtual auto on_init() -> void {}

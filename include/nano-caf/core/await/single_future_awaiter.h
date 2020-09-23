@@ -8,7 +8,7 @@
 #include <nano-caf/core/await/promise_done_notifier.h>
 #include <nano-caf/core/await/future_object.h>
 #include <nano-caf/core/await/cancellable.h>
-#include <nano-caf/core/await/cancellable_repository.h>
+#include <nano-caf/core/actor/on_actor_context.h>
 #include <memory>
 
 NANO_CAF_NS_BEGIN
@@ -21,11 +21,11 @@ struct single_future_awaiter
    , promise_done_notifier {
    using object_type = std::shared_ptr<detail::future_object<T>>;
 
-   single_future_awaiter(cancellable_repository& repository,
+   single_future_awaiter(on_actor_context& context,
                          object_type object,
                          F_CALLBACK&& f_callback,
                          F_FAIL&& f_fail)
-      : repository_{repository}
+      : context_{context}
       , object_{std::move(object)}
       , callback_{std::forward<F_CALLBACK>(f_callback)}
       , on_fail_{std::forward<F_FAIL>(f_fail)} {
@@ -44,7 +44,7 @@ struct single_future_awaiter
 
 private:
    auto destroy() {
-      repository_.remove_cancellable(this);
+      context_.remove_cancellable(this);
       destroyed_ = true;
    }
 
@@ -63,7 +63,7 @@ private:
    }
 
 private:
-   cancellable_repository& repository_;
+   on_actor_context& context_;
    object_type object_;
    F_CALLBACK callback_;
    F_FAIL     on_fail_;

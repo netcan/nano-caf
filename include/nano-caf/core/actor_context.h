@@ -32,7 +32,7 @@ struct actor_context {
 
    virtual ~actor_context() = default;
 
-private:
+protected:
    virtual auto get_system_actor_context() -> system_actor_context& = 0;
    virtual auto self_handle() const noexcept -> intrusive_actor_ptr = 0;
 };

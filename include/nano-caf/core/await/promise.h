@@ -12,7 +12,7 @@
 
 NANO_CAF_NS_BEGIN
 
-struct cancellable_repository;
+struct on_actor_context;
 
 template<typename T>
 struct promise : abstract_promise<T> {
@@ -25,9 +25,9 @@ private:
    }
 
 public:
-   auto get_future(cancellable_repository& repository) noexcept -> future<T> {
+   auto get_future(on_actor_context& context) noexcept -> future<T> {
       check_object();
-      return future<T>{object_, repository};
+      return future<T>{object_, context};
    }
 
    auto set_value(T&& value, intrusive_actor_ptr& to) noexcept -> void override {

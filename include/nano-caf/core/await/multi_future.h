@@ -16,8 +16,8 @@ struct cancellable_repository;
 template<typename ... Xs>
 struct multi_future {
    multi_future() noexcept = default;
-   multi_future(cancellable_repository& repository, future<Xs>& ... objects) noexcept
-      : repository_{&repository}
+   multi_future(on_actor_context& context, future<Xs>& ... objects) noexcept
+      : context_{&context}
       , objects_{objects.object_ ...} {
       init(std::index_sequence_for<Xs...>{});
    }
@@ -33,14 +33,14 @@ struct multi_future {
       typename = std::enable_if_t<std::is_invocable_r_v<void, F_CALLBACK, const Xs& ...> &&
       std::is_invocable_r_v<void, F_FAIL, status_t>>>
    auto then(F_CALLBACK&& callback, F_FAIL&& on_fail) noexcept -> future_awaiter {
-      if(repository_ == nullptr || !valid_) {
+      if(context_ == nullptr || !valid_) {
          on_fail(status_t::invalid_data);
          return {};
       }
 
-      auto awaiter = std::make_shared<multi_future_awaiter<F_CALLBACK, F_FAIL, Xs...>>(*repository_, std::forward<F_CALLBACK>(callback), std::forward<F_FAIL>(on_fail), std::move(objects_));
+      auto awaiter = std::make_shared<multi_future_awaiter<F_CALLBACK, F_FAIL, Xs...>>(*context_, std::forward<F_CALLBACK>(callback), std::forward<F_FAIL>(on_fail), std::move(objects_));
       if(!awaiter->destroyed()) {
-         repository_->add_cancellable(awaiter);
+         context_->add_cancellable(awaiter);
          awaiter->register_notifier();
       }
       return future_awaiter{awaiter};
@@ -59,7 +59,7 @@ private:
    }
 
 private:
-   cancellable_repository* repository_{};
+   on_actor_context* context_{};
    std::tuple<std::shared_ptr<detail::future_object<Xs>>...> objects_;
    bool valid_;
 };

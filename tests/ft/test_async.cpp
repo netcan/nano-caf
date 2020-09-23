@@ -13,6 +13,7 @@
 #include "../ut/test_msgs.h"
 
 using namespace NANO_CAF_NS;
+using namespace std::chrono_literals;
 
 struct future_actor : actor {
    const size_t value = 10;
@@ -56,8 +57,8 @@ struct future_actor : actor {
       });
 
       future2.on_succeed([]([[maybe_unused]] auto r2) {
-         CAF_DEBUG("async future2 done = {}", r2);
-      });
+         CAF_DEBUG("async future2 done = {}", r2);})
+         .time_guard(10s);
 
       auto future3 = async([this]() {
          CAF_DEBUG("calc future 3");
