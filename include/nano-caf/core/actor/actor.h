@@ -11,7 +11,6 @@
 #include <nano-caf/core/actor/typed_actor_handle.h>
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/await/async_object.h>
-#include <nano-caf/core/await/future_callback.h>
 #include <nano-caf/core/await/multi_future.h>
 #include <nano-caf/core/actor/on_actor_context.h>
 

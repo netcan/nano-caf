@@ -83,7 +83,6 @@ add_library(nano_caf
         include/nano-caf/core/actor_context.h
         src/core/actor/system_actor_context.cpp
         include/nano-caf/core/await/async_object.h
-        include/nano-caf/core/await/future_callback.h
         include/nano-caf/util/callable_trait.h
         include/nano-caf/core/msg/message_trait.h
         include/nano-caf/util/type_list.h

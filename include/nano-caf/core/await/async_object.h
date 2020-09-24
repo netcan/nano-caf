@@ -42,11 +42,6 @@ private:
    intrusive_actor_ptr sender_;
 };
 
-template <class T>
-inline auto decay_copy(T&& t) -> std::decay_t<T> {
-   return std::forward<T>(t);
-}
-
 template<typename F, typename R, typename ... Args, typename = std::enable_if_t<std::is_invocable_r_v<R, F, Args...>>>
 auto make_async_object(detail::future_object_sp<R> object, const intrusive_actor_ptr& sender, F&& callable, std::tuple<Args...>&& args) {
    return new async_object<std::decay_t<F>, R, Args...>
