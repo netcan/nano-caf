@@ -11,7 +11,7 @@
 #include <type_traits>
 #include <utility>
 #include <memory>
-#include <list>
+#include <deque>
 
 NANO_CAF_NS_BEGIN namespace detail {
 
@@ -56,12 +56,15 @@ struct future_object_base
 
 private:
    auto try_launch() noexcept -> void {
+      if(launched_) return;
+
       if(notifiers_.size() == 0) {
          auto result = launcher_(super::shared_from_this());
          if(result != status_t::ok) {
             ready_ = true;
             failure_ = result;
          }
+         launched_ = true;
       }
    }
 
@@ -83,7 +86,7 @@ private:
    }
 
 private:
-   std::list<std::weak_ptr<future_done_notifier>> notifiers_;
+   std::deque<std::weak_ptr<future_done_notifier>> notifiers_;
    future_launcher<T> launcher_;
    status_t failure_;
    bool launched_{false};
