@@ -65,7 +65,8 @@ namespace {
                      },
                      [](auto failure) {
                         std::cout << "failed = " << failure << std::endl;
-                     });//.time_guard(1ms);
+                     })
+                  .time_guard(1ms);
             },
             [&](exit_msg_atom, exit_reason) {
                std::cout << "exit received" << std::endl;
