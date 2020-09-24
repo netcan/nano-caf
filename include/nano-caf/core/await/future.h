@@ -36,16 +36,19 @@ struct future {
 
    template<typename F_CALLBACK, typename F_FAIL>
    auto then(F_CALLBACK&& callback, F_FAIL&& on_fail) noexcept -> future_awaiter {
-      if(context_ == nullptr || !object_) {
+      if(context_ == nullptr || !valid()) {
          on_fail(status_t::invalid_data);
          return {};
       }
 
-      auto awaiter = std::make_shared<single_future_awaiter<T, F_CALLBACK, F_FAIL>>(*context_, object_, std::forward<F_CALLBACK>(callback), std::forward<F_FAIL>(on_fail));
-      if(!awaiter->destroyed()) {
-         context_->add_awaiter(awaiter);
-         object_->add_notifier(awaiter);
-      }
+      auto awaiter = std::make_shared<single_future_awaiter<T, F_CALLBACK, F_FAIL>>
+         ( *context_
+         , object_
+         , std::forward<F_CALLBACK>(callback)
+         , std::forward<F_FAIL>(on_fail));
+      if(awaiter == nullptr) return {};
+
+      awaiter->register_self();
       return future_awaiter{std::move(awaiter)};
    }
 

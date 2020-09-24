@@ -16,7 +16,9 @@ template<typename T, typename F_CALLBACK, typename F_FAIL,
    typename = std::enable_if_t<std::is_invocable_r_v<void, std::decay_t<F_CALLBACK>, const T&> &&
                                std::is_invocable_r_v<void, std::decay_t<F_FAIL>, status_t>>>
 struct single_future_awaiter
-   : abstract_future_awaiter {
+   : std::enable_shared_from_this<single_future_awaiter<T, F_CALLBACK, F_FAIL>>
+   , abstract_future_awaiter {
+   using super = std::enable_shared_from_this<single_future_awaiter<T, F_CALLBACK, F_FAIL>>;
    using object_type = std::shared_ptr<detail::future_object<T>>;
 
    single_future_awaiter(on_actor_context& context,
@@ -34,6 +36,13 @@ struct single_future_awaiter
          callback_(object_->get_value());
          destroyed_ = true;
       }
+   }
+
+public:
+   auto register_self() noexcept -> void {
+      if(destroyed()) return;
+      context_.add_awaiter(super::shared_from_this());
+      object_->add_notifier(super::shared_from_this());
    }
 
 private:

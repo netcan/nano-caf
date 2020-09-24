@@ -16,7 +16,7 @@ namespace {
       virtual auto stop_timer(timer_id_t timer_id) -> void override {}
    };
 
-   SCENARIO("promise") {
+   SCENARIO("single future") {
       my_on_actor_context context;
       std::optional<promise<int>> p;
       future<int> future{context, [&](auto obj) -> status_t {
@@ -74,6 +74,27 @@ namespace {
             }
          }
       }
+   }
+
+   SCENARIO("lazy future") {
+      my_on_actor_context context;
+
+      std::optional<promise<int>> p;
+      future<int> future{context, [&](auto obj) -> status_t {
+         p.emplace(promise<int>{obj});
+         return status_t::ok;
+      }};
+
+      REQUIRE_FALSE(p.has_value());
+      std::optional<int> value_set{};
+      std::optional<status_t> failure_set{};
+      auto awaiter = future.then(
+         [&](int value) { value_set = value; },
+         [&](status_t cause) { failure_set = cause; });
+
+      REQUIRE(awaiter.valid());
+      REQUIRE_FALSE(value_set.has_value());
+      REQUIRE_FALSE(failure_set.has_value());
    }
 
    SCENARIO("launch fail single future") {

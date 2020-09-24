@@ -24,17 +24,22 @@ struct multi_future_awaiter
    using super = std::enable_shared_from_this<multi_future_awaiter<F_CALLBACK, F_FAIL, Xs...>>;
 
    multi_future_awaiter(on_actor_context &context, F_CALLBACK &&f_callback, F_FAIL &&f_fail,
-                        std::tuple<std::shared_ptr<detail::future_object<Xs>>...>& objects)
+                        std::tuple<std::shared_ptr<detail::future_object<Xs>>...>&& objects)
       :  abstract_future_awaiter{context}
-      ,  objects_{objects}
+      ,  objects_{std::move(objects)}
       ,  callback_{std::forward<F_CALLBACK>(f_callback)}
       ,  on_fail_{std::forward<F_FAIL>(f_fail)}, num_of_pending_(sizeof...(Xs)) {
       init(std::index_sequence_for<Xs...>{});
    }
 
 public:
-   inline auto destroyed() const noexcept -> bool { return destroyed_; }
+   auto register_self() -> void {
+      if(destroyed()) return;
+      context_.add_awaiter(super::shared_from_this());
+      register_notifier();
+   }
 
+private:
    template<std::size_t ... I>
    auto on_done(std::index_sequence<I...>) {
       std::invoke(callback_, std::get<I>(objects_)->get_value() ...);
