@@ -109,7 +109,7 @@ void run_on_thread(size_t num_of_threads, char const*) {
      for(size_t i=0; i<1000; i++) {
 
         auto me = system.spawn<future_actor>();
-        //me.send<test_message>(1);
+        me.send<test_message>(1);
         me.wait_for_exit();
         me.release();
 
