@@ -27,7 +27,7 @@ struct single_future_awaiter
       , object_{std::move(object)}
       , callback_{std::forward<F_CALLBACK>(f_callback)}
       , on_fail_{std::forward<F_FAIL>(f_fail)} {
-      if(object_) {
+      if(!object_) {
          f_callback(status_t::invalid_data);
          destroyed_ = true;
       } else if(object_->ready()) {
