@@ -44,7 +44,7 @@ struct typed_actor_handle : private actor_handle {
 
    template<typename METHOD_ATOM, message::category CATEGORY = message::normal, typename ... Args,
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
-   auto request(intrusive_actor_ptr from, on_actor_context& context, Args&& ... args) {
+   auto request(on_actor_context& context, intrusive_actor_ptr from, Args&& ... args) {
       using result_type = typename METHOD_ATOM::msg_type::result_type;
       return future<result_type>{context, [=, args = std::make_tuple(std::forward<Args>(args) ...)]
          (detail::future_object_sp<result_type> obj) mutable {
