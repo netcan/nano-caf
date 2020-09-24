@@ -50,6 +50,7 @@ struct __CAF_method_name(x) : NANO_CAF_NS::atom_signature {                \
       using tuple_parent::tuple_parent;                                    \
       constexpr static bool Is_Request = true;                             \
       using result_type = type::result_type;                               \
+      msg_type(type::msg_type&& rhs) : type::msg_type(std::move(rhs)) {}   \
       constexpr static NANO_CAF_NS::type_id_t type_id =                    \
            static_cast<NANO_CAF_NS::type_id_t>(n) | __secrete_type_id;     \
    };                                                                      \
