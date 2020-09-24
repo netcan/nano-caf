@@ -32,7 +32,7 @@ struct actor_control_block {
    actor_control_block(const actor_control_block&) = delete;
    actor_control_block& operator=(const actor_control_block&) = delete;
 
-   system_actor_context& context() const {
+   auto context() const -> system_actor_context& {
       return context_;
    }
 

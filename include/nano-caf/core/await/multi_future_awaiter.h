@@ -6,7 +6,6 @@
 #define NANO_CAF_MULTI_FUTURE_AWAITER_H
 
 #include <nano-caf/core/await/abstract_future_awaiter.h>
-#include <nano-caf/core/await/future_done_notifier.h>
 #include <nano-caf/core/await/future.h>
 #include <memory>
 
@@ -15,8 +14,7 @@ NANO_CAF_NS_BEGIN
 template<typename F_CALLBACK, typename F_FAIL, typename ... Xs>
 struct multi_future_awaiter
    : std::enable_shared_from_this<multi_future_awaiter<F_CALLBACK, F_FAIL, Xs...>>
-   , abstract_future_awaiter
-   , future_done_notifier {
+   , abstract_future_awaiter {
    static_assert(std::is_invocable_r_v<void, std::decay_t<F_FAIL>, status_t>,
                  "on_fail callback should take a status_t type");
    static_assert(std::is_invocable_r_v<void, std::decay_t<F_CALLBACK>, const Xs &...>,

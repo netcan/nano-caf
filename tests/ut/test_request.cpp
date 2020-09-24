@@ -122,8 +122,7 @@ namespace {
 
       me.request<media_session::empty>().wait().match(
          [](auto result) { return result; },
-         [](auto) { return nullptr; }
-         );
+         [](auto) { return nullptr; });
 
       REQUIRE(status_t::ok == me.send<media_session::open>(static_cast<long>(10)));
       REQUIRE(status_t::ok == me.send<media_session::close>(static_cast<long>(20)));

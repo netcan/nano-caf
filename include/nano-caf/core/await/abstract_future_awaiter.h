@@ -5,13 +5,15 @@
 #ifndef NANO_CAF_ABSTRACT_FUTURE_AWAITER_H
 #define NANO_CAF_ABSTRACT_FUTURE_AWAITER_H
 
-#include <nano-caf/util/status_t.h>
 #include <nano-caf/core/await/awaiter.h>
 #include <nano-caf/core/actor/on_actor_context.h>
+#include <nano-caf/core/await/future_done_notifier.h>
 
 NANO_CAF_NS_BEGIN
 
-struct abstract_future_awaiter: awaiter {
+struct abstract_future_awaiter
+   : awaiter
+   , future_done_notifier {
    explicit abstract_future_awaiter(on_actor_context& context)
       : context_{context} {}
 
@@ -22,6 +24,7 @@ private:
    auto await(uint64_t duration, std::weak_ptr<awaiter> ptr) noexcept -> status_t override;
    auto start_timer_(uint64_t duration, std::weak_ptr<awaiter> ptr) noexcept -> status_t;
    auto timeout() noexcept -> void override;
+   auto on_future_fail(status_t cause) noexcept -> void override;
 
 private:
    virtual auto on_fail(status_t status) noexcept -> void = 0;

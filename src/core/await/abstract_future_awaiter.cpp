@@ -59,4 +59,12 @@ auto abstract_future_awaiter::timeout() noexcept -> void {
    cancel(status_t::timeout);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+auto abstract_future_awaiter::on_future_fail(status_t cause) noexcept -> void {
+   if (!destroyed_) {
+      on_fail(cause);
+      destroy();
+   }
+}
+
 NANO_CAF_NS_END

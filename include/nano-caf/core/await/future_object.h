@@ -16,7 +16,23 @@
 NANO_CAF_NS_BEGIN namespace detail {
 
 template<typename T>
-struct future_object_base : promise_done_notifier {
+struct future_object;
+
+template<typename T>
+using future_object_sp = std::shared_ptr<future_object<T>>;
+
+template<typename T>
+using future_launcher = std::function<status_t (future_object_sp<T>)>;
+
+template<typename T>
+struct future_object_base
+   : std::enable_shared_from_this<future_object<T>>
+   , promise_done_notifier {
+   using super = std::enable_shared_from_this<future_object<T>>;
+   explicit future_object_base(future_launcher<T>&& launcher)
+      : launcher_{std::move(launcher)}
+   {}
+
    auto ready() const noexcept -> bool {
       return ready_;
    }
@@ -26,16 +42,29 @@ struct future_object_base : promise_done_notifier {
    }
 
    auto add_notifier(std::shared_ptr<future_done_notifier> notifier) {
-      notifiers_.emplace_back(notifier);
+      try_launch();
+      if(!present_ && ready_) {
+         notifier->on_future_fail(failure_);;
+      } else {
+         notifiers_.emplace_back(notifier);
+      }
    }
 
-   auto remove_notifier(std::shared_ptr<future_done_notifier> const& notifier) {
-      std::remove_if(notifiers_.begin(), notifiers_.end(), [&](auto const& elem){
-         return elem.lock() == notifier;
-      });
+   auto on_value_present() noexcept -> void {
+      present_ = true;
    }
 
 private:
+   auto try_launch() noexcept -> void {
+      if(notifiers_.size() == 0) {
+         auto result = launcher_(super::shared_from_this());
+         if(result != status_t::ok) {
+            ready_ = true;
+            failure_ = result;
+         }
+      }
+   }
+
    auto on_promise_done() noexcept -> void override {
       if(present_ && !ready_) {
          ready_ = true;
@@ -55,19 +84,23 @@ private:
 
 private:
    std::list<std::weak_ptr<future_done_notifier>> notifiers_;
+   future_launcher<T> launcher_;
+   status_t failure_;
+   bool launched_{false};
    bool ready_{false};
-
-protected:
    bool present_{false};
 };
 
 template<typename T>
 struct future_object : future_object_base<T> {
    using super = future_object_base<T>;
+   using super::super;
+
    auto set_value(T&& value) -> bool {
-      if(super::present_) return false;
+      if(super::present()) return false;
       new (&storage_) T{std::move(value)};
-      return super::present_ = true;
+      super::on_value_present();
+      return true;
    }
 
    auto get_value() const noexcept -> const T& {
@@ -81,9 +114,11 @@ private:
 template<>
 struct future_object<void> : future_object_base<void> {
    using super = future_object_base<void>;
+   using super::super;
    auto set_value() -> bool {
-      if(super::present_) return false;
-      return super::present_ = true;
+      if(super::present()) return false;
+      on_value_present();
+      return true;
    }
 };
 

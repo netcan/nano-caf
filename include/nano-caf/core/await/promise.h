@@ -18,12 +18,6 @@ template<typename T>
 struct promise_base : abstract_promise<T> {
 protected:
    using obj_type = std::shared_ptr<detail::future_object<T>>;
-   inline auto check_object() noexcept -> void {
-      if(!object_) {
-         object_ = std::make_shared<detail::future_object<T>>();
-      }
-   }
-
    auto reply(intrusive_actor_ptr& to) {
       if(to) {
          actor_handle(to).send<future_done>(object_);
@@ -31,10 +25,7 @@ protected:
    }
 
 public:
-   auto get_future(on_actor_context& context) noexcept -> future<T> {
-      check_object();
-      return future<T>{object_, context};
-   }
+   explicit promise_base(obj_type object) : object_{object} {}
 
    auto get_promise_done_notifier() const noexcept -> std::shared_ptr<promise_done_notifier> {
       return object_;
@@ -51,10 +42,9 @@ protected:
 template<typename T>
 struct promise : promise_base<T> {
    using super = promise_base<T>;
-
+   using super::super;
    auto set_value(T&& value, intrusive_actor_ptr& to) noexcept -> void override {
-      super::check_object();
-      if(super::object_->set_value(std::move(value))) {
+      if(super::object_ && super::object_->set_value(std::move(value))) {
          super::reply(to);
       }
    }
@@ -63,9 +53,9 @@ struct promise : promise_base<T> {
 template<>
 struct promise<void> : promise_base<void> {
    using super = promise_base<void>;
+   using super::super;
    auto set_value(intrusive_actor_ptr& to) noexcept -> void override {
-      super::check_object();
-      if(super::object_->set_value()) {
+      if(super::object_ && super::object_->set_value()) {
          super::reply(to);
       }
    }

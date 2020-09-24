@@ -11,6 +11,7 @@ NANO_CAF_NS_BEGIN
 
 struct future_done_notifier {
    virtual auto on_future_done() noexcept -> void = 0;
+   virtual auto on_future_fail(status_t) noexcept -> void = 0;
    virtual ~future_done_notifier() noexcept = default;
 };
 

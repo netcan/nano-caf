@@ -21,9 +21,10 @@ template<typename T>
 struct future {
    using obj_type = std::shared_ptr<detail::future_object<T>>;
    future() noexcept = default;
-   future(obj_type obj, on_actor_context& context) noexcept
+   future(on_actor_context& context, detail::future_launcher<T>&& launcher) noexcept
       : context_{&context}
-      , object_{std::move(obj)} {}
+      , object_{std::make_shared<detail::future_object<T>>(std::move(launcher))}
+   {}
 
    auto valid() const noexcept -> bool {
       return static_cast<bool>(object_);
