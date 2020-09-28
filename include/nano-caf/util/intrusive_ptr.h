@@ -15,20 +15,17 @@ template<typename T>
 struct intrusive_ptr {
    intrusive_ptr() noexcept = default;
    intrusive_ptr(T* ptr, bool add_ref = true) noexcept
-      : ptr_(ptr)
-   {
+      : ptr_(ptr) {
       if(ptr && add_ref) intrusive_ptr_add_ref(ptr);
    }
 
    intrusive_ptr(const intrusive_ptr& another) noexcept
-      : ptr_(another.ptr_)
-   {
+      : ptr_(another.ptr_) {
       if(ptr_) intrusive_ptr_add_ref(ptr_);
    }
 
    intrusive_ptr(intrusive_ptr&& another) noexcept
-      : ptr_(another.ptr_)
-   {
+      : ptr_(another.ptr_) {
       another.ptr_ = nullptr;
    }
 
