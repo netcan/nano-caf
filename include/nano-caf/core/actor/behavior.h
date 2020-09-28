@@ -84,8 +84,7 @@ namespace detail {
       using result_type = typename T::result_type;
       template <typename F>
       static auto call(T& obj, F&& f) {
-         return detail::aggregate_fields_type<fields_types::size, typename T::tuple_parent>::call(
-            static_cast<typename T::tuple_parent&>(obj), std::forward<F>(f));
+         return std::apply(std::forward<F>(f), static_cast<typename T::tuple_parent&>(obj));
       }
    };
 
