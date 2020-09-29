@@ -10,7 +10,7 @@
 NANO_CAF_NS_BEGIN
 
 struct promise_done_notifier {
-   virtual auto on_promise_done() noexcept -> void = 0;
+   virtual auto commit() noexcept -> void = 0;
    virtual ~promise_done_notifier() noexcept = default;
 };
 

@@ -16,7 +16,7 @@ struct reply_done_notifier : promise_done_notifier {
    reply_done_notifier(CALLBACK &&callback, R &&result)
       : callback_{std::move(callback)}, result_{std::move(result)} {}
 
-   auto on_promise_done() noexcept -> void override {
+   auto commit() noexcept -> void override {
       callback_(std::move(result_));
    }
 

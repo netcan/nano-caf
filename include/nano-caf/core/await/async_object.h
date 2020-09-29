@@ -10,6 +10,7 @@
 #include <nano-caf/core/msg/predefined-msgs.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
 #include <nano-caf/core/await/promise.h>
+#include <nano-caf/core/await/future_object.h>
 #include <nano-caf/core/actor/actor_handle.h>
 #include <type_traits>
 #include <functional>
@@ -19,10 +20,10 @@ NANO_CAF_NS_BEGIN
 
 template <typename F, typename R, typename ... Args>
 struct async_object : resumable  {
-   async_object(intrusive_actor_ptr sender, F&& f, std::tuple<Args...>&& args, detail::future_object_sp<R> object)
+   async_object(intrusive_actor_ptr sender, F&& f, std::tuple<Args...>&& args, std::shared_ptr<detail::future_object<R>> object)
       : f_{std::move(f)}
       , args_{std::move(args)}
-      , promise_{object}
+      , promise_{std::move(object)}
       , sender_{sender}
       {}
 
@@ -43,9 +44,9 @@ private:
 };
 
 template<typename F, typename R, typename ... Args, typename = std::enable_if_t<std::is_invocable_r_v<R, F, Args...>>>
-auto make_async_object(detail::future_object_sp<R> object, const intrusive_actor_ptr& sender, F&& callable, std::tuple<Args...>&& args) {
+auto make_async_object(std::shared_ptr<detail::future_object<R>> object, const intrusive_actor_ptr& sender, F&& callable, std::tuple<Args...>&& args) {
    return new async_object<std::decay_t<F>, R, Args...>
-      { sender, std::forward<F>(callable), std::move(args), object };
+      { sender, std::forward<F>(callable), std::move(args), std::move(object) };
 }
 
 NANO_CAF_NS_END

@@ -11,7 +11,8 @@
 #include <nano-caf/core/actor/typed_actor_handle.h>
 #include <nano-caf/core/actor_system.h>
 #include <nano-caf/core/await/async_object.h>
-#include <nano-caf/core/await/multi_future.h>
+#include <nano-caf/core/await/future_callback_object.h>
+#include <nano-caf/core/await/when_all.h>
 #include <nano-caf/core/actor/on_actor_context.h>
 
 NANO_CAF_NS_BEGIN
@@ -38,15 +39,16 @@ protected:
    template<typename F, typename ... Args>
    inline auto async(F&& f, Args&&...args) -> async_future_t<F> {
       using R = std::invoke_result_t<F, Args...>;
-      return future<R>{*this, [=, &context = self().context(), self = self_handle(), f = std::forward<F>(f), args = std::make_tuple(std::forward<std::decay_t<Args>>(args) ...)]
-         (detail::future_object_sp<R> obj) mutable {
-         auto async_obj = make_async_object(std::move(obj), self, std::move(f), std::move(args));
-         if(async_obj == nullptr) {
-            return status_t::out_of_mem;
-         }
-         context.schedule_job(*async_obj);
-         return status_t::ok;
-      }};
+      return {};
+//      return future<R>{*this, [=, &context = self().context(), self = self_handle(), f = std::forward<F>(f), args = std::make_tuple(std::forward<std::decay_t<Args>>(args) ...)]
+//         (detail::future_object_sp<R> obj) mutable {
+//         auto async_obj = make_async_object(std::move(obj), self, std::move(f), std::move(args));
+//         if(async_obj == nullptr) {
+//            return status_t::out_of_mem;
+//         }
+//         context.schedule_job(*async_obj);
+//         return status_t::ok;
+//      }};
    }
 
    template<typename METHOD, typename A, typename ... Args>
@@ -56,7 +58,7 @@ protected:
 
    template<typename ... Xs>
    inline auto with(future<Xs>& ... args) {
-      return multi_future<Xs...>(*this, args ...);
+      return when_all<Xs...>(*this, args ...);
    }
 
    template<typename Rep, typename Period>

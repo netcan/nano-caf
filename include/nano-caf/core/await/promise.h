@@ -17,7 +17,7 @@ struct on_actor_context;
 template<typename T>
 struct promise_base : abstract_promise<T> {
 protected:
-   using obj_type = std::shared_ptr<detail::future_object<T>>;
+   using obj_type = std::weak_ptr<detail::future_object<T>>;
    auto reply(intrusive_actor_ptr& to) {
       if(to) {
          actor_handle(to).send<future_done>(object_);
@@ -26,10 +26,6 @@ protected:
 
 public:
    explicit promise_base(obj_type object) : object_{object} {}
-
-   auto get_promise_done_notifier() const noexcept -> std::shared_ptr<promise_done_notifier> {
-      return object_;
-   }
 
    auto has_value() const noexcept -> bool {
       return object_ && object_->present();
@@ -44,7 +40,9 @@ struct promise : promise_base<T> {
    using super = promise_base<T>;
    using super::super;
    auto set_value(T&& value, intrusive_actor_ptr& to) noexcept -> void override {
-      if(super::object_ && super::object_->set_value(std::move(value))) {
+      auto object = super::object_.lock();
+      if(object) {
+         object->set_value(std::move(value));
          super::reply(to);
       }
    }
@@ -55,7 +53,9 @@ struct promise<void> : promise_base<void> {
    using super = promise_base<void>;
    using super::super;
    auto set_value(intrusive_actor_ptr& to) noexcept -> void override {
-      if(super::object_ && super::object_->set_value()) {
+      auto object = super::object_.lock();
+      if(object) {
+         object->set_value();
          super::reply(to);
       }
    }

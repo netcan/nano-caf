@@ -36,7 +36,7 @@ struct future_actor : actor {
    auto on_init() noexcept -> void override {
       auto future1 = async(&future_actor::add, this, 5, 3);
 
-      future1.on_succeed([]([[maybe_unused]]auto r1) {
+      future1.then([]([[maybe_unused]]auto r1) {
             CAF_DEBUG("async future1 done = {}", r1);
          });
 
@@ -56,7 +56,7 @@ struct future_actor : actor {
          return result;
       });
 
-      future2.on_succeed([]([[maybe_unused]] auto r2) {
+      future2.then([]([[maybe_unused]] auto r2) {
          CAF_DEBUG("async future2 done = {}", r2);});
 
       auto future3 = async([this]() {
@@ -75,24 +75,16 @@ struct future_actor : actor {
          return result;
       });
 
-      future3.on_succeed([]([[maybe_unused]] auto r3) {
+      future3.then([]([[maybe_unused]] auto r3) {
          CAF_DEBUG("async future3 done = {}", r3);
       });
 
-      if(future1.ready() || future2.ready() || future3.ready()) {
-         CAF_ERROR("some future ready");
-      }
-
-      auto result4 = with(future1, future2, future3).on_succeed(
+      auto result4 = with(future1, future2, future3).then(
          [this](auto r1, auto  r2, auto r3) {
             final_result = r1 + r2 + r3;
             CAF_DEBUG("all futures done = {}", final_result);
             exit(exit_reason::normal);
-         }).time_guard(100ms);
-
-      if(future1.ready() || future2.ready() || future3.ready()) {
-         CAF_ERROR("some future ready");
-      }
+         });
    }
 
    auto handle_message(message&) noexcept -> task_result override {

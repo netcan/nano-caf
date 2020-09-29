@@ -62,11 +62,10 @@ namespace {
                      [this](auto result) {
                         std::cout << "success = " << result << std::endl;
                         exit(exit_reason::normal);
-                     },
-                     [](auto failure) {
-                        std::cout << "failed = " << failure << std::endl;
                      })
-                  .time_guard(1ms);
+                  .fail([](auto failure) {
+                        std::cout << "failed = " << failure << std::endl;
+                     });
             },
             [&](exit_msg_atom, exit_reason) {
                std::cout << "exit received" << std::endl;

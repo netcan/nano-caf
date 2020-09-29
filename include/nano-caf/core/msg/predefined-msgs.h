@@ -19,7 +19,7 @@ NANO_CAF_NS_BEGIN
 
 CAF_def_message(exit_msg, (reason, exit_reason));
 
-CAF_def_message(future_done, (notifier, std::shared_ptr<promise_done_notifier>));
+CAF_def_message(future_done, (notifier, std::weak_ptr<promise_done_notifier>));
 CAF_def_message(reply_msg, (notifier, std::unique_ptr<promise_done_notifier>));
 
 using timer_spec = either<duration, std::chrono::steady_clock::time_point>;
