@@ -65,6 +65,8 @@ struct ping_actor_1 : behavior_based_actor {
 
     auto get_behavior() -> behavior override {
         return {
+                [](test_message) {
+                },
                 [&](shared_buf_msg_atom, std::shared_ptr<big_msg>) {
                    reply<shared_buf_msg>(std::make_shared<big_msg>());
                    ping_times++;
@@ -87,6 +89,7 @@ auto run(size_t num_of_worker) {
    actor_system system{num_of_worker};
 
    auto me = system.spawn<ping_actor_1>();
+   me.send<test_message>(10);
    std::this_thread::sleep_for(std::chrono::seconds {1});
    me.send<exit_msg>(exit_reason::user_shutdown);
    me.wait_for_exit();
