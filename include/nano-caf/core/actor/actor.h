@@ -39,16 +39,13 @@ protected:
    template<typename F, typename ... Args>
    inline auto async(F&& f, Args&&...args) -> async_future_t<F> {
       using R = std::invoke_result_t<F, Args...>;
-      return {};
-//      return future<R>{*this, [=, &context = self().context(), self = self_handle(), f = std::forward<F>(f), args = std::make_tuple(std::forward<std::decay_t<Args>>(args) ...)]
-//         (detail::future_object_sp<R> obj) mutable {
-//         auto async_obj = make_async_object(std::move(obj), self, std::move(f), std::move(args));
-//         if(async_obj == nullptr) {
-//            return status_t::out_of_mem;
-//         }
-//         context.schedule_job(*async_obj);
-//         return status_t::ok;
-//      }};
+      auto async_obj = make_async_object<R>(self_handle(), std::forward<F>(f), std::forward<Args>(args) ...);
+      if(async_obj == nullptr) {
+         return {};
+      }
+      auto future = async_obj->get_future(*this);
+      self().context().schedule_job(*async_obj);
+      return future;
    }
 
    template<typename METHOD, typename A, typename ... Args>

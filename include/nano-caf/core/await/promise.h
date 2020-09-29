@@ -20,15 +20,25 @@ protected:
    using obj_type = std::weak_ptr<detail::future_object<T>>;
    auto reply(intrusive_actor_ptr& to) {
       if(to) {
-         actor_handle(to).send<future_done>(object_);
+         actor_handle(to).send<future_done>(std::move(object_));
       }
    }
 
 public:
-   explicit promise_base(obj_type object) : object_{object} {}
+   promise_base() noexcept = default;
 
    auto has_value() const noexcept -> bool {
       return object_ && object_->present();
+   }
+
+   auto get_future(on_actor_context& context) noexcept -> future<T> {
+      auto f = object_.lock();
+      if(f == nullptr) {
+         f = std::make_shared<detail::future_object<T>>(context);
+         object_ = f;
+      }
+
+      return future<T>{context, f};
    }
 
 protected:

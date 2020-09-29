@@ -46,7 +46,18 @@ struct typed_actor_handle : private actor_handle {
       typename = std::enable_if_t<requester::is_msg_valid<METHOD_ATOM, ACTOR_INTERFACE, Args...>>>
    auto request(on_actor_context& context, intrusive_actor_ptr from, Args&& ... args) {
       using result_type = typename METHOD_ATOM::msg_type::result_type;
-      return future<result_type>{};
+      promise<result_type> p;
+      auto f = p.get_future(context);
+      auto result = actor_handle::request<typename METHOD_ATOM::msg_type, CATEGORY>(
+            from,
+            std::move(p),
+            std::forward<Args>(args)...);
+      if(result != status_t::ok) {
+         return future<result_type>{};
+      }
+
+      return f;
+
 
 //      context, [=, args = std::make_tuple(std::forward<Args>(args) ...)]
 //         (detail::future_object_sp<result_type> obj) mutable {

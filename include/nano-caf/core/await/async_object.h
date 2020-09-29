@@ -20,10 +20,9 @@ NANO_CAF_NS_BEGIN
 
 template <typename F, typename R, typename ... Args>
 struct async_object : resumable  {
-   async_object(intrusive_actor_ptr sender, F&& f, std::tuple<Args...>&& args, std::shared_ptr<detail::future_object<R>> object)
+   async_object(intrusive_actor_ptr sender, F&& f, Args&& ... args)
       : f_{std::move(f)}
-      , args_{std::move(args)}
-      , promise_{std::move(object)}
+      , args_{std::move(args) ...}
       , sender_{sender}
       {}
 
@@ -43,10 +42,10 @@ private:
    intrusive_actor_ptr sender_;
 };
 
-template<typename F, typename R, typename ... Args, typename = std::enable_if_t<std::is_invocable_r_v<R, F, Args...>>>
-auto make_async_object(std::shared_ptr<detail::future_object<R>> object, const intrusive_actor_ptr& sender, F&& callable, std::tuple<Args...>&& args) {
+template<typename R, typename F, typename ... Args, typename = std::enable_if_t<std::is_invocable_r_v<R, F, Args...>>>
+auto make_async_object(const intrusive_actor_ptr& sender, F&& callable, Args&& ... args) {
    return new async_object<std::decay_t<F>, R, Args...>
-      { sender, std::forward<F>(callable), std::move(args), std::move(object) };
+      { sender, std::forward<F>(callable), std::forward<Args>(args) ... };
 }
 
 NANO_CAF_NS_END

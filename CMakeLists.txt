@@ -137,7 +137,7 @@ add_library(nano_caf
         include/nano-caf/core/await/promise_done_notifier.h
         include/nano-caf/core/await/detail/future_callback_base.h
         include/nano-caf/core/await/future_object_base.h
-        include/nano-caf/core/await/future_repository.h include/nano-caf/core/await/detail/when_all_object.h include/nano-caf/core/await/detail/future_callback_object.h include/nano-caf/core/actor/on_actor_context.h include/nano-caf/core/actor/actor_timer_context.h include/nano-caf/core/await/detail/future_observer.h src/core/await/future_observer.cpp include/nano-caf/core/await/abstract_future.h include/nano-caf/core/await/failure_handler.h include/nano-caf/core/await/detail/tuple_trait.h include/nano-caf/core/await/detail/future_proxy_object.h include/nano-caf/core/await/detail/future_trait.h include/nano-caf/core/await/when_all.h)
+        include/nano-caf/core/await/future_repository.h include/nano-caf/core/await/detail/when_all_object.h include/nano-caf/core/await/detail/future_callback_object.h include/nano-caf/core/actor/on_actor_context.h include/nano-caf/core/actor/actor_timer_context.h include/nano-caf/core/await/detail/future_observer.h include/nano-caf/core/await/abstract_future.h include/nano-caf/core/await/failure_handler.h include/nano-caf/core/await/detail/tuple_trait.h include/nano-caf/core/await/detail/future_proxy_object.h include/nano-caf/core/await/detail/future_trait.h include/nano-caf/core/await/when_all.h)
 
 if(CMAKE_CXX_STANDARD EQUAL 20)
     target_sources(nano_caf PRIVATE
