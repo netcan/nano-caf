@@ -35,7 +35,7 @@ namespace {
             },
             [&](media_session::close, long) {
             },
-            [&](media_session::empty) -> auto {
+            [&](media_session::empty) -> std::shared_ptr<int> {
                return std::make_shared<int>(1234);
             },
             [&](exit_msg_atom, exit_reason) {
@@ -61,7 +61,7 @@ namespace {
             [&](media_session::close, long value) -> future<void> {
                return request<media_session::close>(session_actor, value);
             },
-            [&](media_session::empty) {
+            [&](media_session::empty) -> future<std::shared_ptr<int>> {
                return request<media_session::empty>(session_actor);
             },
             [&](exit_msg_atom, exit_reason) {
