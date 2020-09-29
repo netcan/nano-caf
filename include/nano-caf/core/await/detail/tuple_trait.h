@@ -7,7 +7,7 @@
 
 #include <tuple>
 
-#include <nano-caf/core/await/future_object_base.h>
+#include <nano-caf/core/await/detail/future_object_base.h>
 
 NANO_CAF_NS_BEGIN namespace detail {
 

@@ -10,10 +10,10 @@
 #include <nano-caf/core/msg/message_trait.h>
 #include <nano-caf/core/msg/message.h>
 #include <nano-caf/core/actor/task_result.h>
+#include <nano-caf/core/await/future.h>
+#include <nano-caf/core/await/promise.h>
 #include <nano-caf/util/aggregate_reflex.h>
 #include <tuple>
-#include <iostream>
-#include <nano-caf/util/unit.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -46,13 +46,19 @@ namespace detail {
          auto *body = msg.body<MSG_TYPE>();
          if (body == nullptr) return false;
          if constexpr (Is_Request<MSG_TYPE>) {
-            auto promise = msg.get_promise<MSG_TYPE>();
-            assert(promise != nullptr);
-            if constexpr(std::is_same_v<void, result_type>) {
+            auto p = msg.get_promise<MSG_TYPE>();
+            assert(p != nullptr);
+            if constexpr (Is_Future<result_type>) {
+               auto result = p->get_future_object();
+               if(!result.expired()) {
+                  auto future = handler(*body, f_);
+                  future.sink(promise<typename result_type::value_type>{result}, msg.sender_);
+               }
+            } else if constexpr(std::is_same_v<void, result_type>) {
                handler(*body, f_);
-               promise->set_value(msg.sender_);
+               p->set_value(msg.sender_);
             } else {
-               promise->set_value(handler(*body, f_), msg.sender_);
+               p->set_value(handler(*body, f_), msg.sender_);
             }
          } else {
             handler(*body, f_);
@@ -105,7 +111,7 @@ namespace detail {
       using invoke_result = std::invoke_result_t<F, atom_type, Ts...>;
       using invoke_result_t = typename fields_types::template export_to<invoke_result>;
 
-      static_assert(std::is_same_v<invoke_result_t, typename msg_type_trait<message_type>::result_type>, "return type mismatch");
+      static_assert(std::is_same_v<invoke_result_t, typename msg_type_trait<message_type>::result_type> || std::is_same_v<invoke_result_t, future<typename msg_type_trait<message_type>::result_type>>, "return type mismatch");
 
       using base = behavior_base<F, message_type>;
       struct type : base {

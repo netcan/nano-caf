@@ -16,6 +16,9 @@ struct reply_done_notifier : promise_done_notifier {
    reply_done_notifier(CALLBACK &&callback, R &&result)
       : callback_{std::move(callback)}, result_{std::move(result)} {}
 
+   reply_done_notifier(CALLBACK &&callback, R const& result)
+      : callback_{std::move(callback)}, result_{result} {}
+
    auto commit() noexcept -> void override {
       callback_(std::move(result_));
    }
@@ -35,6 +38,15 @@ struct delegate_request_handler : abstract_promise<R> {
       if (static_cast<bool>(sender)) {
          actor_handle{sender}.send<reply_msg>(
             std::unique_ptr<promise_done_notifier>(new reply_done_notifier{std::move(callback_), std::move(value)}));
+      } else {
+         callback_(std::move(value));
+      }
+   }
+
+   auto set_value(R const& value, intrusive_actor_ptr &sender) noexcept -> void override {
+      if (static_cast<bool>(sender)) {
+         actor_handle{sender}.send<reply_msg>(
+            std::unique_ptr<promise_done_notifier>(new reply_done_notifier{std::move(callback_), value}));
       } else {
          callback_(std::move(value));
       }

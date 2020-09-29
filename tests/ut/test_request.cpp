@@ -36,7 +36,6 @@ namespace {
             [&](media_session::close, long) {
             },
             [&](media_session::empty) -> auto {
-               std::cout << "empty received" << std::endl;
                return std::make_shared<int>(1234);
             },
             [&](exit_msg_atom, exit_reason) {
@@ -48,7 +47,7 @@ namespace {
 
 
    using namespace std::chrono_literals;
-   struct ctrl_actor : behavior_based_actor {
+   struct intermediate_actor : behavior_based_actor {
       typed_actor_handle<media_session> session_actor;
       auto on_init() -> void override {
          session_actor = spawn_typed_actor<media_session, media_session_actor>();
@@ -56,16 +55,46 @@ namespace {
 
       auto get_behavior() -> behavior override {
          return {
-            [&, this](test_message_atom, const int &amount) {
-               request<media_session::open>(session_actor, static_cast<long>(amount))
-                  .then(
-                     [this](auto result) {
-                        std::cout << "success = " << result << std::endl;
-                        exit(exit_reason::normal);
-                     })
-                  .fail([](auto failure) {
-                        std::cout << "failed = " << failure << std::endl;
-                     });
+            [&](media_session::open, long value) -> future<long> {
+               return request<media_session::open>(session_actor, value);
+            },
+            [&](media_session::close, long value) -> future<void> {
+               return request<media_session::close>(session_actor, value);
+            },
+            [&](media_session::empty) {
+               return request<media_session::empty>(session_actor);
+            },
+            [&](exit_msg_atom, exit_reason) {
+               std::cout << "exit received" << std::endl;
+            },
+         };
+      }
+   };
+
+   using namespace std::chrono_literals;
+   struct ctrl_actor : behavior_based_actor {
+      typed_actor_handle<media_session> control_actor;
+      auto on_init() -> void override {
+         control_actor = spawn_typed_actor<media_session, intermediate_actor>();
+      }
+
+      auto get_behavior() -> behavior override {
+         return {
+            [this](test_message_atom, int value) {
+               request<media_session::open>(control_actor, static_cast<long>(value))
+                  .then([this](auto value) {
+                     CAF_INFO("open {}", value);
+                     return request<media_session::close>(control_actor, static_cast<long>(0));
+                  })
+                  .then([this]{
+                     CAF_INFO("exit");
+                     exit(exit_reason::normal);
+                  });
+            },
+            [&](media_session::close, long value) {
+               request<media_session::close>(control_actor, value).then([this] {
+                  exit(exit_reason::normal);
+               });
             },
             [&](exit_msg_atom, exit_reason) {
                std::cout << "exit received" << std::endl;
@@ -82,7 +111,6 @@ namespace {
       REQUIRE(me.send<test_message>(12) == status_t::ok);
 
       me.wait_for_exit();
-      me.release();
       system.shutdown();
    }
 

@@ -65,6 +65,11 @@ struct promised_request_handler : promised_request_handler_base<T> {
       super::promise_.set_value(std::move(value));
       super::value_set_ = true;
    }
+
+   auto set_value(T const& value, intrusive_actor_ptr&) noexcept -> void override {
+      super::promise_.set_value(value);
+      super::value_set_ = true;
+   }
 };
 
 template<>
@@ -79,6 +84,7 @@ struct promised_request_handler<void> : promised_request_handler_base<void> {
 template<typename R>
 struct dummy_request_handler : abstract_promise<R> {
    auto set_value(R&&, intrusive_actor_ptr&) noexcept -> void override {}
+   auto set_value(R const&, intrusive_actor_ptr&) noexcept -> void override {}
 };
 
 template<>

@@ -72,7 +72,9 @@ struct actor_handle {
       if(ptr_ == nullptr) {
          return status_t::null_pointer;
       }
-      return ptr_->wait_for_exit();
+      auto result = ptr_->wait_for_exit();
+      ptr_.release();
+      return result;
    }
 
    ~actor_handle() noexcept { ptr_.release(); }

@@ -9,27 +9,17 @@
 #include <nano-caf/core/await/detail/when_all_object.h>
 #include <nano-caf/core/await/detail/future_callback_object.h>
 #include <nano-caf/core/await/detail/future_proxy_object.h>
+#include <nano-caf/core/await/future_concept.h>
 #include <memory>
 
 NANO_CAF_NS_BEGIN
 
-template<typename T>
-struct future;
 
-template<typename T>
-struct promise;
-
-template<typename T>
-constexpr bool Is_Future = false;
-
-template<typename T>
-constexpr bool Is_Future<future<T>> = true;
-
-template<typename T>
-constexpr bool Is_Tuple = false;
-
-template<typename ... Ts>
-constexpr bool Is_Future<std::tuple<Ts...>> = true;
+//template<typename T>
+//constexpr bool Is_Tuple = false;
+//
+//template<typename ... Ts>
+//constexpr bool Is_Tuple<std::tuple<Ts...>> = true;
 
 template<typename F, typename T>
 struct invoke_result {
@@ -46,11 +36,15 @@ template<typename F, typename T>
 using invoke_result_t = typename invoke_result<F, T>::type;
 
 template<typename T>
+struct promise;
+
+template<typename T>
 struct future;
 
 template<typename T>
 struct future final {
    using object_type = std::shared_ptr<detail::future_object<T>>;
+   using value_type = T;
 
    future() noexcept = default;
    future(on_actor_context& context, object_type object) noexcept
@@ -101,6 +95,14 @@ struct future final {
       return R{*context_, cb};
    }
 
+   template<typename F, typename R = std::invoke_result_t<F>, typename = std::enable_if_t<std::is_void_v<T> && Is_Future<R>>>
+   auto then(F&& callback) noexcept -> std::invoke_result_t<F> {
+      if(context_ == nullptr || !object_) return {};
+
+      auto cb = std::make_shared<detail::future_proxy_object<R, F, T>>(*context_, object_, std::forward<F>(callback));
+      return R{*context_, cb};
+   }
+
    template<typename F, typename = std::enable_if_t<std::is_invocable_r_v<void, F, status_t>>>
    auto fail(F&& on_fail) noexcept -> future<T>& {
       if(!object_) {
@@ -118,7 +120,7 @@ struct future final {
       }
    }
 
-   auto sink(promise<T>& p) noexcept -> future<void>;
+   auto sink(promise<T> p, intrusive_actor_ptr& to) noexcept -> future<void>;
 
    inline auto valid() const noexcept -> bool {
       return static_cast<bool>(object_);
@@ -131,7 +133,7 @@ struct future final {
    }
 
 private:
-   template<typename R, typename F, typename A, typename>
+   template<typename R, typename F, typename A>
    friend struct detail::future_proxy_object;
 
    template<typename ... Xs>

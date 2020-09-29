@@ -21,12 +21,12 @@ struct future_proxy_object : future_callback_base<future_trait_t<R>, F, A>  {
          auto future = get_future();
          if(future.object_) {
             future_ = future.object_;
-            super::subject_.release();
+            super::subject_.reset();
             future_->add_observer(this);
          }
       } else {
          on_future_ready_();
-         future_.release();
+         future_.reset();
          super::commit();
       }
    }
