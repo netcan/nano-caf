@@ -7,7 +7,7 @@
 
 #include <nano-caf/core/await/abstract_future.h>
 #include <nano-caf/core/actor/on_actor_context.h>
-#include <nano-caf/core/await/future_observer.h>
+#include <nano-caf/core/await/detail/future_observer.h>
 #include <nano-caf/core/await/failure_handler.h>
 #include <nano-caf/util/status_t.h>
 #include <memory>

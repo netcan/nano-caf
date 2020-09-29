@@ -10,7 +10,7 @@
 #include <nano-caf/core/msg/predefined-msgs.h>
 #include <nano-caf/core/actor/intrusive_actor_ptr.h>
 #include <nano-caf/core/await/promise.h>
-#include <nano-caf/core/await/future_object.h>
+#include <nano-caf/core/await/detail/future_object.h>
 #include <nano-caf/core/actor/actor_handle.h>
 #include <type_traits>
 #include <functional>

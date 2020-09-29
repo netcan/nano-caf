@@ -5,7 +5,7 @@
 #ifndef NANO_CAF_FUTURE_CALLBACK_OBJECT_H
 #define NANO_CAF_FUTURE_CALLBACK_OBJECT_H
 
-#include <nano-caf/core/await/future_callback_base.h>
+#include <nano-caf/core/await/detail/future_callback_base.h>
 
 NANO_CAF_NS_BEGIN namespace detail {
 

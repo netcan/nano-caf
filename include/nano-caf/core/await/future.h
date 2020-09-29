@@ -5,10 +5,10 @@
 #ifndef NANO_CAF_FUTURE_H
 #define NANO_CAF_FUTURE_H
 
-#include <nano-caf/core/await/future_object.h>
-#include <nano-caf/core/await/when_all_object.h>
-#include <nano-caf/core/await/future_callback_object.h>
-#include <nano-caf/core/await/future_proxy_object.h>
+#include <nano-caf/core/await/detail/future_object.h>
+#include <nano-caf/core/await/detail/when_all_object.h>
+#include <nano-caf/core/await/detail/future_callback_object.h>
+#include <nano-caf/core/await/detail/future_proxy_object.h>
 #include <memory>
 
 NANO_CAF_NS_BEGIN

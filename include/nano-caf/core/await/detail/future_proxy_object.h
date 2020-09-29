@@ -5,8 +5,8 @@
 #ifndef NANO_CAF_FUTURE_PROXY_OBJECT_H
 #define NANO_CAF_FUTURE_PROXY_OBJECT_H
 
-#include <nano-caf/core/await/future_callback_base.h>
-#include <nano-caf/core/await/future_trait.h>
+#include <nano-caf/core/await/detail/future_callback_base.h>
+#include <nano-caf/core/await/detail/future_trait.h>
 
 NANO_CAF_NS_BEGIN namespace detail {
 

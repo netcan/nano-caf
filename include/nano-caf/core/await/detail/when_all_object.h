@@ -5,8 +5,8 @@
 #ifndef NANO_CAF_WHEN_ALL_OBJECT_H
 #define NANO_CAF_WHEN_ALL_OBJECT_H
 
-#include <nano-caf/core/await/future_object.h>
-#include <nano-caf/core/await/tuple_trait.h>
+#include <nano-caf/core/await/detail/future_object.h>
+#include <nano-caf/core/await/detail/tuple_trait.h>
 #include <memory>
 
 NANO_CAF_NS_BEGIN namespace detail {

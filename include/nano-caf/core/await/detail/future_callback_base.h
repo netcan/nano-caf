@@ -5,8 +5,8 @@
 #ifndef NANO_CAF_FUTURE_CALLBACK_BASE_H
 #define NANO_CAF_FUTURE_CALLBACK_BASE_H
 
-#include <nano-caf/core/await/future_observer.h>
-#include <nano-caf/core/await/future_object.h>
+#include <nano-caf/core/await/detail/future_observer.h>
+#include <nano-caf/core/await/detail/future_object.h>
 
 NANO_CAF_NS_BEGIN
 struct on_actor_context;
