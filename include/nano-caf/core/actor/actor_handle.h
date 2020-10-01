@@ -18,7 +18,7 @@ NANO_CAF_NS_BEGIN
 struct message;
 
 struct actor_handle {
-   actor_handle(intrusive_actor_ptr ptr = nullptr) noexcept : ptr_{ptr} {}
+   actor_handle(intrusive_actor_ptr ptr = nullptr) noexcept : ptr_{std::move(ptr)} {}
 
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    auto send(Args&& ... args) noexcept {

@@ -20,14 +20,14 @@ NANO_CAF_NS_BEGIN
 
 template <typename F, typename R, typename ... Args>
 struct async_object : resumable  {
-   async_object(intrusive_actor_ptr sender, F&& f, Args&& ... args)
+   async_object(weak_actor_ptr sender, F&& f, Args&& ... args)
       : f_{std::move(f)}
       , args_{std::move(args) ...}
-      , sender_{sender}
+      , sender_{std::move(sender)}
       {}
 
    virtual auto resume() noexcept -> bool override {
-      promise_.set_value(std::move(std::apply(f_, std::move(args_))), sender_);
+      promise_.set_value(std::move(std::apply(f_, std::move(args_))), sender_.lock());
       return true;
    }
 
@@ -39,13 +39,13 @@ private:
    F f_;
    std::tuple<Args...> args_;
    promise<R> promise_;
-   intrusive_actor_ptr sender_;
+   weak_actor_ptr sender_;
 };
 
 template<typename R, typename F, typename ... Args, typename = std::enable_if_t<std::is_invocable_r_v<R, F, Args...>>>
-auto make_async_object(const intrusive_actor_ptr& sender, F&& callable, Args&& ... args) {
+auto make_async_object(weak_actor_ptr sender, F&& callable, Args&& ... args) {
    return new async_object<std::decay_t<F>, R, Args...>
-      { sender, std::forward<F>(callable), std::forward<Args>(args) ... };
+      { std::move(sender), std::forward<F>(callable), std::forward<Args>(args) ... };
 }
 
 NANO_CAF_NS_END

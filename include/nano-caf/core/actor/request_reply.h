@@ -34,7 +34,7 @@ struct delegate_request_handler : abstract_promise<R> {
 
    static_assert(std::is_invocable_r_v < void, CALLBACK, R > , "R function signature mismatch");
 
-   auto set_value(R &&value, intrusive_actor_ptr &sender) noexcept -> void override {
+   auto set_value(R &&value, intrusive_actor_ptr && sender) noexcept -> void override {
       if (static_cast<bool>(sender)) {
          actor_handle{sender}.send<reply_msg>(
             std::unique_ptr<promise_done_notifier>(new reply_done_notifier{std::move(callback_), std::move(value)}));
@@ -43,7 +43,7 @@ struct delegate_request_handler : abstract_promise<R> {
       }
    }
 
-   auto set_value(R const& value, intrusive_actor_ptr &sender) noexcept -> void override {
+   auto set_value(R const& value, intrusive_actor_ptr &&sender) noexcept -> void override {
       if (static_cast<bool>(sender)) {
          actor_handle{sender}.send<reply_msg>(
             std::unique_ptr<promise_done_notifier>(new reply_done_notifier{std::move(callback_), value}));

@@ -16,6 +16,7 @@ struct intrusive_actor_ptr;
 struct weak_actor_ptr {
    weak_actor_ptr() = default;
    weak_actor_ptr(intrusive_actor_ptr& ptr);
+   weak_actor_ptr(intrusive_actor_ptr&& ptr);
 
    weak_actor_ptr(weak_actor_ptr const& rhs);
    weak_actor_ptr(weak_actor_ptr&& rhs);

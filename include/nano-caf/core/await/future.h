@@ -120,7 +120,7 @@ struct future final {
       }
    }
 
-   auto sink(promise<T> p, intrusive_actor_ptr& to) noexcept -> future<void>;
+   auto sink(promise<T> p, weak_actor_ptr& to) noexcept -> future<void>;
 
    inline auto valid() const noexcept -> bool {
       return static_cast<bool>(object_);

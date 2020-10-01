@@ -8,9 +8,14 @@
 
 NANO_CAF_NS_BEGIN
 
-weak_actor_ptr::weak_actor_ptr(intrusive_actor_ptr& ptr)
-   : ptr_{ptr.raw()} {
+weak_actor_ptr::weak_actor_ptr(intrusive_actor_ptr& ptr) : ptr_{ptr.raw()} {
    if(ptr_ != nullptr) {
+      intrusive_ptr_add_weak_ref(ptr_);
+   }
+}
+
+weak_actor_ptr::weak_actor_ptr(intrusive_actor_ptr&& ptr) : ptr_{ptr.raw()} {
+   if (ptr_ != nullptr) {
       intrusive_ptr_add_weak_ref(ptr_);
    }
 }

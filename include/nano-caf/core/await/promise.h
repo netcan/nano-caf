@@ -19,7 +19,7 @@ struct promise_base : abstract_promise<T> {
 
 protected:
    using obj_type = std::weak_ptr<detail::future_object<T>>;
-   auto reply(intrusive_actor_ptr& to) {
+   auto reply(intrusive_actor_ptr&& to) {
       if(to) {
          actor_handle(to).send<future_done>(std::move(object_));
       }
@@ -47,11 +47,12 @@ public:
       return future<T>{context, f};
    }
 
-   auto on_fail(status_t cause, intrusive_actor_ptr& to) noexcept -> void override {
+   auto on_fail(status_t cause, intrusive_actor_ptr&& to) noexcept -> void override {
+      if(!to) return;
       auto f = object_.lock();
       if(f) {
          f->on_fail(cause);
-         reply(to);
+         reply(std::move(to));
       }
    }
 
@@ -64,19 +65,21 @@ struct promise : promise_base<T> {
    using super = promise_base<T>;
    using super::super;
 
-   auto set_value(T&& value, intrusive_actor_ptr& to) noexcept -> void override {
+   auto set_value(T&& value, intrusive_actor_ptr&& to) noexcept -> void override {
+      if(!to) return;
       auto object = super::object_.lock();
       if(object) {
          object->set_value(std::move(value));
-         super::reply(to);
+         super::reply(std::move(to));
       }
    }
 
-   auto set_value(T const& value, intrusive_actor_ptr& to) noexcept -> void override {
+   auto set_value(T const& value, intrusive_actor_ptr&& to) noexcept -> void override {
+      if(!to) return;
       auto object = super::object_.lock();
       if(object) {
          object->set_value(value);
-         super::reply(to);
+         super::reply(std::move(to));
       }
    }
 };
@@ -85,23 +88,24 @@ template<>
 struct promise<void> : promise_base<void> {
    using super = promise_base<void>;
    using super::super;
-   auto set_value(intrusive_actor_ptr& to) noexcept -> void override {
+   auto set_value(intrusive_actor_ptr&& to) noexcept -> void override {
+      if(!to) return;
       auto object = super::object_.lock();
       if(object) {
          object->set_value();
-         super::reply(to);
+         super::reply(std::move(to));
       }
    }
 };
 
 template<typename T>
-auto future<T>::sink(promise<T> p, intrusive_actor_ptr& to) noexcept -> future<void> {
+auto future<T>::sink(promise<T> p, weak_actor_ptr& to) noexcept -> future<void> {
    if constexpr (std::is_void_v<T>) {
-      return then([=]() mutable -> void { p.set_value(to); })
-         .fail([=](status_t cause) mutable { p.on_fail(cause, to); });
+      return then([=]() mutable -> void { p.set_value(to.lock()); })
+         .fail([=](status_t cause) mutable { p.on_fail(cause, to.lock()); });
    } else {
-      return then([=](auto &&value) mutable -> void { p.set_value(std::forward<decltype(value)>(value), to); })
-         .fail([=](status_t cause) mutable { p.on_fail(cause, to); });
+      return then([=](auto &&value) mutable -> void { p.set_value(std::forward<decltype(value)>(value), to.lock()); })
+         .fail([=](status_t cause) mutable { p.on_fail(cause, to.lock()); });
    }
 }
 
