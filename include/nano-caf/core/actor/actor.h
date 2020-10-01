@@ -114,8 +114,6 @@ private:
    virtual auto on_timer_created() -> void = 0;
 
 protected:
-   virtual auto on_init() -> void {}
-   virtual auto on_exit() -> void {}
    virtual auto handle_message(message&) noexcept -> task_result {
       return task_result::done;
    }

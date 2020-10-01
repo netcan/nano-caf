@@ -49,7 +49,7 @@ namespace {
    using namespace std::chrono_literals;
    struct intermediate_actor : behavior_based_actor {
       typed_actor_handle<media_session> session_actor;
-      auto on_init() -> void override {
+      auto on_init() -> void {
          session_actor = spawn_typed_actor<media_session, media_session_actor>();
       }
 
@@ -74,7 +74,7 @@ namespace {
    using namespace std::chrono_literals;
    struct ctrl_actor : behavior_based_actor {
       typed_actor_handle<media_session> control_actor;
-      auto on_init() -> void override {
+      auto on_init() -> void {
          control_actor = spawn_typed_actor<media_session, intermediate_actor>();
       }
 

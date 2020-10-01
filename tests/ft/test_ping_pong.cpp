@@ -44,7 +44,7 @@ struct ping_actor_1 : behavior_based_actor {
     actor_handle pong[total_actors];
     size_t n = 1;
 
-    auto on_init() noexcept -> void override {
+    auto on_init() noexcept -> void {
        for(size_t i=0; i<total_actors; i++) {
           pong[i] = spawn<pong_actor_1>(i);
        }

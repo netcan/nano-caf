@@ -17,6 +17,22 @@
 
 NANO_CAF_NS_BEGIN
 
+namespace detail {
+   template<typename T, typename = void>
+   struct actor_has_init : std::false_type {};
+
+   template<typename T>
+   struct actor_has_init<T, std::enable_if_t<std::is_void_v<decltype(std::declval<T>().on_init())>>>
+      : std::true_type {};
+
+   template<typename T, typename = void>
+   struct actor_has_exit : std::false_type {};
+
+   template<typename T>
+   struct actor_has_exit<T, std::enable_if_t<std::is_void_v<decltype(std::declval<T>().on_exit())>>>
+      : std::true_type {};
+}
+
 template<typename T>
 struct actor_storage  {
    template<typename ... Ts>
@@ -53,9 +69,7 @@ private:
          : sched_actor(true)
          , T{std::forward<Args>(args)...} {}
 
-      ~internal_actor() {
-
-      }
+      ~internal_actor() {}
 
       auto exit(exit_reason reason) noexcept -> void override {
          sched_actor::exit_(reason);
@@ -65,8 +79,17 @@ private:
          return *sched_actor::to_ctl();
       }
 
-      auto init_handler() noexcept -> void override { T::on_init(); }
-      auto exit_handler() noexcept -> void override { T::on_exit(); }
+      auto init_handler() noexcept -> void override {
+         if constexpr (detail::actor_has_init<T>::value) {
+            T::on_init();
+         }
+      }
+
+      auto exit_handler() noexcept -> void override {
+         if constexpr (detail::actor_has_exit<T>::value) {
+            T::on_exit();
+         }
+      }
 
       auto handle_timeout(message& msg) {
          auto timeout = msg.body<timeout_msg>();

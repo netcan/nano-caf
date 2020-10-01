@@ -33,7 +33,7 @@ struct future_actor : actor {
       return result;
    }
 
-   auto on_init() noexcept -> void override {
+   auto on_init() noexcept -> void {
       auto future1 = async(&future_actor::add, this, 5, 3);
 
       future1.then([]([[maybe_unused]]auto r1) {

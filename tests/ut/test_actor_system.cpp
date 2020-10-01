@@ -60,7 +60,7 @@ namespace {
       actor_handle pong;
       size_t times = 0;
 
-      auto on_init() noexcept -> void override {
+      auto on_init() noexcept -> void {
          pong = spawn<pong_actor>();
          send<test_message>(pong, 1);
          times = 1;
@@ -107,7 +107,7 @@ namespace {
          return result;
       }
 
-      auto on_init() noexcept -> void override {
+      auto on_init() noexcept -> void {
          auto future1 = async(&future_actor::add, this, 5, 3);
          auto future2 = async([this]() {
             size_t result = 0;
@@ -171,7 +171,7 @@ namespace {
    struct ping_actor_1 : behavior_based_actor {
       actor_handle pong;
 
-      auto on_init() noexcept -> void override {
+      auto on_init() noexcept -> void {
          pong = spawn<pong_actor_1>();
          send<test_message>(pong, 1);
       }
