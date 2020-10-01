@@ -57,8 +57,8 @@ protected:
             (reinterpret_cast<const char*>(this) - CACHE_LINE_SIZE)));
    }
 
-   auto get_current_sender() const noexcept -> actor_handle {
-      if(current_message_ == nullptr) return intrusive_actor_ptr{};
+   auto get_current_sender() const noexcept -> weak_actor_ptr {
+      if(current_message_ == nullptr) return {};
       return current_message_->sender_;
    }
 

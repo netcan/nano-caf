@@ -36,6 +36,10 @@ struct actor_control_block {
       return context_;
    }
 
+   auto use_count() const noexcept -> std::size_t {
+      return strong_refs_.load(std::memory_order_relaxed);
+   }
+
    // XXX: only strong ref should call this
    auto get() noexcept -> sched_actor* {
       return reinterpret_cast<sched_actor*>(reinterpret_cast<char*>(this) + CACHE_LINE_SIZE);
@@ -44,7 +48,6 @@ struct actor_control_block {
    auto wait_for_exit() -> exit_reason {
       return exit_promise_.get_future().get();
    }
-
 
    auto wait_exit(const std::chrono::nanoseconds& duration) -> either<exit_reason, status_t> {
       auto result = exit_promise_.get_future().wait_for(duration);

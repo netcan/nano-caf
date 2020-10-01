@@ -31,9 +31,9 @@ private:
 protected:
    template<typename T, message::category CATEGORY = message::normal, typename ... Args>
    inline auto reply(Args&& ... args) noexcept {
-      auto sender = current_sender();
-      if(!sender.exists()) return status_t::null_sender;
-      return sender.send<T, CATEGORY>(self_handle(), std::forward<Args>(args)...);
+      auto sender = current_sender().lock();
+      if(!sender) return status_t::null_sender;
+      return actor_handle{sender}.send<T, CATEGORY>(self_handle(), std::forward<Args>(args)...);
    }
 
    template<typename F, typename ... Args>
@@ -110,7 +110,7 @@ private:
 
 private:
    virtual auto self() const noexcept -> actor_control_block& = 0;
-   virtual auto current_sender() const noexcept -> actor_handle = 0;
+   virtual auto current_sender() const noexcept -> weak_actor_ptr = 0;
    virtual auto on_timer_created() -> void = 0;
 
 protected:

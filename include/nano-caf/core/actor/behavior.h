@@ -48,17 +48,22 @@ namespace detail {
          if constexpr (Is_Request<MSG_TYPE>) {
             auto p = msg.get_promise<MSG_TYPE>();
             assert(p != nullptr);
+            auto sender = msg.sender_.lock();
+            if(!sender && !msg.sender_.empty()) {
+               CAF_ERROR("sender destroyed");
+               return true;
+            }
             if constexpr (Is_Future<result_type>) {
                auto result = p->get_future_object();
                if(!result.expired()) {
                   auto future = handler(*body, f_);
-                  future.sink(promise<typename result_type::value_type>{result}, msg.sender_);
+                  future.sink(promise<typename result_type::value_type>{result}, sender);
                }
             } else if constexpr(std::is_same_v<void, result_type>) {
                handler(*body, f_);
-               p->set_value(msg.sender_);
+               p->set_value(sender);
             } else {
-               p->set_value(handler(*body, f_), msg.sender_);
+               p->set_value(handler(*body, f_), sender);
             }
          } else {
             handler(*body, f_);

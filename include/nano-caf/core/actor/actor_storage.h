@@ -53,7 +53,8 @@ private:
    }
 
    static auto block_dtor(actor_control_block* ptr) noexcept -> void {
-      delete reinterpret_cast<actor_storage<T>*>(ptr);
+      //::delete reinterpret_cast<actor_storage<T>*>(ptr);
+      ::operator delete(ptr);
    }
 
 public:
@@ -117,7 +118,7 @@ private:
          }
       }
 
-      auto current_sender() const noexcept -> actor_handle override {
+      auto current_sender() const noexcept -> weak_actor_ptr override {
          return get_current_sender();
       }
 

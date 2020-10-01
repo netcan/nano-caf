@@ -8,6 +8,7 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/util/type_id_t.h>
 #include <nano-caf/core/await/abstract_promise.h>
+#include <nano-caf/core/actor/weak_actor_ptr.h>
 #include <nano-caf/util/status_t.h>
 #include <nano-caf/util/either.h>
 #include <nano-caf/util/result_trait.h>
@@ -84,7 +85,7 @@ public:
    message* next_ {};
 
 public:
-   intrusive_actor_ptr sender_{};
+   weak_actor_ptr sender_{};
    const type_id_t msg_type_id_;
    category category_;
 };

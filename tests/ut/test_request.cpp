@@ -129,7 +129,9 @@ namespace {
       typed_actor_handle<media_session> me = system.spawn_typed_actor<media_session, media_session_actor>();
       me.request<media_session::open>(static_cast<long>(10)).wait().match(
          [](auto result) { REQUIRE(result == 11); },
-         [](auto) { REQUIRE(false); });
+         [](status_t failure) {
+            CAF_INFO("failed: {}", failure);
+            REQUIRE(false); });
 
       me.request<media_session::open>(static_cast<long>(20)).wait(0us).match(
          [](auto) { REQUIRE(false); },

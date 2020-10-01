@@ -48,7 +48,11 @@ struct intrusive_ptr {
       }
    }
 
-   inline auto raw() const -> const T* { return ptr_; }
+   inline auto use_count() const noexcept -> std::size_t {
+      return ptr_ == nullptr ? 0 : ptr_->use_count();
+   }
+   inline auto raw() noexcept -> T* { return ptr_; }
+   inline auto raw() const noexcept -> T const* { return ptr_; }
    inline auto actor_id() const -> intptr_t { return reinterpret_cast<intptr_t>(ptr_); }
 
    explicit operator bool() const noexcept {
