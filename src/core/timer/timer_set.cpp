@@ -11,8 +11,8 @@
 NANO_CAF_NS_BEGIN
 
 namespace {
-   inline auto send_timeout_msg_to_actor(const start_timer_msg* msg) {
-      actor_handle(msg->actor).send<timeout_msg>(msg->id, msg->callback);
+   inline auto send_timeout_msg_to_actor(const start_timer_msg* msg) -> status_t {
+      return actor_handle(msg->actor.lock()).send<timeout_msg>(msg->id, msg->callback);
    }
 
    inline auto get_due(const start_timer_msg* msg) {
@@ -34,7 +34,10 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    auto due = get_due(start_msg);
    while(__unlikely(due < std::chrono::steady_clock::now())) {
       CAF_INFO("timout {}", start_msg->actor.actor_id());
-      send_timeout_msg_to_actor(start_msg);
+      if(send_timeout_msg_to_actor(start_msg) != status_t::ok) {
+         return status_t::ok;
+      }
+
       if(!start_msg->is_periodic) {
          return status_t::ok;
       } else {
@@ -165,18 +168,16 @@ auto timer_set::check_timer_due(const shutdown_notifier& shutdown) -> status_t {
 
       auto timer_msg = msg->body<start_timer_msg>();
 
-      send_timeout_msg_to_actor(timer_msg);
-
-      if(timer_msg->is_periodic) {
+      if(send_timeout_msg_to_actor(timer_msg) != status_t::ok || !timer_msg->is_periodic) {
+         remove_index(timer_msg->actor.actor_id(), timer_iter);
+         timers_.erase(timer_iter);
+      } else {
          timer_msg->issue_time_point = due;
          auto sched_msg = std::move(timer_iter->second);
 
          timers_.erase(timer_iter);
          auto iterator = timers_.emplace(get_due(timer_msg), std::move(sched_msg));
          update_index(timer_msg->actor.actor_id(), timer_iter, iterator);
-      } else {
-         remove_index(timer_msg->actor.actor_id(), timer_iter);
-         timers_.erase(timer_iter);
       }
    }
 

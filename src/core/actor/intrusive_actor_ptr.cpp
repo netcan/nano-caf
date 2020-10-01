@@ -10,7 +10,7 @@
 NANO_CAF_NS_BEGIN
 
 auto intrusive_actor_ptr::send(message* msg) noexcept -> status_t {
-   if(__unlikely(!(*this))) {
+   if(__unlikely(raw() == nullptr)) {
       return status_t::null_pointer;
    }
 

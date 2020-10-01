@@ -12,6 +12,7 @@
 #include <nano-caf/core/actor/exit_reason.h>
 #include <nano-caf/util/either.h>
 #include <nano-caf/core/await/promise_done_notifier.h>
+#include <nano-caf/core/actor/weak_actor_ptr.h>
 #include <cstdint>
 #include <chrono>
 
@@ -28,7 +29,7 @@ using timeout_callback_t = std::function<auto (timer_id_t) -> void>;
 
 CAF_def_message(start_timer_msg,
     (id, timer_id_t),
-    (actor, intrusive_actor_ptr),
+    (actor, weak_actor_ptr),
     (spec, timer_spec),
     (issue_time_point, std::chrono::steady_clock::time_point),
     (is_periodic, bool),

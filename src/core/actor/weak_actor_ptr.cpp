@@ -55,7 +55,7 @@ weak_actor_ptr::~weak_actor_ptr() {
   reset();
 }
 
-auto weak_actor_ptr::lock() noexcept -> intrusive_actor_ptr {
+auto weak_actor_ptr::lock() const noexcept -> intrusive_actor_ptr {
    if(ptr_ != nullptr) {
       return intrusive_ptr_upgrade_weak(ptr_);
    } else {

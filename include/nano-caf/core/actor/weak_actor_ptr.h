@@ -7,6 +7,7 @@
 
 #include <nano-caf/nano-caf-ns.h>
 #include <cstddef>
+#include <cstdint>
 
 NANO_CAF_NS_BEGIN
 
@@ -26,8 +27,9 @@ struct weak_actor_ptr {
 
    ~weak_actor_ptr();
 
+   auto actor_id() const noexcept -> std::intptr_t { return reinterpret_cast<std::intptr_t>(ptr_); }
    auto empty() const noexcept -> bool { return ptr_ == nullptr; }
-   auto lock() noexcept -> intrusive_actor_ptr;
+   auto lock() const noexcept -> intrusive_actor_ptr;
    auto expired() const noexcept -> bool;
    auto use_count() const noexcept -> std::size_t;
 

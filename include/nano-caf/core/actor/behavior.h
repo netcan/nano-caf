@@ -50,7 +50,6 @@ namespace detail {
             assert(p != nullptr);
             auto sender = msg.sender_.lock();
             if(!sender && !msg.sender_.empty()) {
-               CAF_ERROR("sender destroyed");
                return true;
             }
             if constexpr (Is_Future<result_type>) {
