@@ -57,15 +57,6 @@ struct typed_actor_handle : private actor_handle {
       }
 
       return f;
-
-
-//      context, [=, args = std::make_tuple(std::forward<Args>(args) ...)]
-//         (detail::future_object_sp<result_type> obj) mutable {
-//         return actor_handle::request<typename METHOD_ATOM::msg_type, CATEGORY>(
-//            from,
-//            promise<result_type>{obj},
-//            std::move(args));
-//      }
    }
 };
 

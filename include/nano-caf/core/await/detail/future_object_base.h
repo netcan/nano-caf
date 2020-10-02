@@ -28,7 +28,8 @@ struct future_object_base : abstract_future, promise_done_notifier {
    using callback_type = typename future_callback_trait<T>::type;
    using observer_type = future_observer*;
 
-   explicit future_object_base(on_actor_context& context) noexcept : context_{context} {}
+   explicit future_object_base(on_actor_context& context) noexcept
+      : registered_{0}, ready_{0}, context_{context} {}
 
    auto set_fail_handler(failure_handler&& handler) noexcept -> void {
       if(f_on_fail_) return;
@@ -121,9 +122,9 @@ private:
    failure_handler f_on_fail_;
 
 protected:
-   bool registered_{false};
    bool present_{false};
-   bool ready_{false};
+   uint8_t registered_:1;
+   uint8_t ready_:1;
 };
 
 } NANO_CAF_NS_END
