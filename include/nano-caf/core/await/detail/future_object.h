@@ -14,8 +14,8 @@ struct future_object;
 
 template<typename T>
 struct future_object<T, std::enable_if_t<std::is_move_constructible_v<T>>>
-   : future_object_base<T> {
-   using super = future_object_base<T>;
+   : future_object_base {
+   using super = future_object_base;
    using super::super;
 
    template<typename R, typename = std::enable_if_t<std::is_convertible_v<R, T>>>
@@ -34,9 +34,8 @@ private:
 };
 
 template<>
-struct future_object<void> : future_object_base<void> {
-   using super = future_object_base<void>;
-   using super::super;
+struct future_object<void> : future_object_base {
+   using future_object_base::future_object_base;
 
    auto set_value() noexcept -> void {
       present_ = true;
