@@ -22,7 +22,7 @@ struct actor_timer {
    auto start_timer( intrusive_actor_ptr self,
                      timer_spec const& spec,
                      bool periodic,
-                     std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t>;
+                     timeout_callback_t&& callback) -> result_t<timer_id_t>;
 
    auto stop_timer(const intrusive_actor_ptr& self, timer_id_t) -> status_t;
    auto clear_actor_timer(const intrusive_actor_ptr& self) -> status_t;

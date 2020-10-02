@@ -11,7 +11,7 @@
 NANO_CAF_NS_BEGIN
 
 struct actor_timer_context {
-   virtual auto start_timer(timer_spec const& spec, bool periodic, std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t> = 0;
+   virtual auto start_timer(timer_spec const& spec, bool periodic, timeout_callback_t&& callback) -> result_t<timer_id_t> = 0;
    virtual auto stop_timer(timer_id_t timer_id) -> void = 0;
    virtual ~actor_timer_context() = default;
 };

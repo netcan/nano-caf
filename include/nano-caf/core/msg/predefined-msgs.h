@@ -31,7 +31,7 @@ CAF_def_message(start_timer_msg,
     (spec, timer_spec),
     (issue_time_point, std::chrono::steady_clock::time_point),
     (is_periodic, bool),
-    (callback, std::shared_ptr<timeout_callback_t>));
+    (callback, timeout_callback_t));
 
 CAF_def_message(stop_timer_msg,
     (actor, intptr_t),
@@ -42,7 +42,7 @@ CAF_def_message(clear_actor_timer_msg,
 
 CAF_def_message(timeout_msg,
     (id, timer_id_t),
-    (callback, std::shared_ptr<timeout_callback_t>));
+    (callback, timeout_callback_t));
 
 NANO_CAF_NS_END
 

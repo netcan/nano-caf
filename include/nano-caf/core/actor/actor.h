@@ -92,15 +92,13 @@ protected:
 
    template<typename F>
    inline auto repeat(timer_spec const& spec, F&& f) -> result_t<timer_id_t> {
-      auto callback = std::make_shared<timeout_callback_t>(std::forward<F>(f));
-      if(callback == nullptr) return status_t::out_of_mem;
-      return start_timer(spec, true, callback);
+      return start_timer(spec, true, std::move(f));
    }
 
    virtual auto exit(exit_reason) noexcept -> void = 0;
 
 private:
-   auto start_timer(timer_spec const& spec, bool periodic, std::shared_ptr<timeout_callback_t> callback) -> result_t<timer_id_t> override {
+   auto start_timer(timer_spec const& spec, bool periodic, timeout_callback_t&& callback) -> result_t<timer_id_t> override {
       auto result = get_system_actor_context().start_timer(self_handle(), spec, periodic, std::move(callback));
       if(result.is_ok()) {
          on_timer_created();

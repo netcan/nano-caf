@@ -11,8 +11,12 @@
 NANO_CAF_NS_BEGIN
 
 namespace {
-   inline auto send_timeout_msg_to_actor(const start_timer_msg* msg) -> status_t {
-      return actor_handle(msg->actor.lock()).send<timeout_msg>(msg->id, msg->callback);
+   inline auto send_timeout_msg_to_actor(start_timer_msg* msg) -> status_t {
+      if(msg->is_periodic) {
+         return actor_handle(msg->actor.lock()).send<timeout_msg>(msg->id, msg->callback);
+      } else {
+         return actor_handle(msg->actor.lock()).send<timeout_msg>(msg->id, std::move(msg->callback));
+      }
    }
 
    inline auto get_due(const start_timer_msg* msg) {
