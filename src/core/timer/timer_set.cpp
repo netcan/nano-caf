@@ -6,13 +6,12 @@
 #include <nano-caf/util/likely.h>
 #include <nano-caf/core/actor/actor_handle.h>
 #include <nano-caf/core/actor/shutdown_notifier.h>
-#include <nano-caf/util/caf_log.h>
 
 NANO_CAF_NS_BEGIN
 
 namespace {
    inline auto send_timeout_msg_to_actor(start_timer_msg* msg) -> status_t {
-      if(msg->is_periodic) {
+      if(__unlikely(msg->is_periodic)) {
          return actor_handle(msg->actor.lock()).send<timeout_msg>(msg->id, msg->callback);
       } else {
          return actor_handle(msg->actor.lock()).send<timeout_msg>(msg->id, std::move(msg->callback));
@@ -37,7 +36,6 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
 
    auto due = get_due(start_msg);
    while(__unlikely(due < std::chrono::steady_clock::now())) {
-      CAF_INFO("timout {}", start_msg->actor.actor_id());
       if(send_timeout_msg_to_actor(start_msg) != status_t::ok) {
          return status_t::ok;
       }
@@ -54,7 +52,6 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
    auto actor_id = start_msg->actor.actor_id();
    actor_indexer_.emplace(actor_id, iterator);
 
-
    return status_t::ok;
 }
 
@@ -62,9 +59,6 @@ auto timer_set::add_timer(std::unique_ptr<message> msg) -> status_t {
 template<typename PRED, typename OP>
 auto timer_set::timer_find_and_modify(int code, intptr_t actor_id, PRED&& pred, OP&& op) -> void {
    auto range = actor_indexer_.equal_range(actor_id);
-   if(range.first == range.second) {
-      CAF_ERROR("no actor {}, {}, {}", code, actor_id, actor_indexer_.size());
-   }
    auto result = std::find_if(range.first, range.second, std::forward<PRED>(pred));
    if(result != range.second) {
       op(result);
