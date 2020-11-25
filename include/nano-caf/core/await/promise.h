@@ -138,17 +138,6 @@ struct promise<void> : promise_base<void> {
    }
 };
 
-template<typename T>
-auto future<T>::sink(promise<T> p, weak_actor_ptr& to) noexcept -> future<void> {
-   if constexpr (std::is_void_v<T>) {
-      return then([=]() mutable -> void { p.set_value(to.lock()); })
-         .fail([=](status_t cause) mutable { p.on_fail(cause, to.lock()); });
-   } else {
-      return then([=](auto &&value) mutable -> void { p.set_value(std::forward<decltype(value)>(value), to.lock()); })
-         .fail([=](status_t cause) mutable { p.on_fail(cause, to.lock()); });
-   }
-}
-
 
 NANO_CAF_NS_END
 
