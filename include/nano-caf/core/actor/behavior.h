@@ -14,6 +14,7 @@
 #include <nano-caf/core/await/promise.h>
 #include <nano-caf/util/aggregate_reflex.h>
 #include <tuple>
+#include <spdlog/spdlog.h>
 
 NANO_CAF_NS_BEGIN
 
@@ -46,25 +47,23 @@ namespace detail {
          auto *body = msg.body<MSG_TYPE>();
          if (body == nullptr) return false;
          if constexpr (Is_Request<MSG_TYPE>) {
+            SPDLOG_INFO("request");
             auto p = msg.get_promise<MSG_TYPE>();
             assert(p != nullptr);
             auto sender = msg.sender_.lock();
-            if(!sender && !msg.sender_.empty()) {
-               return true;
-            }
             if constexpr (Is_Future<result_type>) {
-               auto result = p->get_future_object();
-               if(!result.expired()) {
-                  auto future = handler(*body, f_);
-                  future.sink(promise<typename result_type::value_type>{result}, msg.sender_);
-               }
+               SPDLOG_INFO("is future");
+               p->set_future(handler(*body, f_), std::move(msg.sender_));
             } else if constexpr(std::is_same_v<void, result_type>) {
+               SPDLOG_INFO("is void");
                handler(*body, f_);
                p->set_value(std::move(sender));
             } else {
+               SPDLOG_INFO("is nothing");
                p->set_value(handler(*body, f_), std::move(sender));
             }
          } else {
+            SPDLOG_INFO("non request");
             handler(*body, f_);
          }
          return true;

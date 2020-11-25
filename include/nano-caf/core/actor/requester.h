@@ -15,6 +15,7 @@
 #include <nano-caf/util/caf_log.h>
 #include <nano-caf/core/actor/request_reply.h>
 #include <nano-caf/core/actor/actor_handle.h>
+#include <nano-caf/core/await/future.h>
 #include <optional>
 #include <utility>
 #include <future>
@@ -54,6 +55,10 @@ struct promised_request_handler_base : abstract_promise<T> {
       if(!value_set_) promise_.set_value(status_t::msg_dropped);
    }
 
+   auto on_fail(status_t cause, intrusive_actor_ptr&&) noexcept -> void override {
+      promise_.set_value(cause);
+   }
+
    std::promise<result_t<T>> promise_{};
    bool value_set_{false};
 };
@@ -70,6 +75,17 @@ struct promised_request_handler : promised_request_handler_base<T> {
       super::promise_.set_value(value);
       super::value_set_ = true;
    }
+
+   auto set_future(future<T>&& future, weak_actor_ptr&& to) noexcept -> void {
+      auto promise = std::make_shared<std::promise<result_t<T>>>(std::move(super::promise_));
+      future.then([=](auto &&value) mutable -> void {
+         promise->set_value(value);
+      })
+      .fail([=](status_t cause) mutable {
+         promise->set_value(cause);
+      });
+      super::value_set_ = true;
+   }
 };
 
 template<>
@@ -77,6 +93,17 @@ struct promised_request_handler<void> : promised_request_handler_base<void> {
    using super = promised_request_handler_base<void>;
    auto set_value(intrusive_actor_ptr&&) noexcept -> void override {
       super::promise_.set_value(result_t<void>{});
+      super::value_set_ = true;
+   }
+
+   auto set_future(future<void>&& future, weak_actor_ptr&& to) noexcept -> void override {
+      auto promise = std::make_shared<std::promise<result_t<void>>>(std::move(super::promise_));
+      future.then([=]() mutable -> void {
+         promise->set_value(result_t<void>{});
+      })
+      .fail([=](status_t cause) mutable {
+         promise->set_value(cause);
+      });
       super::value_set_ = true;
    }
 };

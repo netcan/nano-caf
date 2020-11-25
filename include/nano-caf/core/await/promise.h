@@ -25,10 +25,6 @@ protected:
       }
    }
 
-   auto get_future_object() noexcept -> obj_type override {
-      return object_;
-   }
-
 public:
    promise_base() noexcept = default;
    explicit promise_base(obj_type object) noexcept : object_{std::move(object)} {}
@@ -60,6 +56,16 @@ protected:
    obj_type object_;
 };
 
+namespace detail {
+   template <typename T>
+   auto reply_to(weak_actor_ptr&& to, std::weak_ptr<detail::future_object<T>>&& object) {
+      auto to_actor = to.lock();
+      if(to_actor) {
+         actor_handle(to_actor).send<future_done>(std::move(object));
+      }
+   }
+}
+
 template<typename T>
 struct promise : promise_base<T> {
    using super = promise_base<T>;
@@ -82,6 +88,23 @@ struct promise : promise_base<T> {
          super::reply(std::move(to));
       }
    }
+
+   virtual auto set_future(future<T>&& future, weak_actor_ptr&& to) noexcept -> void override {
+      future.then([obj = super::object_, to = std::move(to)](auto &&value) mutable -> void {
+         auto object = obj.lock();
+         if(object) {
+            object->set_value(value);
+            detail::reply_to(std::move(to), std::move(obj));
+         }
+      })
+      .fail([obj = super::object_, to = std::move(to)](status_t cause) mutable {
+         auto object = obj.lock();
+         if(object) {
+            object->on_fail(cause);
+            detail::reply_to(std::move(to), std::move(obj));
+         }
+      });
+   }
 };
 
 template<>
@@ -95,6 +118,23 @@ struct promise<void> : promise_base<void> {
          object->set_value();
          super::reply(std::move(to));
       }
+   }
+
+   virtual auto set_future(future<void>&& future, weak_actor_ptr&& to) noexcept -> void override {
+      future.then([obj = super::object_, to = std::move(to)]() mutable -> void {
+            auto object = obj.lock();
+            if(object) {
+               object->set_value();
+               detail::reply_to(std::move(to), std::move(obj));
+            }
+         })
+         .fail([obj = super::object_, to = std::move(to)](status_t cause) mutable {
+            auto object = obj.lock();
+            if(object) {
+               object->on_fail(cause);
+               detail::reply_to(std::move(to), std::move(obj));
+            }
+         });
    }
 };
 

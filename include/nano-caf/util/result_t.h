@@ -24,8 +24,8 @@ public:
       : parent{value}
    {}
 
-   constexpr result_t(status_t&& value) noexcept
-      : parent{std::move(value)}
+   constexpr result_t(status_t const& value) noexcept
+      : parent{value}
    {}
 
    constexpr result_t(const result_t& other)
@@ -102,11 +102,11 @@ public:
 template<>
 struct result_t<void> {
    constexpr result_t() noexcept = default;
-   constexpr result_t(status_t&& value) noexcept
-      : failure_{std::move(value)}
+   constexpr result_t(status_t const& value) noexcept
+      : failure_{value}
    {}
 
-   constexpr result_t(const result_t& other) noexcept = default;
+   constexpr result_t(result_t const& other) noexcept = default;
    constexpr result_t(result_t&& other) noexcept
       : failure_{std::move(other.failure_)}
    {}

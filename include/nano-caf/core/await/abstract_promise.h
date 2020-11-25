@@ -11,9 +11,12 @@
 NANO_CAF_NS_BEGIN
 
 template<typename T>
+struct future;
+
+template<typename T>
 struct abstract_promise_base {
-   virtual auto get_future_object() noexcept -> std::weak_ptr<detail::future_object<T>> { return {}; }
    virtual auto on_fail(status_t, intrusive_actor_ptr&& to) noexcept -> void {}
+   virtual auto set_future(future<T>&&, weak_actor_ptr&&) noexcept -> void {};
    virtual ~abstract_promise_base() = default;
 };
 

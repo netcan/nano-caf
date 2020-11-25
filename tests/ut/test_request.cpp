@@ -114,6 +114,50 @@ namespace {
       system.shutdown();
    }
 
+   TEST_CASE("inter actor interface") {
+      actor_system system{1};
+      REQUIRE(system.get_num_of_actors() == 0);
+
+      SPDLOG_INFO("inter actor interface");
+      using namespace std::chrono_literals;
+
+      typed_actor_handle<media_session> me = system.spawn_typed_actor<media_session, intermediate_actor>();
+      me.request<media_session::open>(static_cast<long>(10)).wait().match(
+         [](auto result) { REQUIRE(result == 11); },
+         [](status_t failure) {
+            CAF_INFO("failed: {}", failure);
+            REQUIRE(false); });
+
+      me.request<media_session::open>(static_cast<long>(20)).wait(0us).match(
+         [](auto) { REQUIRE(false); },
+         [](auto status) { REQUIRE(status == status_t::timeout); });
+
+      me.request<media_session::open>(static_cast<long>(30)).then(
+         [](auto result) { REQUIRE(result == 31); },
+         [](auto) {});
+
+      me.request<media_session::close>(static_cast<long>(10)).wait().match(
+         []() {},
+         [](auto) { REQUIRE(false); });
+
+      me.request<media_session::empty>().wait().match(
+         [](auto result) { REQUIRE(*result == 1234);  },
+         [](auto) { REQUIRE(false); });
+
+      me.request<media_session::empty>().wait().match(
+         [](auto result) { return result; },
+         [](auto) { return nullptr; });
+
+      REQUIRE(status_t::ok == me.send<media_session::open>(static_cast<long>(10)));
+      REQUIRE(status_t::ok == me.send<media_session::close>(static_cast<long>(20)));
+      REQUIRE(status_t::ok == me.exit());
+
+      me.wait_for_exit();
+      me.release();
+      system.shutdown();
+      SPDLOG_INFO("inter actor interface done");
+   }
+
    TEST_CASE("actor interface") {
       REQUIRE(3 == media_session::total_methods);
       REQUIRE(std::is_same_v<type_list<media_session::open, long>,
