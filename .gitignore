@@ -9,6 +9,8 @@
 .idea/*
 cmake-build-debug/*
 cmake-build-release/*
+build/
+compile_commands.json
 venv/*
 
 # Precompiled Headers
@@ -34,3 +36,4 @@ venv/*
 *.exe
 *.out
 *.app
+

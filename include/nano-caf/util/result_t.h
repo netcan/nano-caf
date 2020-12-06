@@ -8,6 +8,7 @@
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/util/either.h>
 #include <nano-caf/util/status_t.h>
+#include <optional>
 #include <utility>
 
 NANO_CAF_NS_BEGIN
