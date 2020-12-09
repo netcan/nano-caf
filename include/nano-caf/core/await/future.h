@@ -14,13 +14,6 @@
 
 NANO_CAF_NS_BEGIN
 
-
-//template<typename T>
-//constexpr bool Is_Tuple = false;
-//
-//template<typename ... Ts>
-//constexpr bool Is_Tuple<std::tuple<Ts...>> = true;
-
 template<typename F, typename T>
 struct invoke_tuple_result {
    constexpr static bool invokable = false;
@@ -38,23 +31,10 @@ using invoke_tuple_result_t = typename invoke_tuple_result<F, T>::type;
 template<typename T>
 struct promise;
 
-template<typename T>
-struct future;
-
-template<typename>
-struct future_trait;
-
-template<typename T>
-struct future_trait<future<T>> {
-    using value_type = T;
-};
-
-template<typename FUTURE, typename = void>
+template<template<typename> class FUTURE, typename T>
 struct future_then {
-   using T = typename future_trait<FUTURE>::value_type;
-
    template<typename F, typename R = std::invoke_result_t<F, T>, typename = std::enable_if_t<!Is_Future<R>>>
-   auto then(F&& callback) noexcept -> future<R> {
+   auto then(F&& callback) noexcept -> FUTURE<R> {
       if(get_future().context_ == nullptr || !get_future().object_) return {};
 
       auto cb = std::make_shared<detail::future_callback_object<R, F, T>>(*get_future().context_, get_future().object_, std::forward<F>(callback));
@@ -70,7 +50,7 @@ struct future_then {
    }
 
    template<typename F, typename R = invoke_tuple_result_t<F, T>, typename = std::enable_if_t<!Is_Future<R>>>
-   auto then(F&& f) noexcept -> future<invoke_tuple_result_t<F, T>> {
+   auto then(F&& f) noexcept -> FUTURE<invoke_tuple_result_t<F, T>> {
       if(get_future().context_ == nullptr || !get_future().object_) return {};
 
       auto nf = [=](auto && value) mutable -> R { return std::apply(f, value); };
@@ -80,15 +60,15 @@ struct future_then {
    }
 
 private:
-   FUTURE& get_future() {
-       return static_cast<FUTURE&>(*this);
+   FUTURE<T>& get_future() {
+       return static_cast<FUTURE<T>&>(*this);
    }
 };
 
-template<typename T>
-struct future_then<future<T>, std::enable_if_t<std::is_same_v<T, void>>> {
+template<template<typename> class FUTURE>
+struct future_then<FUTURE, void> {
    template<typename F, typename R = std::invoke_result_t<F>, typename = std::enable_if_t<!Is_Future<R>>>
-   auto then(F&& callback) noexcept -> future<std::invoke_result_t<F>> {
+   auto then(F&& callback) noexcept -> FUTURE<std::invoke_result_t<F>> {
       if(get_future().context_ == nullptr || !get_future().object_) return {};
 
       auto cb = std::make_shared<detail::future_callback_object<R, F, void>>(*get_future().context_, get_future().object_, std::forward<F>(callback));
@@ -104,14 +84,13 @@ struct future_then<future<T>, std::enable_if_t<std::is_same_v<T, void>>> {
    }
 
 private:
-   using FUTURE = future<T>;
-   FUTURE& get_future() {
-       return static_cast<FUTURE&>(*this);
+   FUTURE<void>& get_future() {
+       return static_cast<FUTURE<void>&>(*this);
    }
 };
 
 template<typename T>
-struct future final: future_then<future<T>> {
+struct future final: future_then<future, T> {
    using object_type = std::shared_ptr<detail::future_object<T>>;
    using value_type = T;
 
@@ -167,7 +146,7 @@ private:
    template<typename>
    friend struct future;
 
-   template<typename, typename>
+   template<template<typename> class, typename>
    friend struct future_then;
 
 private:
