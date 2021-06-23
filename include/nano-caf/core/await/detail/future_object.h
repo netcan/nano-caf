@@ -29,6 +29,14 @@ struct future_object<T, std::enable_if_t<std::is_move_constructible_v<T>>>
       return *reinterpret_cast<const T *>(&storage_);
    }
 
+   ~future_object() override {
+       if constexpr (std::is_trivially_destructible_v<T>) {
+           if (super::present_) {
+               get_value().~T();
+           }
+       }
+   }
+
 private:
    std::aligned_storage_t<sizeof(T), alignof(T)> storage_;
 };

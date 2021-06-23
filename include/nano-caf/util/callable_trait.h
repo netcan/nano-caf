@@ -5,6 +5,7 @@
 #ifndef NANO_CAF_CALLABLE_TRAIT_H
 #define NANO_CAF_CALLABLE_TRAIT_H
 
+#include <tuple>
 #include <nano-caf/nano-caf-ns.h>
 #include <nano-caf/util/type_list.h>
 #include <type_traits>
